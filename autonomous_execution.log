@@ -54,3 +54,423 @@
 ============================================================
 [2026-10-24 16:31:09] [*] PIPELINE EXECUTION & EXPLOITATION COMPLETED
 [2026-10-24 16:31:09] ============================================================
+[2026-10-24 16:36:47] ============================================================
+[2026-10-24 16:36:47] [*] STARTING MULTI-VECTOR AUTONOMOUS EXPLOIT ORCHESTRATOR
+[2026-10-24 16:36:47] ============================================================
+[2026-10-24 16:36:47] [+] Loaded 1 target vector(s) for autonomous execution.
+[2026-10-24 16:36:47] 
+[Target 1/1] Processing: http://127.0.0.1:8080/listproducts.php?cat=1
+[2026-10-24 16:36:47]     -> Vector Type: SQLi | Parameter: cat
+[2026-10-24 16:36:47]     [+] Triggering SQL Injection Dumper...
+[2026-10-24 16:36:48] 
+============================================================
+[2026-10-24 16:36:48] [*] MULTI-VECTOR PIPELINE EXECUTION COMPLETED
+[2026-10-24 16:36:48] ============================================================
+[2026-10-24 16:40:45] ============================================================
+[2026-10-24 16:40:45] [*] STARTING MULTI-VECTOR AUTONOMOUS EXPLOIT ORCHESTRATOR
+[2026-10-24 16:40:45] ============================================================
+[2026-10-24 16:40:45] [+] Loaded 3 target vector(s) for autonomous execution.
+[2026-10-24 16:40:45] 
+[Target 1/3] Processing: http://127.0.0.1:8080/listproducts.php?cat=1
+[2026-10-24 16:40:45]     -> Vector Type: SQLi | Parameter: cat
+[2026-10-24 16:40:45]     [+] Triggering SQL Injection Dumper...
+[2026-10-24 16:40:46] 
+[Target 2/3] Processing: http://127.0.0.1:8080/page.php?file=home
+[2026-10-24 16:40:46]     -> Vector Type: LFI | Parameter: file
+[2026-10-24 16:40:46]     [+] Triggering LFI Scanner module...
+[2026-10-24 16:40:47] 
+[Target 3/3] Processing: http://127.0.0.1:8080/fetch.php?url=http://localhost
+[2026-10-24 16:40:47]     -> Vector Type: SSRF | Parameter: url
+[2026-10-24 16:40:47]     [+] Triggering SSRF Scanner module...
+[2026-10-24 16:40:47] 
+============================================================
+[2026-10-24 16:40:47] [*] MULTI-VECTOR PIPELINE EXECUTION COMPLETED
+[2026-10-24 16:40:47] ============================================================
+[2026-10-24 16:45:10] 
+=================================================================
+[2026-10-24 16:45:10] [*] STARTING MULTI-VECTOR AUTONOMOUS EXPLOIT ORCHESTRATOR
+[2026-10-24 16:45:10] =================================================================
+[2026-10-24 16:45:10] [+] Loaded 4 target vector(s) for execution.
+[2026-10-24 16:45:10] 
+[Target 1/4] Processing: http://127.0.0.1:8080/listproducts.php?cat=1
+[2026-10-24 16:45:10]     -> Vector Type: SQLi | Parameter: cat
+[2026-10-24 16:45:10]     [-] Unrecognized vector type 'SQLi'. Skipping.
+[2026-10-24 16:45:10] 
+[Target 2/4] Processing: http://127.0.0.1:8080/page.php?file=home
+[2026-10-24 16:45:10]     -> Vector Type: LFI | Parameter: file
+[2026-10-24 16:45:10]     [+] Triggering LFI Scanner module...
+[2026-10-24 16:45:11] 
+[Target 3/4] Processing: http://127.0.0.1:8080/fetch.php?url=http://localhost
+[2026-10-24 16:45:11]     -> Vector Type: SSRF | Parameter: url
+[2026-10-24 16:45:11]     [+] Triggering SSRF Scanner module...
+[2026-10-24 16:45:12] 
+[Target 4/4] Processing: 
+[2026-10-24 16:45:12]     -> Vector Type: SQLI | Parameter: id
+[2026-10-24 16:45:12]     [+] Triggering SQL Injection Dumper...
+[2026-10-24 16:45:12] 
+=================================================================
+[2026-10-24 16:45:12] [*] PIPELINE EXECUTION COMPLETED
+[2026-10-24 16:45:12] =================================================================
+[2026-10-24 16:47:38] 
+=================================================================
+[2026-10-24 16:47:38] [*] STARTING MULTI-VECTOR AUTONOMOUS EXPLOIT ORCHESTRATOR
+[2026-10-24 16:47:38] =================================================================
+[2026-10-24 16:47:38] [+] Loaded 3 target vector(s) for execution.
+[2026-10-24 16:47:38] 
+[Target 1/3] Processing: http://127.0.0.1:8080/listproducts.php?cat=1
+[2026-10-24 16:47:38]     -> Vector Type: SQLi | Parameter: cat
+[2026-10-24 16:47:38]     [-] Unrecognized vector type 'SQLi'. Skipping.
+[2026-10-24 16:47:38] 
+[Target 2/3] Processing: http://127.0.0.1:8080/page.php?file=home
+[2026-10-24 16:47:38]     -> Vector Type: LFI | Parameter: file
+[2026-10-24 16:47:38]     [+] Triggering LFI Scanner module...
+[2026-10-24 16:47:39] 
+[Target 3/3] Processing: http://127.0.0.1:8080/fetch.php?url=http://localhost
+[2026-10-24 16:47:39]     -> Vector Type: SSRF | Parameter: url
+[2026-10-24 16:47:39]     [+] Triggering SSRF Scanner module...
+[2026-10-24 16:47:39] 
+=================================================================
+[2026-10-24 16:47:39] [*] PIPELINE EXECUTION COMPLETED
+[2026-10-24 16:47:39] =================================================================
+[2026-10-24 16:51:44] 
+=================================================================
+[2026-10-24 16:51:44] [*] STARTING MULTI-VECTOR AUTONOMOUS EXPLOIT ORCHESTRATOR
+[2026-10-24 16:51:44] =================================================================
+[2026-10-24 16:51:44] [+] Loaded 4 target vector(s) for execution.
+[2026-10-24 16:51:44] 
+[Target 1/4] Processing: http://127.0.0.1:8080/listproducts.php?cat=1
+[2026-10-24 16:51:44]     -> Vector Type: SQLi | Parameter: cat
+[2026-10-24 16:51:44]     [-] Unrecognized vector type 'SQLi'. Skipping.
+[2026-10-24 16:51:44] 
+[Target 2/4] Processing: http://127.0.0.1:8080/page.php?file=home
+[2026-10-24 16:51:44]     -> Vector Type: LFI | Parameter: file
+[2026-10-24 16:51:44]     [+] Triggering LFI Scanner module...
+[2026-10-24 16:51:45] 
+[Target 3/4] Processing: http://127.0.0.1:8080/fetch.php?url=http://localhost
+[2026-10-24 16:51:45]     -> Vector Type: SSRF | Parameter: url
+[2026-10-24 16:51:45]     [+] Triggering SSRF Scanner module...
+[2026-10-24 16:51:46] 
+[Target 4/4] Processing: [http://testphp.vulnweb.com](http://testphp.vulnweb.com)
+[2026-10-24 16:51:46]     -> Vector Type: SQLI | Parameter: id
+[2026-10-24 16:51:46]     [+] Triggering SQL Injection Dumper...
+[2026-10-24 16:51:47] 
+=================================================================
+[2026-10-24 16:51:47] [*] PIPELINE EXECUTION COMPLETED
+[2026-10-24 16:51:47] =================================================================
+[2026-10-24 16:53:31] 
+=================================================================
+[2026-10-24 16:53:31] [*] STARTING MULTI-VECTOR AUTONOMOUS EXPLOIT ORCHESTRATOR
+[2026-10-24 16:53:31] =================================================================
+[2026-10-24 16:53:31] [+] Loaded 5 target vector(s) for execution.
+[2026-10-24 16:53:31] 
+[Target 1/5] Processing: http://127.0.0.1:8080/listproducts.php?cat=1
+[2026-10-24 16:53:31]     -> Vector Type: SQLi | Parameter: cat
+[2026-10-24 16:53:31]     [-] Unrecognized vector type 'SQLi'. Skipping.
+[2026-10-24 16:53:31] 
+[Target 2/5] Processing: http://127.0.0.1:8080/page.php?file=home
+[2026-10-24 16:53:31]     -> Vector Type: LFI | Parameter: file
+[2026-10-24 16:53:31]     [+] Triggering LFI Scanner module...
+[2026-10-24 16:53:32] 
+[Target 3/5] Processing: http://127.0.0.1:8080/fetch.php?url=http://localhost
+[2026-10-24 16:53:32]     -> Vector Type: SSRF | Parameter: url
+[2026-10-24 16:53:32]     [+] Triggering SSRF Scanner module...
+[2026-10-24 16:53:32] 
+[Target 4/5] Processing: [http://testphp.vulnweb.com](http://testphp.vulnweb.com)
+[2026-10-24 16:53:32]     -> Vector Type: SQLI | Parameter: id
+[2026-10-24 16:53:32]     [+] Triggering SQL Injection Dumper...
+[2026-10-24 16:53:33] 
+[Target 5/5] Processing: [http://testphp.vulnweb.com](http://testphp.vulnweb.com)
+[2026-10-24 16:53:33]     -> Vector Type: SQLI | Parameter: id
+[2026-10-24 16:53:33]     [+] Triggering SQL Injection Dumper...
+[2026-10-24 16:53:34] 
+=================================================================
+[2026-10-24 16:53:34] [*] PIPELINE EXECUTION COMPLETED
+[2026-10-24 16:53:34] =================================================================
+[2026-10-24 16:57:13] 
+=================================================================
+[2026-10-24 16:57:13] [*] STARTING MULTI-VECTOR AUTONOMOUS EXPLOIT ORCHESTRATOR
+[2026-10-24 16:57:13] =================================================================
+[2026-10-24 16:57:13] [+] Loaded 6 target vector(s) for execution.
+[2026-10-24 16:57:13] 
+[Target 1/6] Processing: http://127.0.0.1:8080/listproducts.php?cat=1
+[2026-10-24 16:57:13]     -> Vector Type: SQLi | Parameter: cat
+[2026-10-24 16:57:13]     [-] Unrecognized vector type 'SQLi'. Skipping.
+[2026-10-24 16:57:13] 
+[Target 2/6] Processing: http://127.0.0.1:8080/page.php?file=home
+[2026-10-24 16:57:13]     -> Vector Type: LFI | Parameter: file
+[2026-10-24 16:57:13]     [+] Triggering LFI Scanner module...
+[2026-10-24 16:57:14] 
+[Target 3/6] Processing: http://127.0.0.1:8080/fetch.php?url=http://localhost
+[2026-10-24 16:57:14]     -> Vector Type: SSRF | Parameter: url
+[2026-10-24 16:57:14]     [+] Triggering SSRF Scanner module...
+[2026-10-24 16:57:15] 
+[Target 4/6] Processing: [http://testphp.vulnweb.com](http://testphp.vulnweb.com)
+[2026-10-24 16:57:15]     -> Vector Type: SQLI | Parameter: id
+[2026-10-24 16:57:15]     [+] Triggering SQL Injection Dumper...
+[2026-10-24 16:57:16] 
+[Target 5/6] Processing: [http://testphp.vulnweb.com](http://testphp.vulnweb.com)
+[2026-10-24 16:57:16]     -> Vector Type: SQLI | Parameter: id
+[2026-10-24 16:57:16]     [+] Triggering SQL Injection Dumper...
+[2026-10-24 16:57:16] 
+[Target 6/6] Processing: [http://testphp.vulnweb.com/listproducts.php?cat=1](http://testphp.vulnweb.com/listproducts.php?cat=1)
+[2026-10-24 16:57:16]     -> Vector Type: SQLI | Parameter: id
+[2026-10-24 16:57:16]     [+] Triggering SQL Injection Dumper...
+[2026-10-24 16:57:17] 
+=================================================================
+[2026-10-24 16:57:17] [*] PIPELINE EXECUTION COMPLETED
+[2026-10-24 16:57:17] =================================================================
+[2026-10-24 16:57:37] 
+=================================================================
+[2026-10-24 16:57:37] [*] STARTING MULTI-VECTOR AUTONOMOUS EXPLOIT ORCHESTRATOR
+[2026-10-24 16:57:37] =================================================================
+[2026-10-24 16:57:37] [+] Loaded 3 target vector(s) for execution.
+[2026-10-24 16:57:37] 
+[Target 1/3] Processing: http://127.0.0.1:8080/listproducts.php?cat=1
+[2026-10-24 16:57:37]     -> Vector Type: SQLi | Parameter: cat
+[2026-10-24 16:57:37]     [-] Unrecognized vector type 'SQLi'. Skipping.
+[2026-10-24 16:57:37] 
+[Target 2/3] Processing: http://127.0.0.1:8080/page.php?file=home
+[2026-10-24 16:57:37]     -> Vector Type: LFI | Parameter: file
+[2026-10-24 16:57:37]     [+] Triggering LFI Scanner module...
+[2026-10-24 16:57:38] 
+[Target 3/3] Processing: http://127.0.0.1:8080/fetch.php?url=http://localhost
+[2026-10-24 16:57:38]     -> Vector Type: SSRF | Parameter: url
+[2026-10-24 16:57:38]     [+] Triggering SSRF Scanner module...
+[2026-10-24 16:57:39] 
+=================================================================
+[2026-10-24 16:57:39] [*] PIPELINE EXECUTION COMPLETED
+[2026-10-24 16:57:39] =================================================================
+[2026-10-24 17:02:27] =================================================================
+[2026-10-24 17:02:27]  [*] INITIAL PHASE: AUTOMATED TARGET PROBING & DISCOVERY
+[2026-10-24 17:02:27] =================================================================
+[2026-10-24 17:02:27] [*] Analyzing target structure: [http://testphp.vulnweb.com](http://testphp.vulnweb.com)
+[2026-10-24 17:02:27] [-] No query parameters found in URL to probe automatically.
+[2026-10-24 17:02:27] 
+=================================================================
+[2026-10-24 17:02:27] [*] PHASE 2: STARTING AUTONOMOUS EXPLOITATION ENGINE
+[2026-10-24 17:02:27] =================================================================
+[2026-10-24 17:02:27] [+] Loaded 0 automatically verified vector(s).
+[2026-10-24 17:02:27] 
+=================================================================
+[2026-10-24 17:02:27] [*] FULL AUTOMATED PIPELINE EXECUTION COMPLETED
+[2026-10-24 17:02:27] =================================================================
+[2026-10-24 17:03:07] =================================================================
+[2026-10-24 17:03:07]  [*] INITIAL PHASE: AUTOMATED TARGET PROBING & DISCOVERY
+[2026-10-24 17:03:07] =================================================================
+[2026-10-24 17:03:07] [*] Analyzing target structure: http://127.0.0.1:8080/listproducts.php?cat=1
+[2026-10-24 17:03:07] [*] Probing parameter: 'cat'
+[2026-10-24 17:03:07]     [!] VULNERABILITY DETECTED: SQLi on parameter 'cat'
+[2026-10-24 17:03:07] 
+=================================================================
+[2026-10-24 17:03:07] [*] PHASE 2: STARTING AUTONOMOUS EXPLOITATION ENGINE
+[2026-10-24 17:03:07] =================================================================
+[2026-10-24 17:03:07] [+] Loaded 1 automatically verified vector(s).
+[2026-10-24 17:03:07] 
+[Vector 1/1] Target: http://127.0.0.1:8080/listproducts.php?cat=1
+[2026-10-24 17:03:07]     -> Vector Type: SQLi | Parameter: cat
+[2026-10-24 17:03:07]     [+] Firing automated SQL Injection Dumper...
+[2026-10-24 17:03:08] 
+=================================================================
+[2026-10-24 17:03:08] [*] FULL AUTOMATED PIPELINE EXECUTION COMPLETED
+[2026-10-24 17:03:08] =================================================================
+[2026-10-24 17:06:31] =================================================================
+[2026-10-24 17:06:31]  [*] INITIAL PHASE: AUTOMATED TARGET PROBING & DISCOVERY
+[2026-10-24 17:06:31] =================================================================
+[2026-10-24 17:06:31] [*] Analyzing target structure: testfire.net
+[2026-10-24 17:06:31] [-] No query parameters found in URL to probe automatically.
+[2026-10-24 17:06:31] 
+=================================================================
+[2026-10-24 17:06:31] [*] PHASE 2: STARTING AUTONOMOUS EXPLOITATION ENGINE
+[2026-10-24 17:06:31] =================================================================
+[2026-10-24 17:06:31] [+] Loaded 0 automatically verified vector(s).
+[2026-10-24 17:06:31] 
+=================================================================
+[2026-10-24 17:06:31] [*] FULL AUTOMATED PIPELINE EXECUTION COMPLETED
+[2026-10-24 17:06:31] =================================================================
+[2026-10-24 17:08:44] =================================================================
+[2026-10-24 17:08:44]  [*] INITIAL PHASE: AUTOMATED TARGET PROBING & DISCOVERY
+[2026-10-24 17:08:44] =================================================================
+[2026-10-24 17:08:44] [*] Analyzing target structure: http://testfire.net/login.jsp
+[2026-10-24 17:08:44] [-] No query parameters found in URL to probe automatically.
+[2026-10-24 17:08:44] 
+=================================================================
+[2026-10-24 17:08:44] [*] PHASE 2: STARTING AUTONOMOUS EXPLOITATION ENGINE
+[2026-10-24 17:08:44] =================================================================
+[2026-10-24 17:08:44] [+] Loaded 0 automatically verified vector(s).
+[2026-10-24 17:08:44] 
+=================================================================
+[2026-10-24 17:08:44] [*] FULL AUTOMATED PIPELINE EXECUTION COMPLETED
+[2026-10-24 17:08:44] =================================================================
+[2026-10-24 17:09:30] =================================================================
+[2026-10-24 17:09:30]  [*] INITIAL PHASE: AUTOMATED TARGET PROBING & DISCOVERY
+[2026-10-24 17:09:30] =================================================================
+[2026-10-24 17:09:30] [*] Analyzing target structure: http://demo.testfire.net/search.aspx?query=test
+[2026-10-24 17:09:30] [*] Probing parameter: 'query'
+[2026-10-24 17:09:30]     [+] Auto-registering parameter 'query' for targeted vector exploitation.
+[2026-10-24 17:09:30] 
+=================================================================
+[2026-10-24 17:09:30] [*] PHASE 2: STARTING AUTONOMOUS EXPLOITATION ENGINE
+[2026-10-24 17:09:30] =================================================================
+[2026-10-24 17:09:30] [+] Loaded 1 automatically verified vector(s).
+[2026-10-24 17:09:30] 
+[Vector 1/1] Target: http://demo.testfire.net/search.aspx?query=test
+[2026-10-24 17:09:30]     -> Vector Type: SQLi | Parameter: query
+[2026-10-24 17:09:30]     [+] Firing automated SQL Injection Dumper...
+[2026-10-24 17:09:34] 
+=================================================================
+[2026-10-24 17:09:34] [*] FULL AUTOMATED PIPELINE EXECUTION COMPLETED
+[2026-10-24 17:09:34] =================================================================
+[2026-10-24 17:15:35] =================================================================
+[2026-10-24 17:15:35]  [*] PHASE 1: WEB SPIDER & PARAMETER HARVESTER
+[2026-10-24 17:15:35] =================================================================
+[2026-10-24 17:15:35] [*] Crawling root URL: http://testfire.net/index.jsp
+[2026-10-24 17:15:36]     [+] Discovered parameterized endpoint: http://testfire.net/index.jsp?content=inside_press.htm
+[2026-10-24 17:15:36]     [+] Discovered parameterized endpoint: http://testfire.net/index.jsp?content=business_insurance.htm
+[2026-10-24 17:15:36]     [+] Discovered parameterized endpoint: http://testfire.net/index.jsp?content=personal_cards.htm
+[2026-10-24 17:15:37]     [+] Discovered parameterized endpoint: http://testfire.net/index.jsp?content=business_other.htm
+[2026-10-24 17:15:37]     [+] Discovered parameterized endpoint: http://testfire.net/index.jsp?content=personal_other.htm
+[2026-10-24 17:15:37]     [+] Discovered parameterized endpoint: http://testfire.net/index.jsp?content=personal.htm
+[2026-10-24 17:15:38]     [+] Discovered parameterized endpoint: http://testfire.net/index.jsp?content=security.htm
+[2026-10-24 17:15:38]     [+] Discovered parameterized endpoint: http://testfire.net/index.jsp?content=inside.htm
+[2026-10-24 17:15:38]     [+] Discovered parameterized endpoint: http://testfire.net/index.jsp?content=business_cards.htm
+[2026-10-24 17:15:39]     [+] Discovered parameterized endpoint: http://testfire.net/index.jsp?content=business_retirement.htm
+[2026-10-24 17:15:39]     [+] Discovered parameterized endpoint: http://testfire.net/index.jsp?content=personal_savings.htm
+[2026-10-24 17:15:40]     [+] Discovered parameterized endpoint: http://testfire.net/index.jsp?content=personal_investments.htm
+[2026-10-24 17:15:40] 
+=================================================================
+[2026-10-24 17:15:40] [*] PHASE 2: STARTING AUTONOMOUS EXPLOITATION ENGINE
+[2026-10-24 17:15:40] =================================================================
+[2026-10-24 17:15:40] [+] Loaded 12 automatically discovered vector(s).
+[2026-10-24 17:15:40] 
+[Vector 1/12] Target: http://testfire.net/index.jsp?content=inside_press.htm
+[2026-10-24 17:15:40]     -> Vector Type: SQLi | Parameter: content
+[2026-10-24 17:15:40]     [+] Firing automated SQL Injection Dumper...
+[2026-10-24 17:15:41] 
+[Vector 2/12] Target: http://testfire.net/index.jsp?content=business_insurance.htm
+[2026-10-24 17:15:41]     -> Vector Type: SQLi | Parameter: content
+[2026-10-24 17:15:41]     [+] Firing automated SQL Injection Dumper...
+[2026-10-24 17:15:42] 
+[Vector 3/12] Target: http://testfire.net/index.jsp?content=personal_cards.htm
+[2026-10-24 17:15:42]     -> Vector Type: SQLi | Parameter: content
+[2026-10-24 17:15:42]     [+] Firing automated SQL Injection Dumper...
+[2026-10-24 17:15:43] 
+[Vector 4/12] Target: http://testfire.net/index.jsp?content=business_other.htm
+[2026-10-24 17:15:43]     -> Vector Type: SQLi | Parameter: content
+[2026-10-24 17:15:43]     [+] Firing automated SQL Injection Dumper...
+[2026-10-24 17:15:44] 
+[Vector 5/12] Target: http://testfire.net/index.jsp?content=personal_other.htm
+[2026-10-24 17:15:44]     -> Vector Type: SQLi | Parameter: content
+[2026-10-24 17:15:44]     [+] Firing automated SQL Injection Dumper...
+[2026-10-24 17:15:46] 
+[Vector 6/12] Target: http://testfire.net/index.jsp?content=personal.htm
+[2026-10-24 17:15:46]     -> Vector Type: SQLi | Parameter: content
+[2026-10-24 17:15:46]     [+] Firing automated SQL Injection Dumper...
+[2026-10-24 17:15:47] 
+[Vector 7/12] Target: http://testfire.net/index.jsp?content=security.htm
+[2026-10-24 17:15:47]     -> Vector Type: SQLi | Parameter: content
+[2026-10-24 17:15:47]     [+] Firing automated SQL Injection Dumper...
+[2026-10-24 17:15:48] 
+[Vector 8/12] Target: http://testfire.net/index.jsp?content=inside.htm
+[2026-10-24 17:15:48]     -> Vector Type: SQLi | Parameter: content
+[2026-10-24 17:15:48]     [+] Firing automated SQL Injection Dumper...
+[2026-10-24 17:15:49] 
+[Vector 9/12] Target: http://testfire.net/index.jsp?content=business_cards.htm
+[2026-10-24 17:15:49]     -> Vector Type: SQLi | Parameter: content
+[2026-10-24 17:15:49]     [+] Firing automated SQL Injection Dumper...
+[2026-10-24 17:15:50] 
+[Vector 10/12] Target: http://testfire.net/index.jsp?content=business_retirement.htm
+[2026-10-24 17:15:50]     -> Vector Type: SQLi | Parameter: content
+[2026-10-24 17:15:50]     [+] Firing automated SQL Injection Dumper...
+[2026-10-24 17:15:51] 
+[Vector 11/12] Target: http://testfire.net/index.jsp?content=personal_savings.htm
+[2026-10-24 17:15:51]     -> Vector Type: SQLi | Parameter: content
+[2026-10-24 17:15:51]     [+] Firing automated SQL Injection Dumper...
+[2026-10-24 17:15:52] 
+[Vector 12/12] Target: http://testfire.net/index.jsp?content=personal_investments.htm
+[2026-10-24 17:15:52]     -> Vector Type: SQLi | Parameter: content
+[2026-10-24 17:15:52]     [+] Firing automated SQL Injection Dumper...
+[2026-10-24 17:15:54] 
+=================================================================
+[2026-10-24 17:15:54] [*] FULL AUTOMATED PIPELINE EXECUTION COMPLETED
+[2026-10-24 17:15:54] =================================================================
+[2026-10-24 17:21:59] =================================================================
+[2026-10-24 17:21:59]  [*] PHASE 1: WEB SPIDER & INTELLIGENT VECTOR TRIAGE
+[2026-10-24 17:21:59] =================================================================
+[2026-10-24 17:21:59] [*] Crawling and analyzing root URL: http://testfire.net/index.jsp
+[2026-10-24 17:21:59]     [+] Triage: Parameter 'content' mapped to LFI vector -> http://testfire.net/index.jsp?content=personal.htm
+[2026-10-24 17:22:00]     [+] Triage: Parameter 'content' mapped to LFI vector -> http://testfire.net/index.jsp?content=personal_other.htm
+[2026-10-24 17:22:00]     [+] Triage: Parameter 'content' mapped to LFI vector -> http://testfire.net/index.jsp?content=security.htm
+[2026-10-24 17:22:00]     [+] Triage: Parameter 'content' mapped to LFI vector -> http://testfire.net/index.jsp?content=personal_investments.htm
+[2026-10-24 17:22:01]     [+] Triage: Parameter 'content' mapped to LFI vector -> http://testfire.net/index.jsp?content=privacy.htm
+[2026-10-24 17:22:01]     [+] Triage: Parameter 'content' mapped to LFI vector -> http://testfire.net/index.jsp?content=business_lending.htm
+[2026-10-24 17:22:02]     [+] Triage: Parameter 'content' mapped to LFI vector -> http://testfire.net/index.jsp?content=inside_press.htm
+[2026-10-24 17:22:02]     [+] Triage: Parameter 'content' mapped to LFI vector -> http://testfire.net/index.jsp?content=inside.htm
+[2026-10-24 17:22:03]     [+] Triage: Parameter 'content' mapped to LFI vector -> http://testfire.net/index.jsp?content=personal_cards.htm
+[2026-10-24 17:22:03]     [+] Triage: Parameter 'content' mapped to LFI vector -> http://testfire.net/index.jsp?content=personal_loans.htm
+[2026-10-24 17:22:03] 
+=================================================================
+[2026-10-24 17:22:03] [*] PHASE 2: STARTING AUTONOMOUS MULTI-VECTOR EXPLOITATION
+[2026-10-24 17:22:03] =================================================================
+[2026-10-24 17:22:03] [+] Loaded 10 triaged vector(s) for execution.
+[2026-10-24 17:22:03] 
+[Vector 1/10] Target: http://testfire.net/index.jsp?content=personal.htm
+[2026-10-24 17:22:03]     -> Vector Type: LFI | Parameter: content
+[2026-10-24 17:22:03]     [+] Firing LFI Scanner module...
+[2026-10-24 17:22:06] 
+[Vector 2/10] Target: http://testfire.net/index.jsp?content=personal_other.htm
+[2026-10-24 17:22:06]     -> Vector Type: LFI | Parameter: content
+[2026-10-24 17:22:06]     [+] Firing LFI Scanner module...
+[2026-10-24 17:22:08] 
+[Vector 3/10] Target: http://testfire.net/index.jsp?content=security.htm
+[2026-10-24 17:22:08]     -> Vector Type: LFI | Parameter: content
+[2026-10-24 17:22:08]     [+] Firing LFI Scanner module...
+[2026-10-24 17:22:10] 
+[Vector 4/10] Target: http://testfire.net/index.jsp?content=personal_investments.htm
+[2026-10-24 17:22:10]     -> Vector Type: LFI | Parameter: content
+[2026-10-24 17:22:10]     [+] Firing LFI Scanner module...
+[2026-10-24 17:22:12] 
+[Vector 5/10] Target: http://testfire.net/index.jsp?content=privacy.htm
+[2026-10-24 17:22:12]     -> Vector Type: LFI | Parameter: content
+[2026-10-24 17:22:12]     [+] Firing LFI Scanner module...
+[2026-10-24 17:22:14] 
+[Vector 6/10] Target: http://testfire.net/index.jsp?content=business_lending.htm
+[2026-10-24 17:22:14]     -> Vector Type: LFI | Parameter: content
+[2026-10-24 17:22:14]     [+] Firing LFI Scanner module...
+[2026-10-24 17:22:17] 
+[Vector 7/10] Target: http://testfire.net/index.jsp?content=inside_press.htm
+[2026-10-24 17:22:17]     -> Vector Type: LFI | Parameter: content
+[2026-10-24 17:22:17]     [+] Firing LFI Scanner module...
+[2026-10-24 17:22:19] 
+[Vector 8/10] Target: http://testfire.net/index.jsp?content=inside.htm
+[2026-10-24 17:22:19]     -> Vector Type: LFI | Parameter: content
+[2026-10-24 17:22:19]     [+] Firing LFI Scanner module...
+[2026-10-24 17:22:21] 
+[Vector 9/10] Target: http://testfire.net/index.jsp?content=personal_cards.htm
+[2026-10-24 17:22:21]     -> Vector Type: LFI | Parameter: content
+[2026-10-24 17:22:21]     [+] Firing LFI Scanner module...
+[2026-10-24 17:22:23] 
+[Vector 10/10] Target: http://testfire.net/index.jsp?content=personal_loans.htm
+[2026-10-24 17:22:23]     -> Vector Type: LFI | Parameter: content
+[2026-10-24 17:22:23]     [+] Firing LFI Scanner module...
+[2026-10-24 17:22:25] 
+=================================================================
+[2026-10-24 17:22:25] [*] PIPELINE EXECUTION COMPLETED
+[2026-10-24 17:22:26] =================================================================
+[2026-10-24 17:27:21] =================================================================
+[2026-10-24 17:27:21]  [*] PHASE 1: WEB SPIDER & INTELLIGENT VECTOR TRIAGE
+[2026-10-24 17:27:21] =================================================================
+[2026-10-24 17:27:21] [*] Crawling and analyzing root URL: http://127.0.0.1:8080
+[2026-10-24 17:27:21] [-] No parameterized links found during crawl. Applying default mock target...
+[2026-10-24 17:27:21] 
+=================================================================
+[2026-10-24 17:27:21] [*] PHASE 2: STARTING AUTONOMOUS MULTI-VECTOR EXPLOITATION
+[2026-10-24 17:27:21] =================================================================
+[2026-10-24 17:27:21] [+] Loaded 1 triaged vector(s) for execution.
+[2026-10-24 17:27:21] 
+[Vector 1/1] Target: http://127.0.0.1:8080/page.php?file=home
+[2026-10-24 17:27:21]     -> Vector Type: LFI | Parameter: file
+[2026-10-24 17:27:21]     [+] Firing LFI Scanner module...
+[2026-10-24 17:27:22] 
+=================================================================
+[2026-10-24 17:27:22] [*] PIPELINE EXECUTION COMPLETED
+[2026-10-24 17:27:22] =================================================================

@@ -1,7 +1,7 @@
 [
     {
-        "target": "http://127.0.0.1:8080/listproducts.php?cat=1",
-        "param": "cat",
-        "vulnerability": "SQLi"
+        "target": "http://127.0.0.1:8080/page.php?file=home",
+        "param": "file",
+        "vulnerability": "LFI"
     }
 ]

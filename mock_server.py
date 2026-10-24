@@ -19,6 +19,23 @@ class MockVulnHandler(BaseHTTPRequestHandler):
                 self.wfile.write(f"Command executed: {cmd}\nOutput: Mock system operational.".encode())
             return
 
+        # Check for LFI (Local File Inclusion) simulation
+        if "file=" in decoded_path:
+            if "passwd" in decoded_path or "../" in decoded_path:
+                self.wfile.write(b"root:x:0:0:root:/root:/bin/bash\ndaemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin\nbin:x:2:2:bin:/bin:/bin/sh")
+            else:
+                self.wfile.write(b"<html><body>Mock file content loaded successfully.</body></html>")
+            return
+
+        # Check for SSRF (Server-Side Request Forgery) simulation
+        if "url=" in decoded_path:
+            target_url = decoded_path.split("url=")[1].split("&")[0]
+            if "localhost" in target_url or "127.0.0.1" in target_url:
+                self.wfile.write(b"INTERNAL METADATA SERVICE: instance-id=i-1234567890abcdef0, role=admin-backend")
+            else:
+                self.wfile.write(f"Fetched external resource from: {target_url}".encode())
+            return
+
         # Check for error-based injection quote
         if "'" in decoded_path and "ORDER BY" not in decoded_path.upper():
             self.wfile.write(b"You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version")
@@ -39,5 +56,5 @@ class MockVulnHandler(BaseHTTPRequestHandler):
 
         self.wfile.write(b"Welcome to mock vulnerable app! version() = 8.0.32 database() = testdb")
 
-print("[*] Starting full-feature local mock server on port 8080...")
+print("[*] Starting multi-vector mock server on port 8080...")
 HTTPServer(('127.0.0.1', 8080), MockVulnHandler).serve_forever()
