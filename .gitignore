@@ -1,0 +1,9 @@
+# Ignore temporary scan results and reports
+recon_*
+*.txt
+*.csv
+*.html
+results/
+storage/
+webserver/
+.DS_Store
