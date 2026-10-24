@@ -1,0 +1,56 @@
+[2026-10-24 16:12:52] ============================================================
+[2026-10-24 16:12:52] [*] STARTING AUTONOMOUS EXPLOIT ORCHESTRATOR
+[2026-10-24 16:12:52] ============================================================
+[2026-10-24 16:12:52] [-] No scan_results.json found. Creating a mock target for local pipeline validation...
+[2026-10-24 16:12:52] [+] Loaded 1 target(s) for autonomous execution.
+[2026-10-24 16:12:52] 
+[Target 1/1] Processing: http://127.0.0.1:8080/listproducts.php?cat=1
+[2026-10-24 16:12:52]     -> Vector Type: SQLi | Parameter: cat
+[2026-10-24 16:12:52]     [+] Launching automated SQL Dumper pipeline...
+[2026-10-24 16:12:52]     [!] SUCCESS: Target successfully exploited and data extracted.
+[2026-10-24 16:12:52] 
+============================================================
+[2026-10-24 16:12:52] [*] AUTONOMOUS PIPELINE EXECUTION COMPLETED
+[2026-10-24 16:12:52] ============================================================
+[2026-10-24 16:19:56] 
+============================================================
+[2026-10-24 16:19:56] [*] STARTING FULLY AUTOMATED EXECUTION PIPELINE
+[2026-10-24 16:19:56] ============================================================
+[2026-10-24 16:19:56] [+] Loaded 1 target(s) for autonomous processing.
+[2026-10-24 16:19:56] 
+[Target 1/1] Processing: http://127.0.0.1:8080/listproducts.php?cat=1
+[2026-10-24 16:19:56]     -> Vector Type: SQLi | Parameter: cat
+[2026-10-24 16:19:56]     [+] Triggering automated SQL Dumper module...
+[2026-10-24 16:19:57]     [!] SUCCESS: Target successfully exploited and data dumped.
+[2026-10-24 16:19:57] 
+============================================================
+[2026-10-24 16:19:57] [*] PIPELINE EXECUTION & EXPLOITATION COMPLETED
+[2026-10-24 16:19:57] ============================================================
+[2026-10-24 16:30:14] 
+============================================================
+[2026-10-24 16:30:14] [*] STARTING FULLY AUTOMATED EXECUTION PIPELINE
+[2026-10-24 16:30:14] ============================================================
+[2026-10-24 16:30:14] [+] Loaded 1 target(s) for autonomous processing.
+[2026-10-24 16:30:14] 
+[Target 1/1] Processing: http://127.0.0.1:8080/listproducts.php?cat=1
+[2026-10-24 16:30:14]     -> Vector Type: SQLi | Parameter: cat
+[2026-10-24 16:30:14]     [+] Triggering automated SQL Dumper module...
+[2026-10-24 16:30:15]     [!] SUCCESS: Target successfully exploited and data dumped.
+[2026-10-24 16:30:15] 
+============================================================
+[2026-10-24 16:30:15] [*] PIPELINE EXECUTION & EXPLOITATION COMPLETED
+[2026-10-24 16:30:15] ============================================================
+[2026-10-24 16:31:08] 
+============================================================
+[2026-10-24 16:31:08] [*] STARTING FULLY AUTOMATED EXECUTION PIPELINE
+[2026-10-24 16:31:08] ============================================================
+[2026-10-24 16:31:08] [+] Loaded 1 target(s) for autonomous processing.
+[2026-10-24 16:31:08] 
+[Target 1/1] Processing: http://127.0.0.1:8080/listproducts.php?cat=1
+[2026-10-24 16:31:08]     -> Vector Type: SQLi | Parameter: cat
+[2026-10-24 16:31:08]     [+] Triggering automated SQL Dumper module...
+[2026-10-24 16:31:09]     [!] SUCCESS: Target successfully exploited and data dumped.
+[2026-10-24 16:31:09] 
+============================================================
+[2026-10-24 16:31:09] [*] PIPELINE EXECUTION & EXPLOITATION COMPLETED
+[2026-10-24 16:31:09] ============================================================

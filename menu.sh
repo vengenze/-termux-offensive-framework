@@ -33,9 +33,14 @@ while true; do
     echo " [Reporting & Management]"
     echo " 11) Generate Terminal Summary & Baseline (probe_baseline.txt)"
     echo " 12) View Latest probe_baseline.txt"
-    echo " 13) Exit Framework"
+    echo ""
+    echo " [Help & Reference]"
+    echo " 13) View Framework Command Reference (Help)"
+    echo ""
+    echo " [Framework Exit]"
+    echo " 14) Exit Framework"
     echo -e "${BLUE}==================================================${RESET}"
-    read -p "Select an option [1-13]: " choice
+    read -p "Select an option [1-14]: " choice
 
     case $choice in
         1)
@@ -148,13 +153,17 @@ while true; do
             fi
             ;;
         13)
+            echo -e "\n${YELLOW}[*] Displaying Framework Command Reference...${RESET}"
+            python framework_help.py
+            read -p "Press Enter to return to menu..."
+            ;;
+        14)
             echo -e "\n${GREEN}[+] Exiting framework. Stay safe!${RESET}"
             exit 0
             ;;
         *)
-            echo -e "\n${RED}[-] Invalid option. Please choose between 1 and 13.${RESET}"
+            echo -e "\n${RED}[-] Invalid option. Please choose between 1 and 14.${RESET}"
             sleep 1
             ;;
     esac
 done
-
