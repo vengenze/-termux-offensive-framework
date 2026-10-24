@@ -1,0 +1,8 @@
+[
+    {
+        "subdomain": "www.testfire.net",
+        "url": "http://www.testfire.net",
+        "status": 200,
+        "type": "Web"
+    }
+]
