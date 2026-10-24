@@ -1,5 +1,35 @@
 [
     {
+        "target": "http://127.0.0.1:8080/api",
+        "param": "none",
+        "vulnerability": "API"
+    },
+    {
+        "target": "http://127.0.0.1:8080/api/v1",
+        "param": "none",
+        "vulnerability": "API"
+    },
+    {
+        "target": "http://127.0.0.1:8080/api/v1/users",
+        "param": "none",
+        "vulnerability": "API"
+    },
+    {
+        "target": "http://127.0.0.1:8080/api/v1/status",
+        "param": "none",
+        "vulnerability": "API"
+    },
+    {
+        "target": "http://127.0.0.1:8080/api-docs",
+        "param": "none",
+        "vulnerability": "API"
+    },
+    {
+        "target": "http://127.0.0.1:8080/listproducts.php?cat=1",
+        "param": "cat",
+        "vulnerability": "SQLi"
+    },
+    {
         "target": "http://127.0.0.1:8080/page.php?file=home",
         "param": "file",
         "vulnerability": "LFI"
