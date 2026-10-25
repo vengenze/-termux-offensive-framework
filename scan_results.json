@@ -1,6 +1,66 @@
 [
   {
-    "vulnerability": "GraphQL Introspection",
-    "target": "https://pentest-ground.com:5013/graphql"
+    "vulnerability": "Command Injection",
+    "target": "https://pentest-ground.com:9000/eval",
+    "param": "s",
+    "method": "GET",
+    "format": "query",
+    "token": "THISISATOKEN"
+  },
+  {
+    "vulnerability": "API Endpoint",
+    "target": "https://pentest-ground.com:9000/help",
+    "param": "input",
+    "method": "GET",
+    "format": "query",
+    "token": "N/A"
+  },
+  {
+    "vulnerability": "SQLi / XML Injection",
+    "target": "https://pentest-ground.com:9000/search",
+    "param": "input",
+    "method": "POST",
+    "format": "json",
+    "token": "N/A"
+  },
+  {
+    "vulnerability": "API Endpoint",
+    "target": "https://pentest-ground.com:9000/tokens",
+    "param": "input",
+    "method": "POST",
+    "format": "json",
+    "token": "N/A"
+  },
+  {
+    "vulnerability": "Command Injection / Flag Reader",
+    "target": "https://pentest-ground.com:9000/uptime/{flag}",
+    "param": "flag",
+    "method": "GET",
+    "format": "path",
+    "token": "N/A"
+  },
+  {
+    "vulnerability": "IDOR",
+    "target": "https://pentest-ground.com:9000/user",
+    "param": "input",
+    "method": "POST",
+    "format": "json",
+    "token": "THISISATOKEN"
+  },
+  {
+    "vulnerability": "IDOR",
+    "target": "https://pentest-ground.com:9000/user/{user}",
+    "param": "user",
+    "method": "GET",
+    "format": "path",
+    "token": "THISISATOKEN"
+  },
+  {
+    "vulnerability": "API Endpoint",
+    "target": "https://pentest-ground.com:9000/widget",
+    "param": "input",
+    "method": "POST",
+    "format": "json",
+    "token": "THISISATOKEN"
   }
 ]
