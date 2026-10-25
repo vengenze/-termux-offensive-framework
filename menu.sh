@@ -2,7 +2,6 @@
 
 # Termux Offensive Framework Interactive Control Panel (v3.2)
 
-# Colors for UI
 GREEN="\033[1;32m"
 CYAN="\033[1;36m"
 YELLOW="\033[1;33m"
@@ -24,7 +23,7 @@ while true; do
     echo "  5) Run Automated SQL Injection Dumper"
     echo "  6) Run Authentication Brute-Forcer"
     echo "  7) Run Exploit Deployer & Reverse Shell Listener"
-    echo "  8) Run Arbitrary File Upload Exploiter"
+    echo "  8) Run Command Injection Scanner (RCE Audit)"
     echo ""
     echo -e " ${YELLOW}[Autonomous Operations]${RESET}"
     echo "  9) Run Autonomous Exploit & Weakness Deployer"
@@ -80,8 +79,10 @@ while true; do
             read -p "Press Enter to return to menu..."
             ;;
         8)
-            read -p "Enter upload endpoint URL: " target_url
-            python upload_exploit.py "$target_url"
+            read -p "Enter target URL with parameter (e.g., http://127.0.0.1:8080/ping.php?ip=127.0.0.1): " target_url
+            read -p "Enter parameter name [default 'ip']: " param
+            param=${param:-ip}
+            python cmd_inject.py "$target_url" -p "$param"
             read -p "Press Enter to return to menu..."
             ;;
         9)
