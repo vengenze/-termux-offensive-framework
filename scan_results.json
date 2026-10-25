@@ -37,5 +37,18 @@
     "vulnerability": "SSTI",
     "target": "http://127.0.0.1:8080/render.php?name=Guest",
     "param": "name"
+  },
+  {
+    "vulnerability": "BFLA",
+    "target": "http://127.0.0.1:8080/api/v1/admin/metrics",
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEwMiwicm9sZSI6ImN1c3RvbWVyIn0.sig"
+  },
+  {
+    "vulnerability": "Over-Fetching",
+    "target": "http://127.0.0.1:8080/api/v1/account/settings"
+  },
+  {
+    "vulnerability": "Mass Assignment",
+    "target": "http://127.0.0.1:8080/api/v1/account/update"
   }
 ]
