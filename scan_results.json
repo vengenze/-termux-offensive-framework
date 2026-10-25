@@ -83,5 +83,9 @@
   {
     "vulnerability": "Improper Inventory Management",
     "target": "http://127.0.0.1:8080/api/v0/debug/config"
+  },
+  {
+    "vulnerability": "Insufficient Logging & Monitoring",
+    "target": "http://127.0.0.1:8080/api/v1/security/audit-logs"
   }
 ]
