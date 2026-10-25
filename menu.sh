@@ -1,130 +1,89 @@
 #!/bin/bash
 
-# Termux Offensive Framework Interactive Control Panel (v3.2)
-
-GREEN="\033[1;32m"
-CYAN="\033[1;36m"
-YELLOW="\033[1;33m"
-RED="\033[1;31m"
-RESET="\033[0m"
-
 while true; do
     clear
-    echo -e "${CYAN}==================================================${RESET}"
-    echo -e "${GREEN}   [!] TERMUX OFFENSIVE SECURITY FRAMEWORK (v3.2) [!]"
-    echo -e "${CYAN}==================================================${RESET}"
-    echo -e " ${YELLOW}[Reconnaissance & Scans]${RESET}"
-    echo "  1) Run Full Autonomous Pipeline (auto_exploit.py)"
-    echo "  2) Run Master Web Vulnerability Scan (Single Target)"
-    echo "  3) Run Local Network Mapper & Router Audit"
-    echo "  4) Run Cloud Storage & S3 Bucket Hunter"
+    echo "================================================================="
+    echo " [*] FULLY SCALED INFRASTRUCTURE OFFENSIVE FRAMEWORK"
+    echo "================================================================="
+    echo " [Autonomous Pipeline]"
+    echo "  1) Run Full Autonomous Pipeline (Mock Server)"
+    echo "  2) Run Full Autonomous Pipeline (Custom Domain)"
     echo ""
-    echo -e " ${YELLOW}[Access Gain & Exploitation]${RESET}"
-    echo "  5) Run Automated SQL Injection Dumper"
-    echo "  6) Run Authentication Brute-Forcer"
-    echo "  7) Run Exploit Deployer & Reverse Shell Listener"
-    echo "  8) Run Command Injection Scanner (RCE Audit)"
+    echo " [Individual Vector Scanners]"
+    echo "  3) Run SQL Injection Dumper"
+    echo "  4) Run LFI / Path Traversal Scanner"
+    echo "  5) Run JWT Priv-Esc Auditor"
+    echo "  6) Run Command Injection / RCE Scanner"
+    echo "  7) Run GraphQL Introspection & API Auditor"
     echo ""
-    echo -e " ${YELLOW}[Autonomous Operations]${RESET}"
-    echo "  9) Run Autonomous Exploit & Weakness Deployer"
+    echo " [Post-Exploitation & Access Control]"
+    echo "  8) Reverse Shell Generator & Listener"
+    echo "  9) Access Gained Control Center (Interactive Dashboard)"
     echo ""
-    echo -e " ${YELLOW}[Access Gained / Post-Exploitation]${RESET}"
-    echo " 10) Launch Access Gained Control Center (Post-Exploitation)"
-    echo ""
-    echo -e " ${YELLOW}[Reporting & Management]${RESET}"
-    echo " 11) Generate Terminal Summary & Baseline"
-    echo " 12) View Latest Execution Logs"
-    echo ""
-    echo -e " ${YELLOW}[Help & Reference]${RESET}"
-    echo " 13) View Framework Command Reference (Help)"
-    echo ""
-    echo -e " ${YELLOW}[Framework Exit]${RESET}"
-    echo " 14) Exit Framework"
-    echo -e "${CYAN}==================================================${RESET}"
-    read -p "Select an option [1-14]: " choice
+    echo " 10) Exit"
+    echo "================================================================="
+    read -p "Select option [1-10]: " choice
 
     case $choice in
         1)
-            echo -e "\n${GREEN}[*] Launching Autonomous Multi-Vector Orchestrator...${RESET}"
             python auto_exploit.py
             read -p "Press Enter to return to menu..."
             ;;
         2)
-            read -p "Enter target URL for web vuln scan: " target_url
-            python master_web_scanner.py "$target_url"
+            python auto_exploit.py --custom
             read -p "Press Enter to return to menu..."
             ;;
         3)
-            python network_mapper.py
+            read -p "Enter target URL (e.g., http://127.0.0.1:8080/listproducts.php?cat=1): " sqli_url
+            read -p "Enter vulnerable parameter [cat]: " sqli_param
+            sqli_param=${sqli_param:-cat}
+            python sql_dumper.py "$sqli_url" -p "$sqli_param"
             read -p "Press Enter to return to menu..."
             ;;
         4)
-            python s3_hunter.py
+            read -p "Enter target URL (e.g., http://127.0.0.1:8080/page.php?file=home): " lfi_url
+            python lfi_scanner.py "$lfi_url"
             read -p "Press Enter to return to menu..."
             ;;
         5)
-            read -p "Enter target URL with parameter (e.g., http://127.0.0.1:8080/listproducts.php?cat=1): " target_url
-            read -p "Enter target parameter name (default 'cat'): " param
-            param=${param:-cat}
-            python sql_dumper.py "$target_url" -p "$param"
+            read -p "Enter JWT token: " jwt_token
+            read -p "Enter target endpoint [http://127.0.0.1:8080/api/v1/secure-data]: " jwt_url
+            jwt_url=${jwt_url:-http://127.0.0.1:8080/api/v1/secure-data}
+            python jwt_auditor.py "$jwt_token" "$jwt_url"
             read -p "Press Enter to return to menu..."
             ;;
         6)
-            read -p "Enter target login URL: " target_url
-            python auth_brute.py "$target_url"
+            read -p "Enter target URL (e.g., http://127.0.0.1:8080/ping.php?ip=127.0.0.1): " cmd_url
+            read -p "Enter vulnerable parameter [ip]: " cmd_param
+            cmd_param=${cmd_param:-ip}
+            python cmd_inject.py "$cmd_url" -p "$cmd_param"
             read -p "Press Enter to return to menu..."
             ;;
         7)
-            python exploit_deployer.py
+            read -p "Enter GraphQL endpoint URL [default http://127.0.0.1:8080/graphql]: " gql_url
+            gql_url=${gql_url:-http://127.0.0.1:8080/graphql}
+            python graphql_audit.py "$gql_url"
             read -p "Press Enter to return to menu..."
             ;;
         8)
-            read -p "Enter target URL with parameter (e.g., http://127.0.0.1:8080/ping.php?ip=127.0.0.1): " target_url
-            read -p "Enter parameter name [default 'ip']: " param
-            param=${param:-ip}
-            python cmd_inject.py "$target_url" -p "$param"
+            read -p "Enter listener IP [127.0.0.1]: " lhost
+            lhost=${lhost:-127.0.0.1}
+            read -p "Enter listener port [4444]: " lport
+            lport=${lport:-4444}
+            python rev_shell.py --ip "$lhost" --port "$lport"
             read -p "Press Enter to return to menu..."
             ;;
         9)
-            python auto_exploit.py
-            read -p "Press Enter to return to menu..."
-            ;;
-        10)
-            echo -e "\n${GREEN}[*] Launching Access Gained Control Center...${RESET}"
             python access_console.py
             read -p "Press Enter to return to menu..."
             ;;
-        11)
-            if [ -f "autonomous_execution.log" ]; then
-                echo -e "\n--- Execution Log Summary ---"
-                tail -n 25 autonomous_execution.log
-            else
-                echo "[-] No execution logs found."
-            fi
-            read -p "Press Enter to return to menu..."
-            ;;
-        12)
-            if [ -f "autonomous_execution.log" ]; then
-                cat autonomous_execution.log | less
-            else
-                echo "[-] No execution logs found."
-            fi
-            read -p "Press Enter to return to menu..."
-            ;;
-        13)
-            echo -e "\n=== Framework Help & Reference ==="
-            echo " This framework coordinates reconnaissance, multi-vector discovery,"
-            echo " autonomous exploitation, and post-exploitation asset harvesting."
-            echo " Results are automatically piped into scan_results.json."
-            read -p "Press Enter to return to menu..."
-            ;;
-        14)
-            echo -e "\n${RED}[*] Exiting framework. Stay safe!${RESET}"
+        10)
+            echo "[*] Exiting framework. Stay safe!"
             exit 0
             ;;
         *)
-            echo -e "${RED}[-] Invalid option. Please choose between 1 and 14.${RESET}"
-            sleep 2
+            echo "[-] Invalid option. Please select between 1 and 10."
+            sleep 1
             ;;
     esac
 done

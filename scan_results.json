@@ -25,8 +25,17 @@
         "param": "ip"
     },
     {
+        "vulnerability": "GraphQL Introspection",
+        "target": "http://127.0.0.1:8080/graphql",
+        "param": "query"
+    },
+    {
         "target": "http://127.0.0.1:8080/ping.php?ip=127.0.0.1%3Bid",
         "param": "ip",
         "vulnerability": "Command Injection"
+    },
+    {
+        "target": "http://127.0.0.1:8080/graphql",
+        "vulnerability": "GraphQL Introspection Enabled"
     }
 ]
