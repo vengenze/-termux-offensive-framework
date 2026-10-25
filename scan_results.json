@@ -1,95 +1,31 @@
 [
   {
-    "vulnerability": "SQLi",
-    "target": "http://127.0.0.1:8080/listproducts.php?cat=1",
-    "param": "cat"
-  },
-  {
-    "vulnerability": "LFI",
-    "target": "http://127.0.0.1:8080/page.php?file=home",
-    "param": "file"
-  },
-  {
-    "vulnerability": "IDOR",
-    "target": "http://127.0.0.1:8080/api/v1/user/101",
-    "param": "id"
-  },
-  {
     "vulnerability": "JWT",
-    "target": "http://127.0.0.1:8080/api/v1/secure-data",
+    "target": "https://pentest-ground.com:4280/api/v1/secure-data",
     "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEwMSwicm9sZSI6ImN1c3RvbWVyIiwiZW1haWwiOiJhbGljZUB0ZXN0LmNvbSJ9.KxJ41gV1vQ7Gz8VbV2n8Fq6J5K9m3N4b5V6c7X8z9Q0"
   },
   {
     "vulnerability": "Command Injection",
-    "target": "http://127.0.0.1:8080/ping.php?ip=127.0.0.1",
+    "target": "https://pentest-ground.com:4280/ping.php?ip=127.0.0.1",
     "param": "ip"
   },
   {
     "vulnerability": "GraphQL Introspection",
-    "target": "http://127.0.0.1:8080/graphql"
+    "target": "https://pentest-ground.com:4280/graphql"
   },
   {
     "vulnerability": "SSRF",
-    "target": "http://127.0.0.1:8080/fetch.php?url=http://169.254.169.254/latest/meta-data/",
+    "target": "https://pentest-ground.com:4280/fetch.php?url=http://169.254.169.254/latest/meta-data/",
     "param": "url"
   },
   {
     "vulnerability": "SSTI",
-    "target": "http://127.0.0.1:8080/render.php?name=Guest",
+    "target": "https://pentest-ground.com:4280/render.php?name=Guest",
     "param": "name"
   },
   {
-    "vulnerability": "BFLA",
-    "target": "http://127.0.0.1:8080/api/v1/admin/metrics",
-    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEwMiwicm9sZSI6ImN1c3RvbWVyIn0.sig"
-  },
-  {
-    "vulnerability": "Over-Fetching",
-    "target": "http://127.0.0.1:8080/api/v1/account/settings"
-  },
-  {
-    "vulnerability": "Mass Assignment",
-    "target": "http://127.0.0.1:8080/api/v1/account/update"
-  },
-  {
-    "vulnerability": "Insecure Deserialization",
-    "target": "http://127.0.0.1:8080/api/v1/session/restore"
-  },
-  {
     "vulnerability": "SSRF",
-    "target": "http://127.0.0.1:8080/fetch.php?url=http://127.0.0.1:10255/pods",
+    "target": "https://pentest-ground.com:4280/fetch.php?url=http://127.0.0.1:10255/pods",
     "param": "url"
-  },
-  {
-    "vulnerability": "BOPLA / Excessive Property Exposure",
-    "target": "http://127.0.0.1:8080/api/v1/profile/view"
-  },
-  {
-    "vulnerability": "Sensitive Business Flow Abuse",
-    "target": "http://127.0.0.1:8080/api/v1/flow/checkout"
-  },
-  {
-    "vulnerability": "Unsafe API Consumption",
-    "target": "http://127.0.0.1:8080/api/v1/webhook/sync"
-  },
-  {
-    "vulnerability": "Automated Threat Protection Bypass",
-    "target": "http://127.0.0.1:8080/api/v1/auth/login"
-  },
-  {
-    "vulnerability": "Unrestricted Resource Consumption",
-    "target": "http://127.0.0.1:8080/api/v1/batch/process"
-  },
-  {
-    "vulnerability": "Improper Inventory Management",
-    "target": "http://127.0.0.1:8080/api/v0/debug/config"
-  },
-  {
-    "vulnerability": "Insufficient Logging & Monitoring",
-    "target": "http://127.0.0.1:8080/api/v1/security/audit-logs"
-  },
-  {
-    "vulnerability": "Software Supply Chain Risk",
-    "target": "http://127.0.0.1:8080/api/v1/packages/resolve"
   }
 ]

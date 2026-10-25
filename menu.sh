@@ -30,11 +30,13 @@ while true; do
             read -p "Press Enter to return to menu..."
             ;;
         2)
-            python auto_exploit.py --custom
+            read -p "Enter custom domain target (e.g., http://target.internal or https://api.example.com): " custom_domain
+            custom_domain=${custom_domain:-http://127.0.0.1:8080}
+            python auto_exploit.py "$custom_domain"
             read -p "Press Enter to return to menu..."
             ;;
         3)
-            read -p "Enter target URL (e.g., http://127.0.0.1:8080/listproducts.php?cat=1): " sqli_url
+            read -p "Enter target URL (e.g., http://127.0.0.1:8080/listproducts.php): " sqli_url
             read -p "Enter vulnerable parameter [cat]: " sqli_param
             sqli_param=${sqli_param:-cat}
             python sql_dumper.py "$sqli_url" -p "$sqli_param"
