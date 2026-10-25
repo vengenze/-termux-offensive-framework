@@ -1390,3 +1390,628 @@
 =================================================================
 [2026-10-24 19:24:08] [*] PIPELINE EXECUTION COMPLETED
 [2026-10-24 19:24:08] =================================================================
+[2026-10-25 07:21:29] =================================================================
+[2026-10-25 07:21:29]  [*] PHASE 1: DISCOVERY, JS MINING & SMART TRIAGE
+[2026-10-25 07:21:29] =================================================================
+[2026-10-25 07:21:29] [*] Running Frontend Web Spider on: http://127.0.0.1:8080
+[2026-10-25 07:21:29]     [+] Spider Found [LFI]: http://127.0.0.1:8080/page.php?file=home (Param: file)
+[2026-10-25 07:21:29]     [+] Spider Found [SQLi]: http://127.0.0.1:8080/listproducts.php?cat=1 (Param: cat)
+[2026-10-25 07:21:29] [*] Running High-Speed Directory & API Enumeration on: http://127.0.0.1:8080
+[2026-10-25 07:21:29]     [+] DirBuster Found [200 OK]: http://127.0.0.1:8080/admin
+[2026-10-25 07:21:29]     [+] DirBuster Found [200 OK]: http://127.0.0.1:8080/admin.php
+[2026-10-25 07:21:29]     [+] DirBuster Found [200 OK]: http://127.0.0.1:8080/dashboard
+[2026-10-25 07:21:29]     [+] DirBuster Found [200 OK]: http://127.0.0.1:8080/api
+[2026-10-25 07:21:29]     [+] DirBuster Found [200 OK]: http://127.0.0.1:8080/api/v1
+[2026-10-25 07:21:29]     [+] DirBuster Found [200 OK]: http://127.0.0.1:8080/api/v1/users
+[2026-10-25 07:21:29]     [+] DirBuster Found [200 OK]: http://127.0.0.1:8080/api/v1/status
+[2026-10-25 07:21:29]     [+] DirBuster Found [200 OK]: http://127.0.0.1:8080/config.json
+[2026-10-25 07:21:29]     [+] DirBuster Found [200 OK]: http://127.0.0.1:8080/robots.txt
+[2026-10-25 07:21:29]     [+] DirBuster Found [200 OK]: http://127.0.0.1:8080/test.php
+[2026-10-25 07:21:29]     [+] DirBuster Found [200 OK]: http://127.0.0.1:8080/upload
+[2026-10-25 07:21:29]     [+] DirBuster Found [200 OK]: http://127.0.0.1:8080/uploads
+[2026-10-25 07:21:29]     [+] DirBuster Found [200 OK]: http://127.0.0.1:8080/register
+[2026-10-25 07:21:29]     [+] DirBuster Found [200 OK]: http://127.0.0.1:8080/signup
+[2026-10-25 07:21:29]     [+] DirBuster Found [200 OK]: http://127.0.0.1:8080/server-status
+[2026-10-25 07:21:29]     [+] DirBuster Found [200 OK]: http://127.0.0.1:8080/phpinfo.php
+[2026-10-25 07:21:29]     [+] DirBuster Found [200 OK]: http://127.0.0.1:8080/db.sql
+[2026-10-25 07:21:29]     [+] DirBuster Found [200 OK]: http://127.0.0.1:8080/settings.py
+[2026-10-25 07:21:29]     [+] DirBuster Found [200 OK]: http://127.0.0.1:8080/swagger
+[2026-10-25 07:21:29]     [+] DirBuster Found [200 OK]: http://127.0.0.1:8080/api-docs
+[2026-10-25 07:21:29]     [+] DirBuster Found [200 OK]: http://127.0.0.1:8080/listproducts.php
+[2026-10-25 07:21:29]     [+] DirBuster Found [200 OK]: http://127.0.0.1:8080/page.php
+[2026-10-25 07:21:29]     [+] DirBuster Found [200 OK]: http://127.0.0.1:8080/api/v1/user/101
+[2026-10-25 07:21:29] [*] Running JavaScript Route Extractor on: http://127.0.0.1:8080
+[2026-10-25 07:21:29] 
+=================================================================
+[2026-10-25 07:21:29] [*] PHASE 2: STARTING AUTONOMOUS MULTI-VECTOR EXPLOITATION
+[2026-10-25 07:21:29] =================================================================
+[2026-10-25 07:21:29] [+] Loaded 25 unified vector(s) across infrastructure.
+[2026-10-25 07:21:29] 
+[Vector 1/25] Target: http://127.0.0.1:8080/page.php?file=home
+[2026-10-25 07:21:29]     -> Vector Type: LFI | Parameter: file
+[2026-10-25 07:21:29]     [+] Firing LFI Scanner module...
+[2026-10-25 07:21:30] 
+[Vector 2/25] Target: http://127.0.0.1:8080/listproducts.php?cat=1
+[2026-10-25 07:21:30]     -> Vector Type: SQLi | Parameter: cat
+[2026-10-25 07:21:30]     [+] Firing automated SQL Injection Dumper...
+[2026-10-25 07:21:31] 
+[Vector 3/25] Target: http://127.0.0.1:8080/admin
+[2026-10-25 07:21:31]     -> Vector Type: IDOR | Parameter: id
+[2026-10-25 07:21:31]     [+] Firing API IDOR / BOLA Fuzzer module...
+[2026-10-25 07:21:33] 
+[Vector 4/25] Target: http://127.0.0.1:8080/admin.php
+[2026-10-25 07:21:33]     -> Vector Type: IDOR | Parameter: id
+[2026-10-25 07:21:33]     [+] Firing API IDOR / BOLA Fuzzer module...
+[2026-10-25 07:21:34] 
+[Vector 5/25] Target: http://127.0.0.1:8080/dashboard
+[2026-10-25 07:21:34]     -> Vector Type: IDOR | Parameter: id
+[2026-10-25 07:21:34]     [+] Firing API IDOR / BOLA Fuzzer module...
+[2026-10-25 07:21:35] 
+[Vector 6/25] Target: http://127.0.0.1:8080/api
+[2026-10-25 07:21:35]     -> Vector Type: IDOR | Parameter: id
+[2026-10-25 07:21:35]     [+] Firing API IDOR / BOLA Fuzzer module...
+[2026-10-25 07:21:37] 
+[Vector 7/25] Target: http://127.0.0.1:8080/api/v1
+[2026-10-25 07:21:37]     -> Vector Type: IDOR | Parameter: id
+[2026-10-25 07:21:37]     [+] Firing API IDOR / BOLA Fuzzer module...
+[2026-10-25 07:32:17] =================================================================
+[2026-10-25 07:32:17]  [*] PHASE 1: DISCOVERY, JS MINING & SMART TRIAGE
+[2026-10-25 07:32:17] =================================================================
+[2026-10-25 07:32:17] [*] Running Frontend Web Spider on: http://127.0.0.1:8080
+[2026-10-25 07:32:17]     [+] Spider Found [SQLi]: http://127.0.0.1:8080/listproducts.php?cat=1 (Param: cat)
+[2026-10-25 07:32:17]     [+] Spider Found [LFI]: http://127.0.0.1:8080/page.php?file=home (Param: file)
+[2026-10-25 07:32:17] [*] Running High-Speed Directory & API Enumeration on: http://127.0.0.1:8080
+[2026-10-25 07:32:17]     [+] Mapped Vector [IDOR]: http://127.0.0.1:8080/admin
+[2026-10-25 07:32:17]     [+] Mapped Vector [IDOR]: http://127.0.0.1:8080/admin.php
+[2026-10-25 07:32:17]     [+] Mapped Vector [IDOR]: http://127.0.0.1:8080/dashboard
+[2026-10-25 07:32:17]     [+] Mapped Vector [IDOR]: http://127.0.0.1:8080/api
+[2026-10-25 07:32:17]     [+] Mapped Vector [IDOR]: http://127.0.0.1:8080/api/v1
+[2026-10-25 07:32:17]     [+] Mapped Vector [IDOR]: http://127.0.0.1:8080/api/v1/users
+[2026-10-25 07:32:17]     [+] Mapped Vector [IDOR]: http://127.0.0.1:8080/api/v1/status
+[2026-10-25 07:32:17]     [+] Mapped Vector [IDOR]: http://127.0.0.1:8080/config.json
+[2026-10-25 07:32:17]     [+] Mapped Vector [IDOR]: http://127.0.0.1:8080/robots.txt
+[2026-10-25 07:32:17]     [+] Mapped Vector [IDOR]: http://127.0.0.1:8080/test.php
+[2026-10-25 07:32:17]     [+] Mapped Vector [IDOR]: http://127.0.0.1:8080/upload
+[2026-10-25 07:32:17]     [+] Mapped Vector [IDOR]: http://127.0.0.1:8080/uploads
+[2026-10-25 07:32:17]     [+] Mapped Vector [IDOR]: http://127.0.0.1:8080/register
+[2026-10-25 07:32:17]     [+] Mapped Vector [IDOR]: http://127.0.0.1:8080/signup
+[2026-10-25 07:32:17]     [+] Mapped Vector [IDOR]: http://127.0.0.1:8080/server-status
+[2026-10-25 07:32:17]     [+] Mapped Vector [IDOR]: http://127.0.0.1:8080/phpinfo.php
+[2026-10-25 07:32:17]     [+] Mapped Vector [IDOR]: http://127.0.0.1:8080/db.sql
+[2026-10-25 07:32:17]     [+] Mapped Vector [IDOR]: http://127.0.0.1:8080/settings.py
+[2026-10-25 07:32:17]     [+] Mapped Vector [IDOR]: http://127.0.0.1:8080/swagger
+[2026-10-25 07:32:17]     [+] Mapped Vector [IDOR]: http://127.0.0.1:8080/api-docs
+[2026-10-25 07:32:17]     [+] Mapped Vector [SQLi]: http://127.0.0.1:8080/listproducts.php?cat=1
+[2026-10-25 07:32:17]     [+] Mapped Vector [LFI]: http://127.0.0.1:8080/page.php?file=home
+[2026-10-25 07:32:17]     [+] Mapped Vector [IDOR]: http://127.0.0.1:8080/api/v1/user/101
+[2026-10-25 07:32:17] 
+=================================================================
+[2026-10-25 07:32:17] [*] PHASE 2: STARTING AUTONOMOUS MULTI-VECTOR EXPLOITATION
+[2026-10-25 07:32:17] =================================================================
+[2026-10-25 07:32:17] [+] Loaded 25 unified vector(s) across infrastructure.
+[2026-10-25 07:32:17] 
+[Vector 1/25] Target: http://127.0.0.1:8080/listproducts.php?cat=1
+[2026-10-25 07:32:17]     -> Vector Type: SQLi | Parameter: cat
+[2026-10-25 07:32:17]     [+] Firing automated SQL Injection Dumper...
+[2026-10-25 07:32:18] 
+[Vector 2/25] Target: http://127.0.0.1:8080/page.php?file=home
+[2026-10-25 07:32:18]     -> Vector Type: LFI | Parameter: file
+[2026-10-25 07:32:18]     [+] Firing LFI Scanner module...
+[2026-10-25 07:32:19] 
+[Vector 3/25] Target: http://127.0.0.1:8080/admin
+[2026-10-25 07:32:19]     -> Vector Type: IDOR | Parameter: id
+[2026-10-25 07:32:19]     [+] Firing API IDOR / BOLA Fuzzer module...
+[2026-10-25 07:32:20] 
+[Vector 4/25] Target: http://127.0.0.1:8080/admin.php
+[2026-10-25 07:32:20]     -> Vector Type: IDOR | Parameter: id
+[2026-10-25 07:32:20]     [+] Firing API IDOR / BOLA Fuzzer module...
+[2026-10-25 07:32:22] 
+[Vector 5/25] Target: http://127.0.0.1:8080/dashboard
+[2026-10-25 07:32:22]     -> Vector Type: IDOR | Parameter: id
+[2026-10-25 07:32:22]     [+] Firing API IDOR / BOLA Fuzzer module...
+[2026-10-25 07:32:23] 
+[Vector 6/25] Target: http://127.0.0.1:8080/api
+[2026-10-25 07:32:23]     -> Vector Type: IDOR | Parameter: id
+[2026-10-25 07:32:23]     [+] Firing API IDOR / BOLA Fuzzer module...
+[2026-10-25 07:32:24] 
+[Vector 7/25] Target: http://127.0.0.1:8080/api/v1
+[2026-10-25 07:32:24]     -> Vector Type: IDOR | Parameter: id
+[2026-10-25 07:32:24]     [+] Firing API IDOR / BOLA Fuzzer module...
+[2026-10-25 07:32:26] 
+[Vector 8/25] Target: http://127.0.0.1:8080/api/v1/users
+[2026-10-25 07:32:26]     -> Vector Type: IDOR | Parameter: id
+[2026-10-25 07:32:26]     [+] Firing API IDOR / BOLA Fuzzer module...
+[2026-10-25 07:32:27] 
+[Vector 9/25] Target: http://127.0.0.1:8080/api/v1/status
+[2026-10-25 07:32:27]     -> Vector Type: IDOR | Parameter: id
+[2026-10-25 07:32:27]     [+] Firing API IDOR / BOLA Fuzzer module...
+[2026-10-25 07:32:29] 
+[Vector 10/25] Target: http://127.0.0.1:8080/config.json
+[2026-10-25 07:32:29]     -> Vector Type: IDOR | Parameter: id
+[2026-10-25 07:32:29]     [+] Firing API IDOR / BOLA Fuzzer module...
+[2026-10-25 07:32:30] 
+[Vector 11/25] Target: http://127.0.0.1:8080/robots.txt
+[2026-10-25 07:32:30]     -> Vector Type: IDOR | Parameter: id
+[2026-10-25 07:32:30]     [+] Firing API IDOR / BOLA Fuzzer module...
+[2026-10-25 07:32:32] 
+[Vector 12/25] Target: http://127.0.0.1:8080/test.php
+[2026-10-25 07:32:32]     -> Vector Type: IDOR | Parameter: id
+[2026-10-25 07:32:32]     [+] Firing API IDOR / BOLA Fuzzer module...
+[2026-10-25 07:32:33] 
+[Vector 13/25] Target: http://127.0.0.1:8080/upload
+[2026-10-25 07:32:33]     -> Vector Type: IDOR | Parameter: id
+[2026-10-25 07:32:33]     [+] Firing API IDOR / BOLA Fuzzer module...
+[2026-10-25 07:32:35] 
+[Vector 14/25] Target: http://127.0.0.1:8080/uploads
+[2026-10-25 07:32:35]     -> Vector Type: IDOR | Parameter: id
+[2026-10-25 07:32:35]     [+] Firing API IDOR / BOLA Fuzzer module...
+[2026-10-25 07:32:36] 
+[Vector 15/25] Target: http://127.0.0.1:8080/register
+[2026-10-25 07:32:36]     -> Vector Type: IDOR | Parameter: id
+[2026-10-25 07:32:36]     [+] Firing API IDOR / BOLA Fuzzer module...
+[2026-10-25 07:32:38] 
+[Vector 16/25] Target: http://127.0.0.1:8080/signup
+[2026-10-25 07:32:38]     -> Vector Type: IDOR | Parameter: id
+[2026-10-25 07:32:38]     [+] Firing API IDOR / BOLA Fuzzer module...
+[2026-10-25 07:32:39] 
+[Vector 17/25] Target: http://127.0.0.1:8080/server-status
+[2026-10-25 07:32:39]     -> Vector Type: IDOR | Parameter: id
+[2026-10-25 07:32:39]     [+] Firing API IDOR / BOLA Fuzzer module...
+[2026-10-25 07:32:41] 
+[Vector 18/25] Target: http://127.0.0.1:8080/phpinfo.php
+[2026-10-25 07:32:41]     -> Vector Type: IDOR | Parameter: id
+[2026-10-25 07:32:41]     [+] Firing API IDOR / BOLA Fuzzer module...
+[2026-10-25 07:32:42] 
+[Vector 19/25] Target: http://127.0.0.1:8080/db.sql
+[2026-10-25 07:32:42]     -> Vector Type: IDOR | Parameter: id
+[2026-10-25 07:32:42]     [+] Firing API IDOR / BOLA Fuzzer module...
+[2026-10-25 07:32:44] 
+[Vector 20/25] Target: http://127.0.0.1:8080/settings.py
+[2026-10-25 07:32:44]     -> Vector Type: IDOR | Parameter: id
+[2026-10-25 07:32:44]     [+] Firing API IDOR / BOLA Fuzzer module...
+[2026-10-25 07:32:45] 
+[Vector 21/25] Target: http://127.0.0.1:8080/swagger
+[2026-10-25 07:32:45]     -> Vector Type: IDOR | Parameter: id
+[2026-10-25 07:32:45]     [+] Firing API IDOR / BOLA Fuzzer module...
+[2026-10-25 07:32:47] 
+[Vector 22/25] Target: http://127.0.0.1:8080/api-docs
+[2026-10-25 07:32:47]     -> Vector Type: IDOR | Parameter: id
+[2026-10-25 07:32:47]     [+] Firing API IDOR / BOLA Fuzzer module...
+[2026-10-25 07:32:48] 
+[Vector 23/25] Target: http://127.0.0.1:8080/listproducts.php?cat=1
+[2026-10-25 07:32:48]     -> Vector Type: SQLi | Parameter: cat
+[2026-10-25 07:32:48]     [+] Firing automated SQL Injection Dumper...
+[2026-10-25 07:32:49] 
+[Vector 24/25] Target: http://127.0.0.1:8080/page.php?file=home
+[2026-10-25 07:32:49]     -> Vector Type: LFI | Parameter: file
+[2026-10-25 07:32:49]     [+] Firing LFI Scanner module...
+[2026-10-25 07:32:50] 
+[Vector 25/25] Target: http://127.0.0.1:8080/api/v1/user/101
+[2026-10-25 07:32:50]     -> Vector Type: IDOR | Parameter: id
+[2026-10-25 07:32:50]     [+] Firing API IDOR / BOLA Fuzzer module...
+[2026-10-25 07:32:50] 
+=================================================================
+[2026-10-25 07:32:50] [*] PIPELINE EXECUTION COMPLETED
+[2026-10-25 07:32:50] =================================================================
+[2026-10-25 07:40:02] =================================================================
+[2026-10-25 07:40:02]  [*] PHASE 1: DISCOVERY, JS MINING & SMART TRIAGE
+[2026-10-25 07:40:02] =================================================================
+[2026-10-25 07:40:02] [*] Running Frontend Web Spider on: http://127.0.0.1:8080
+[2026-10-25 07:40:02]     [+] Spider Found [LFI]: http://127.0.0.1:8080/page.php?file=home (Param: file)
+[2026-10-25 07:40:02]     [+] Spider Found [SQLi]: http://127.0.0.1:8080/listproducts.php?cat=1 (Param: cat)
+[2026-10-25 07:40:02] [*] Running High-Speed Directory & API Enumeration on: http://127.0.0.1:8080
+[2026-10-25 07:40:02]     [+] Mapped Vector [IDOR]: http://127.0.0.1:8080/admin
+[2026-10-25 07:40:02]     [+] Mapped Vector [IDOR]: http://127.0.0.1:8080/admin.php
+[2026-10-25 07:40:02]     [+] Mapped Vector [IDOR]: http://127.0.0.1:8080/dashboard
+[2026-10-25 07:40:02]     [+] Mapped Vector [IDOR]: http://127.0.0.1:8080/api
+[2026-10-25 07:40:02]     [+] Mapped Vector [IDOR]: http://127.0.0.1:8080/api/v1
+[2026-10-25 07:40:02]     [+] Mapped Vector [IDOR]: http://127.0.0.1:8080/api/v1/users
+[2026-10-25 07:40:02]     [+] Mapped Vector [IDOR]: http://127.0.0.1:8080/api/v1/status
+[2026-10-25 07:40:02]     [+] Mapped Vector [IDOR]: http://127.0.0.1:8080/config.json
+[2026-10-25 07:40:02]     [+] Mapped Vector [IDOR]: http://127.0.0.1:8080/robots.txt
+[2026-10-25 07:40:02]     [+] Mapped Vector [IDOR]: http://127.0.0.1:8080/test.php
+[2026-10-25 07:40:02]     [+] Mapped Vector [IDOR]: http://127.0.0.1:8080/upload
+[2026-10-25 07:40:02]     [+] Mapped Vector [IDOR]: http://127.0.0.1:8080/uploads
+[2026-10-25 07:40:02]     [+] Mapped Vector [IDOR]: http://127.0.0.1:8080/register
+[2026-10-25 07:40:02]     [+] Mapped Vector [IDOR]: http://127.0.0.1:8080/signup
+[2026-10-25 07:40:02]     [+] Mapped Vector [IDOR]: http://127.0.0.1:8080/server-status
+[2026-10-25 07:40:02]     [+] Mapped Vector [IDOR]: http://127.0.0.1:8080/phpinfo.php
+[2026-10-25 07:40:02]     [+] Mapped Vector [IDOR]: http://127.0.0.1:8080/db.sql
+[2026-10-25 07:40:02]     [+] Mapped Vector [IDOR]: http://127.0.0.1:8080/settings.py
+[2026-10-25 07:40:02]     [+] Mapped Vector [IDOR]: http://127.0.0.1:8080/swagger
+[2026-10-25 07:40:02]     [+] Mapped Vector [IDOR]: http://127.0.0.1:8080/api-docs
+[2026-10-25 07:40:02]     [+] Mapped Vector [SQLi]: http://127.0.0.1:8080/listproducts.php?cat=1
+[2026-10-25 07:40:02]     [+] Mapped Vector [LFI]: http://127.0.0.1:8080/page.php?file=home
+[2026-10-25 07:40:02]     [+] Mapped Vector [IDOR]: http://127.0.0.1:8080/api/v1/user/101
+[2026-10-25 07:40:02] 
+=================================================================
+[2026-10-25 07:40:02] [*] PHASE 2: STARTING AUTONOMOUS MULTI-VECTOR EXPLOITATION
+[2026-10-25 07:40:02] =================================================================
+[2026-10-25 07:40:02] [+] Loaded 25 unified vector(s) across infrastructure.
+[2026-10-25 07:40:02] 
+[Vector 1/25] Target: http://127.0.0.1:8080/page.php?file=home
+[2026-10-25 07:40:02]     -> Vector Type: LFI | Parameter: file
+[2026-10-25 07:40:02]     [+] Firing LFI Scanner module...
+[2026-10-25 07:40:03] 
+[Vector 2/25] Target: http://127.0.0.1:8080/listproducts.php?cat=1
+[2026-10-25 07:40:03]     -> Vector Type: SQLi | Parameter: cat
+[2026-10-25 07:40:03]     [+] Firing automated SQL Injection Dumper...
+[2026-10-25 07:40:04] 
+[Vector 3/25] Target: http://127.0.0.1:8080/admin
+[2026-10-25 07:40:04]     -> Vector Type: IDOR | Parameter: id
+[2026-10-25 07:40:04]     [+] Firing API IDOR / BOLA Fuzzer module...
+[2026-10-25 07:40:05] 
+[Vector 4/25] Target: http://127.0.0.1:8080/admin.php
+[2026-10-25 07:40:05]     -> Vector Type: IDOR | Parameter: id
+[2026-10-25 07:40:05]     [+] Firing API IDOR / BOLA Fuzzer module...
+[2026-10-25 07:40:07] 
+[Vector 5/25] Target: http://127.0.0.1:8080/dashboard
+[2026-10-25 07:40:07]     -> Vector Type: IDOR | Parameter: id
+[2026-10-25 07:40:07]     [+] Firing API IDOR / BOLA Fuzzer module...
+[2026-10-25 07:40:08] 
+[Vector 6/25] Target: http://127.0.0.1:8080/api
+[2026-10-25 07:40:08]     -> Vector Type: IDOR | Parameter: id
+[2026-10-25 07:40:08]     [+] Firing API IDOR / BOLA Fuzzer module...
+[2026-10-25 07:40:10] 
+[Vector 7/25] Target: http://127.0.0.1:8080/api/v1
+[2026-10-25 07:40:10]     -> Vector Type: IDOR | Parameter: id
+[2026-10-25 07:40:10]     [+] Firing API IDOR / BOLA Fuzzer module...
+[2026-10-25 07:40:11] 
+[Vector 8/25] Target: http://127.0.0.1:8080/api/v1/users
+[2026-10-25 07:40:11]     -> Vector Type: IDOR | Parameter: id
+[2026-10-25 07:40:11]     [+] Firing API IDOR / BOLA Fuzzer module...
+[2026-10-25 07:40:13] 
+[Vector 9/25] Target: http://127.0.0.1:8080/api/v1/status
+[2026-10-25 07:40:13]     -> Vector Type: IDOR | Parameter: id
+[2026-10-25 07:40:13]     [+] Firing API IDOR / BOLA Fuzzer module...
+[2026-10-25 07:40:14] 
+[Vector 10/25] Target: http://127.0.0.1:8080/config.json
+[2026-10-25 07:40:14]     -> Vector Type: IDOR | Parameter: id
+[2026-10-25 07:40:14]     [+] Firing API IDOR / BOLA Fuzzer module...
+[2026-10-25 07:40:16] 
+[Vector 11/25] Target: http://127.0.0.1:8080/robots.txt
+[2026-10-25 07:40:16]     -> Vector Type: IDOR | Parameter: id
+[2026-10-25 07:40:16]     [+] Firing API IDOR / BOLA Fuzzer module...
+[2026-10-25 07:40:17] 
+[Vector 12/25] Target: http://127.0.0.1:8080/test.php
+[2026-10-25 07:40:17]     -> Vector Type: IDOR | Parameter: id
+[2026-10-25 07:40:17]     [+] Firing API IDOR / BOLA Fuzzer module...
+[2026-10-25 07:40:19] 
+[Vector 13/25] Target: http://127.0.0.1:8080/upload
+[2026-10-25 07:40:19]     -> Vector Type: IDOR | Parameter: id
+[2026-10-25 07:40:19]     [+] Firing API IDOR / BOLA Fuzzer module...
+[2026-10-25 07:40:20] 
+[Vector 14/25] Target: http://127.0.0.1:8080/uploads
+[2026-10-25 07:40:20]     -> Vector Type: IDOR | Parameter: id
+[2026-10-25 07:40:20]     [+] Firing API IDOR / BOLA Fuzzer module...
+[2026-10-25 07:40:22] 
+[Vector 15/25] Target: http://127.0.0.1:8080/register
+[2026-10-25 07:40:22]     -> Vector Type: IDOR | Parameter: id
+[2026-10-25 07:40:22]     [+] Firing API IDOR / BOLA Fuzzer module...
+[2026-10-25 07:40:23] 
+[Vector 16/25] Target: http://127.0.0.1:8080/signup
+[2026-10-25 07:40:23]     -> Vector Type: IDOR | Parameter: id
+[2026-10-25 07:40:23]     [+] Firing API IDOR / BOLA Fuzzer module...
+[2026-10-25 07:40:24] 
+[Vector 17/25] Target: http://127.0.0.1:8080/server-status
+[2026-10-25 07:40:24]     -> Vector Type: IDOR | Parameter: id
+[2026-10-25 07:40:24]     [+] Firing API IDOR / BOLA Fuzzer module...
+[2026-10-25 07:40:26] 
+[Vector 18/25] Target: http://127.0.0.1:8080/phpinfo.php
+[2026-10-25 07:40:26]     -> Vector Type: IDOR | Parameter: id
+[2026-10-25 07:40:26]     [+] Firing API IDOR / BOLA Fuzzer module...
+[2026-10-25 07:40:27] 
+[Vector 19/25] Target: http://127.0.0.1:8080/db.sql
+[2026-10-25 07:40:27]     -> Vector Type: IDOR | Parameter: id
+[2026-10-25 07:40:27]     [+] Firing API IDOR / BOLA Fuzzer module...
+[2026-10-25 07:40:29] 
+[Vector 20/25] Target: http://127.0.0.1:8080/settings.py
+[2026-10-25 07:40:29]     -> Vector Type: IDOR | Parameter: id
+[2026-10-25 07:40:29]     [+] Firing API IDOR / BOLA Fuzzer module...
+[2026-10-25 07:40:30] 
+[Vector 21/25] Target: http://127.0.0.1:8080/swagger
+[2026-10-25 07:40:30]     -> Vector Type: IDOR | Parameter: id
+[2026-10-25 07:40:30]     [+] Firing API IDOR / BOLA Fuzzer module...
+[2026-10-25 07:40:32] 
+[Vector 22/25] Target: http://127.0.0.1:8080/api-docs
+[2026-10-25 07:40:32]     -> Vector Type: IDOR | Parameter: id
+[2026-10-25 07:40:32]     [+] Firing API IDOR / BOLA Fuzzer module...
+[2026-10-25 07:40:33] 
+[Vector 23/25] Target: http://127.0.0.1:8080/listproducts.php?cat=1
+[2026-10-25 07:40:33]     -> Vector Type: SQLi | Parameter: cat
+[2026-10-25 07:40:33]     [+] Firing automated SQL Injection Dumper...
+[2026-10-25 07:40:34] 
+[Vector 24/25] Target: http://127.0.0.1:8080/page.php?file=home
+[2026-10-25 07:40:34]     -> Vector Type: LFI | Parameter: file
+[2026-10-25 07:40:34]     [+] Firing LFI Scanner module...
+[2026-10-25 07:40:35] 
+[Vector 25/25] Target: http://127.0.0.1:8080/api/v1/user/101
+[2026-10-25 07:40:35]     -> Vector Type: IDOR | Parameter: id
+[2026-10-25 07:40:35]     [+] Firing API IDOR / BOLA Fuzzer module...
+[2026-10-25 07:40:35] 
+=================================================================
+[2026-10-25 07:40:35] [*] PIPELINE EXECUTION COMPLETED
+[2026-10-25 07:40:35] =================================================================
+[2026-10-25 07:45:41] =================================================================
+[2026-10-25 07:45:41]  [*] PHASE 1: DISCOVERY, JS MINING & SMART TRIAGE
+[2026-10-25 07:45:41] =================================================================
+[2026-10-25 07:45:41] [*] Running Frontend Web Spider on: http://127.0.0.1:8080
+[2026-10-25 07:45:41]     [+] Spider Found [LFI]: http://127.0.0.1:8080/page.php?file=home (Param: file)
+[2026-10-25 07:45:41]     [+] Spider Found [SQLi]: http://127.0.0.1:8080/listproducts.php?cat=1 (Param: cat)
+[2026-10-25 07:45:41] [*] Running High-Speed Directory & API Enumeration on: http://127.0.0.1:8080
+[2026-10-25 07:45:41]     [+] Mapped Vector [IDOR]: http://127.0.0.1:8080/admin
+[2026-10-25 07:45:41]     [+] Mapped Vector [IDOR]: http://127.0.0.1:8080/admin.php
+[2026-10-25 07:45:41]     [+] Mapped Vector [IDOR]: http://127.0.0.1:8080/dashboard
+[2026-10-25 07:45:41]     [+] Mapped Vector [IDOR]: http://127.0.0.1:8080/api
+[2026-10-25 07:45:41]     [+] Mapped Vector [IDOR]: http://127.0.0.1:8080/api/v1
+[2026-10-25 07:45:41]     [+] Mapped Vector [IDOR]: http://127.0.0.1:8080/api/v1/users
+[2026-10-25 07:45:41]     [+] Mapped Vector [IDOR]: http://127.0.0.1:8080/api/v1/status
+[2026-10-25 07:45:41]     [+] Mapped Vector [IDOR]: http://127.0.0.1:8080/config.json
+[2026-10-25 07:45:41]     [+] Mapped Vector [IDOR]: http://127.0.0.1:8080/robots.txt
+[2026-10-25 07:45:41]     [+] Mapped Vector [IDOR]: http://127.0.0.1:8080/test.php
+[2026-10-25 07:45:41]     [+] Mapped Vector [IDOR]: http://127.0.0.1:8080/upload
+[2026-10-25 07:45:41]     [+] Mapped Vector [IDOR]: http://127.0.0.1:8080/uploads
+[2026-10-25 07:45:41]     [+] Mapped Vector [IDOR]: http://127.0.0.1:8080/register
+[2026-10-25 07:45:41]     [+] Mapped Vector [IDOR]: http://127.0.0.1:8080/signup
+[2026-10-25 07:45:41]     [+] Mapped Vector [IDOR]: http://127.0.0.1:8080/server-status
+[2026-10-25 07:45:41]     [+] Mapped Vector [IDOR]: http://127.0.0.1:8080/phpinfo.php
+[2026-10-25 07:45:41]     [+] Mapped Vector [IDOR]: http://127.0.0.1:8080/db.sql
+[2026-10-25 07:45:41]     [+] Mapped Vector [IDOR]: http://127.0.0.1:8080/settings.py
+[2026-10-25 07:45:42]     [+] Mapped Vector [IDOR]: http://127.0.0.1:8080/swagger
+[2026-10-25 07:45:42]     [+] Mapped Vector [IDOR]: http://127.0.0.1:8080/api-docs
+[2026-10-25 07:45:42]     [+] Mapped Vector [SQLi]: http://127.0.0.1:8080/listproducts.php?cat=1
+[2026-10-25 07:45:42]     [+] Mapped Vector [LFI]: http://127.0.0.1:8080/page.php?file=home
+[2026-10-25 07:45:42]     [+] Mapped Vector [IDOR]: http://127.0.0.1:8080/api/v1/user/101
+[2026-10-25 07:45:42] 
+=================================================================
+[2026-10-25 07:45:42] [*] PHASE 2: STARTING AUTONOMOUS MULTI-VECTOR EXPLOITATION
+[2026-10-25 07:45:42] =================================================================
+[2026-10-25 07:45:42] [+] Loaded 25 unified vector(s) across infrastructure.
+[2026-10-25 07:45:42] 
+[Vector 1/25] Target: http://127.0.0.1:8080/page.php?file=home
+[2026-10-25 07:45:42]     -> Vector Type: LFI | Parameter: file
+[2026-10-25 07:45:42]     [+] Firing LFI Scanner module...
+[2026-10-25 07:45:42] 
+[Vector 2/25] Target: http://127.0.0.1:8080/listproducts.php?cat=1
+[2026-10-25 07:45:42]     -> Vector Type: SQLi | Parameter: cat
+[2026-10-25 07:45:42]     [+] Firing automated SQL Injection Dumper...
+[2026-10-25 07:45:43] 
+[Vector 3/25] Target: http://127.0.0.1:8080/admin
+[2026-10-25 07:45:43]     -> Vector Type: IDOR | Parameter: id
+[2026-10-25 07:45:43]     [+] Firing API IDOR / BOLA Fuzzer module...
+[2026-10-25 07:45:45] 
+[Vector 4/25] Target: http://127.0.0.1:8080/admin.php
+[2026-10-25 07:45:45]     -> Vector Type: IDOR | Parameter: id
+[2026-10-25 07:45:45]     [+] Firing API IDOR / BOLA Fuzzer module...
+[2026-10-25 07:45:46] 
+[Vector 5/25] Target: http://127.0.0.1:8080/dashboard
+[2026-10-25 07:45:46]     -> Vector Type: IDOR | Parameter: id
+[2026-10-25 07:45:46]     [+] Firing API IDOR / BOLA Fuzzer module...
+[2026-10-25 07:45:48] 
+[Vector 6/25] Target: http://127.0.0.1:8080/api
+[2026-10-25 07:45:48]     -> Vector Type: IDOR | Parameter: id
+[2026-10-25 07:45:48]     [+] Firing API IDOR / BOLA Fuzzer module...
+[2026-10-25 07:45:49] 
+[Vector 7/25] Target: http://127.0.0.1:8080/api/v1
+[2026-10-25 07:45:49]     -> Vector Type: IDOR | Parameter: id
+[2026-10-25 07:45:49]     [+] Firing API IDOR / BOLA Fuzzer module...
+[2026-10-25 07:45:50] 
+[Vector 8/25] Target: http://127.0.0.1:8080/api/v1/users
+[2026-10-25 07:45:50]     -> Vector Type: IDOR | Parameter: id
+[2026-10-25 07:45:50]     [+] Firing API IDOR / BOLA Fuzzer module...
+[2026-10-25 07:45:52] 
+[Vector 9/25] Target: http://127.0.0.1:8080/api/v1/status
+[2026-10-25 07:45:52]     -> Vector Type: IDOR | Parameter: id
+[2026-10-25 07:45:52]     [+] Firing API IDOR / BOLA Fuzzer module...
+[2026-10-25 07:45:53] 
+[Vector 10/25] Target: http://127.0.0.1:8080/config.json
+[2026-10-25 07:45:53]     -> Vector Type: IDOR | Parameter: id
+[2026-10-25 07:45:53]     [+] Firing API IDOR / BOLA Fuzzer module...
+[2026-10-25 07:45:55] 
+[Vector 11/25] Target: http://127.0.0.1:8080/robots.txt
+[2026-10-25 07:45:55]     -> Vector Type: IDOR | Parameter: id
+[2026-10-25 07:45:55]     [+] Firing API IDOR / BOLA Fuzzer module...
+[2026-10-25 07:45:56] 
+[Vector 12/25] Target: http://127.0.0.1:8080/test.php
+[2026-10-25 07:45:56]     -> Vector Type: IDOR | Parameter: id
+[2026-10-25 07:45:56]     [+] Firing API IDOR / BOLA Fuzzer module...
+[2026-10-25 07:45:58] 
+[Vector 13/25] Target: http://127.0.0.1:8080/upload
+[2026-10-25 07:45:58]     -> Vector Type: IDOR | Parameter: id
+[2026-10-25 07:45:58]     [+] Firing API IDOR / BOLA Fuzzer module...
+[2026-10-25 07:45:59] 
+[Vector 14/25] Target: http://127.0.0.1:8080/uploads
+[2026-10-25 07:45:59]     -> Vector Type: IDOR | Parameter: id
+[2026-10-25 07:45:59]     [+] Firing API IDOR / BOLA Fuzzer module...
+[2026-10-25 07:46:01] 
+[Vector 15/25] Target: http://127.0.0.1:8080/register
+[2026-10-25 07:46:01]     -> Vector Type: IDOR | Parameter: id
+[2026-10-25 07:46:01]     [+] Firing API IDOR / BOLA Fuzzer module...
+[2026-10-25 07:46:02] 
+[Vector 16/25] Target: http://127.0.0.1:8080/signup
+[2026-10-25 07:46:02]     -> Vector Type: IDOR | Parameter: id
+[2026-10-25 07:46:02]     [+] Firing API IDOR / BOLA Fuzzer module...
+[2026-10-25 07:46:04] 
+[Vector 17/25] Target: http://127.0.0.1:8080/server-status
+[2026-10-25 07:46:04]     -> Vector Type: IDOR | Parameter: id
+[2026-10-25 07:46:04]     [+] Firing API IDOR / BOLA Fuzzer module...
+[2026-10-25 07:46:05] 
+[Vector 18/25] Target: http://127.0.0.1:8080/phpinfo.php
+[2026-10-25 07:46:05]     -> Vector Type: IDOR | Parameter: id
+[2026-10-25 07:46:05]     [+] Firing API IDOR / BOLA Fuzzer module...
+[2026-10-25 07:46:07] 
+[Vector 19/25] Target: http://127.0.0.1:8080/db.sql
+[2026-10-25 07:46:07]     -> Vector Type: IDOR | Parameter: id
+[2026-10-25 07:46:07]     [+] Firing API IDOR / BOLA Fuzzer module...
+[2026-10-25 07:46:08] 
+[Vector 20/25] Target: http://127.0.0.1:8080/settings.py
+[2026-10-25 07:46:08]     -> Vector Type: IDOR | Parameter: id
+[2026-10-25 07:46:08]     [+] Firing API IDOR / BOLA Fuzzer module...
+[2026-10-25 07:46:10] 
+[Vector 21/25] Target: http://127.0.0.1:8080/swagger
+[2026-10-25 07:46:10]     -> Vector Type: IDOR | Parameter: id
+[2026-10-25 07:46:10]     [+] Firing API IDOR / BOLA Fuzzer module...
+[2026-10-25 07:46:11] 
+[Vector 22/25] Target: http://127.0.0.1:8080/api-docs
+[2026-10-25 07:46:11]     -> Vector Type: IDOR | Parameter: id
+[2026-10-25 07:46:11]     [+] Firing API IDOR / BOLA Fuzzer module...
+[2026-10-25 07:46:13] 
+[Vector 23/25] Target: http://127.0.0.1:8080/listproducts.php?cat=1
+[2026-10-25 07:46:13]     -> Vector Type: SQLi | Parameter: cat
+[2026-10-25 07:46:13]     [+] Firing automated SQL Injection Dumper...
+[2026-10-25 07:46:13] 
+[Vector 24/25] Target: http://127.0.0.1:8080/page.php?file=home
+[2026-10-25 07:46:13]     -> Vector Type: LFI | Parameter: file
+[2026-10-25 07:46:13]     [+] Firing LFI Scanner module...
+[2026-10-25 07:46:14] 
+[Vector 25/25] Target: http://127.0.0.1:8080/api/v1/user/101
+[2026-10-25 07:46:14]     -> Vector Type: IDOR | Parameter: id
+[2026-10-25 07:46:14]     [+] Firing API IDOR / BOLA Fuzzer module...
+[2026-10-25 07:46:15] 
+=================================================================
+[2026-10-25 07:46:15] [*] PIPELINE EXECUTION COMPLETED
+[2026-10-25 07:46:15] =================================================================
+[2026-10-25 07:51:36] =================================================================
+[2026-10-25 07:51:36]  [*] PHASE 1: DISCOVERY, JS MINING & SMART TRIAGE
+[2026-10-25 07:51:36] =================================================================
+[2026-10-25 07:51:36] [*] Running Frontend Web Spider on: http://127.0.0.1:8080
+[2026-10-25 07:51:36]     [+] Spider Found [LFI]: http://127.0.0.1:8080/page.php?file=home (Param: file)
+[2026-10-25 07:51:36]     [+] Spider Found [SQLi]: http://127.0.0.1:8080/listproducts.php?cat=1 (Param: cat)
+[2026-10-25 07:51:36] [*] Running High-Speed Directory & API Enumeration on: http://127.0.0.1:8080
+[2026-10-25 07:51:36]     [+] Mapped Vector [IDOR]: http://127.0.0.1:8080/admin
+[2026-10-25 07:51:36]     [+] Mapped Vector [IDOR]: http://127.0.0.1:8080/admin.php
+[2026-10-25 07:51:36]     [+] Mapped Vector [IDOR]: http://127.0.0.1:8080/dashboard
+[2026-10-25 07:51:36]     [+] Mapped Vector [IDOR]: http://127.0.0.1:8080/api
+[2026-10-25 07:51:36]     [+] Mapped Vector [IDOR]: http://127.0.0.1:8080/api/v1
+[2026-10-25 07:51:36]     [+] Mapped Vector [IDOR]: http://127.0.0.1:8080/api/v1/users
+[2026-10-25 07:51:36]     [+] Mapped Vector [IDOR]: http://127.0.0.1:8080/api/v1/status
+[2026-10-25 07:51:36]     [+] Mapped Vector [IDOR]: http://127.0.0.1:8080/config.json
+[2026-10-25 07:51:36]     [+] Mapped Vector [IDOR]: http://127.0.0.1:8080/robots.txt
+[2026-10-25 07:51:36]     [+] Mapped Vector [IDOR]: http://127.0.0.1:8080/test.php
+[2026-10-25 07:51:36]     [+] Mapped Vector [IDOR]: http://127.0.0.1:8080/upload
+[2026-10-25 07:51:36]     [+] Mapped Vector [IDOR]: http://127.0.0.1:8080/uploads
+[2026-10-25 07:51:36]     [+] Mapped Vector [IDOR]: http://127.0.0.1:8080/register
+[2026-10-25 07:51:36]     [+] Mapped Vector [IDOR]: http://127.0.0.1:8080/signup
+[2026-10-25 07:51:36]     [+] Mapped Vector [IDOR]: http://127.0.0.1:8080/server-status
+[2026-10-25 07:51:36]     [+] Mapped Vector [IDOR]: http://127.0.0.1:8080/phpinfo.php
+[2026-10-25 07:51:36]     [+] Mapped Vector [IDOR]: http://127.0.0.1:8080/db.sql
+[2026-10-25 07:51:37]     [+] Mapped Vector [IDOR]: http://127.0.0.1:8080/settings.py
+[2026-10-25 07:51:37]     [+] Mapped Vector [IDOR]: http://127.0.0.1:8080/swagger
+[2026-10-25 07:51:37]     [+] Mapped Vector [IDOR]: http://127.0.0.1:8080/api-docs
+[2026-10-25 07:51:37]     [+] Mapped Vector [SQLi]: http://127.0.0.1:8080/listproducts.php?cat=1
+[2026-10-25 07:51:37]     [+] Mapped Vector [LFI]: http://127.0.0.1:8080/page.php?file=home
+[2026-10-25 07:51:37]     [+] Mapped Vector [IDOR]: http://127.0.0.1:8080/api/v1/user/101
+[2026-10-25 07:51:37]     [+] Mapped Vector [JWT]: http://127.0.0.1:8080/api/v1/secure-data
+[2026-10-25 07:51:37] 
+=================================================================
+[2026-10-25 07:51:37] [*] PHASE 2: STARTING AUTONOMOUS MULTI-VECTOR EXPLOITATION
+[2026-10-25 07:51:37] =================================================================
+[2026-10-25 07:51:37] [+] Loaded 26 unified vector(s) across infrastructure.
+[2026-10-25 07:51:37] 
+[Vector 1/26] Target: http://127.0.0.1:8080/page.php?file=home
+[2026-10-25 07:51:37]     -> Vector Type: LFI | Parameter: file
+[2026-10-25 07:51:37]     [+] Firing LFI Scanner module...
+[2026-10-25 07:51:37] 
+[Vector 2/26] Target: http://127.0.0.1:8080/listproducts.php?cat=1
+[2026-10-25 07:51:37]     -> Vector Type: SQLi | Parameter: cat
+[2026-10-25 07:51:37]     [+] Firing automated SQL Injection Dumper...
+[2026-10-25 07:51:38] 
+[Vector 3/26] Target: http://127.0.0.1:8080/admin
+[2026-10-25 07:51:38]     -> Vector Type: IDOR | Parameter: id
+[2026-10-25 07:51:38]     [+] Firing API IDOR / BOLA Fuzzer module…
+[2026-10-25 07:51:40] 
+[Vector 4/26] Target: http://127.0.0.1:8080/admin.php
+[2026-10-25 07:51:40]     -> Vector Type: IDOR | Parameter: id
+[2026-10-25 07:51:40]     [+] Firing API IDOR / BOLA Fuzzer module…
+[2026-10-25 07:51:41] 
+[Vector 5/26] Target: http://127.0.0.1:8080/dashboard
+[2026-10-25 07:51:41]     -> Vector Type: IDOR | Parameter: id
+[2026-10-25 07:51:41]     [+] Firing API IDOR / BOLA Fuzzer module…
+[2026-10-25 07:51:43] 
+[Vector 6/26] Target: http://127.0.0.1:8080/api
+[2026-10-25 07:51:43]     -> Vector Type: IDOR | Parameter: id
+[2026-10-25 07:51:43]     [+] Firing API IDOR / BOLA Fuzzer module…
+[2026-10-25 07:51:44] 
+[Vector 7/26] Target: http://127.0.0.1:8080/api/v1
+[2026-10-25 07:51:44]     -> Vector Type: IDOR | Parameter: id
+[2026-10-25 07:51:44]     [+] Firing API IDOR / BOLA Fuzzer module…
+[2026-10-25 07:51:46] 
+[Vector 8/26] Target: http://127.0.0.1:8080/api/v1/users
+[2026-10-25 07:51:46]     -> Vector Type: IDOR | Parameter: id
+[2026-10-25 07:51:46]     [+] Firing API IDOR / BOLA Fuzzer module…
+[2026-10-25 07:51:47] 
+[Vector 9/26] Target: http://127.0.0.1:8080/api/v1/status
+[2026-10-25 07:51:47]     -> Vector Type: IDOR | Parameter: id
+[2026-10-25 07:51:47]     [+] Firing API IDOR / BOLA Fuzzer module…
+[2026-10-25 07:51:49] 
+[Vector 10/26] Target: http://127.0.0.1:8080/config.json
+[2026-10-25 07:51:49]     -> Vector Type: IDOR | Parameter: id
+[2026-10-25 07:51:49]     [+] Firing API IDOR / BOLA Fuzzer module…
+[2026-10-25 07:51:50] 
+[Vector 11/26] Target: http://127.0.0.1:8080/robots.txt
+[2026-10-25 07:51:50]     -> Vector Type: IDOR | Parameter: id
+[2026-10-25 07:51:50]     [+] Firing API IDOR / BOLA Fuzzer module…
+[2026-10-25 07:51:52] 
+[Vector 12/26] Target: http://127.0.0.1:8080/test.php
+[2026-10-25 07:51:52]     -> Vector Type: IDOR | Parameter: id
+[2026-10-25 07:51:52]     [+] Firing API IDOR / BOLA Fuzzer module…
+[2026-10-25 07:51:53] 
+[Vector 13/26] Target: http://127.0.0.1:8080/upload
+[2026-10-25 07:51:53]     -> Vector Type: IDOR | Parameter: id
+[2026-10-25 07:51:53]     [+] Firing API IDOR / BOLA Fuzzer module…
+[2026-10-25 07:51:55] 
+[Vector 14/26] Target: http://127.0.0.1:8080/uploads
+[2026-10-25 07:51:55]     -> Vector Type: IDOR | Parameter: id
+[2026-10-25 07:51:55]     [+] Firing API IDOR / BOLA Fuzzer module…
+[2026-10-25 07:51:56] 
+[Vector 15/26] Target: http://127.0.0.1:8080/register
+[2026-10-25 07:51:56]     -> Vector Type: IDOR | Parameter: id
+[2026-10-25 07:51:56]     [+] Firing API IDOR / BOLA Fuzzer module…
+[2026-10-25 07:51:57] 
+[Vector 16/26] Target: http://127.0.0.1:8080/signup
+[2026-10-25 07:51:57]     -> Vector Type: IDOR | Parameter: id
+[2026-10-25 07:51:57]     [+] Firing API IDOR / BOLA Fuzzer module…
+[2026-10-25 07:51:59] 
+[Vector 17/26] Target: http://127.0.0.1:8080/server-status
+[2026-10-25 07:51:59]     -> Vector Type: IDOR | Parameter: id
+[2026-10-25 07:51:59]     [+] Firing API IDOR / BOLA Fuzzer module…
+[2026-10-25 07:52:00] 
+[Vector 18/26] Target: http://127.0.0.1:8080/phpinfo.php
+[2026-10-25 07:52:00]     -> Vector Type: IDOR | Parameter: id
+[2026-10-25 07:52:00]     [+] Firing API IDOR / BOLA Fuzzer module…
+[2026-10-25 07:52:02] 
+[Vector 19/26] Target: http://127.0.0.1:8080/db.sql
+[2026-10-25 07:52:02]     -> Vector Type: IDOR | Parameter: id
+[2026-10-25 07:52:02]     [+] Firing API IDOR / BOLA Fuzzer module…
+[2026-10-25 07:52:03] 
+[Vector 20/26] Target: http://127.0.0.1:8080/settings.py
+[2026-10-25 07:52:03]     -> Vector Type: IDOR | Parameter: id
+[2026-10-25 07:52:03]     [+] Firing API IDOR / BOLA Fuzzer module…
+[2026-10-25 07:52:05] 
+[Vector 21/26] Target: http://127.0.0.1:8080/swagger
+[2026-10-25 07:52:05]     -> Vector Type: IDOR | Parameter: id
+[2026-10-25 07:52:05]     [+] Firing API IDOR / BOLA Fuzzer module…
+[2026-10-25 07:52:06] 
+[Vector 22/26] Target: http://127.0.0.1:8080/api-docs
+[2026-10-25 07:52:06]     -> Vector Type: IDOR | Parameter: id
+[2026-10-25 07:52:06]     [+] Firing API IDOR / BOLA Fuzzer module…
+[2026-10-25 07:52:08] 
+[Vector 23/26] Target: http://127.0.0.1:8080/listproducts.php?cat=1
+[2026-10-25 07:52:08]     -> Vector Type: SQLi | Parameter: cat
+[2026-10-25 07:52:08]     [+] Firing automated SQL Injection Dumper...
+[2026-10-25 07:52:09] 
+[Vector 24/26] Target: http://127.0.0.1:8080/page.php?file=home
+[2026-10-25 07:52:09]     -> Vector Type: LFI | Parameter: file
+[2026-10-25 07:52:09]     [+] Firing LFI Scanner module...
+[2026-10-25 07:52:09] 
+[Vector 25/26] Target: http://127.0.0.1:8080/api/v1/user/101
+[2026-10-25 07:52:09]     -> Vector Type: IDOR | Parameter: id
+[2026-10-25 07:52:09]     [+] Firing API IDOR / BOLA Fuzzer module…
+[2026-10-25 07:52:10] 
+[Vector 26/26] Target: http://127.0.0.1:8080/api/v1/secure-data
+[2026-10-25 07:52:10]     -> Vector Type: JWT | Parameter: token
+[2026-10-25 07:52:10]     [+] Firing JWT Vulnerability & Claim Tampering Auditor...
+[2026-10-25 07:52:10] 
+=================================================================
+[2026-10-25 07:52:10] [*] PIPELINE EXECUTION COMPLETED
+[2026-10-25 07:52:10] =================================================================

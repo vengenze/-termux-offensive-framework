@@ -1,13 +1,13 @@
 [
     {
-        "target": "http://127.0.0.1:8080/listproducts.php?cat=1",
-        "param": "cat",
-        "vulnerability": "SQLi"
-    },
-    {
         "target": "http://127.0.0.1:8080/page.php?file=home",
         "param": "file",
         "vulnerability": "LFI"
+    },
+    {
+        "target": "http://127.0.0.1:8080/listproducts.php?cat=1",
+        "param": "cat",
+        "vulnerability": "SQLi"
     },
     {
         "target": "http://127.0.0.1:8080/admin",
@@ -123,5 +123,11 @@
         "target": "http://127.0.0.1:8080/api/v1/user/101",
         "param": "id",
         "vulnerability": "IDOR"
+    },
+    {
+        "target": "http://127.0.0.1:8080/api/v1/secure-data",
+        "param": "token",
+        "vulnerability": "JWT",
+        "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEwMSwicm9sZSI6ImN1c3RvbWVyIiwiZW1haWwiOiJhbGljZUB0ZXN0LmNvbSJ9.KxJ41gV1vQ7Gz8VbV2n8Fq6J5K9m3N4b5V6c7X8z9Q0"
     }
 ]
