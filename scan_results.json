@@ -32,5 +32,10 @@
     "vulnerability": "SSRF",
     "target": "http://127.0.0.1:8080/fetch.php?url=http://example.com",
     "param": "url"
+  },
+  {
+    "vulnerability": "SSTI",
+    "target": "http://127.0.0.1:8080/render.php?name=Guest",
+    "param": "name"
   }
 ]
