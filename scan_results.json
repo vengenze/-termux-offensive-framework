@@ -1,31 +1,6 @@
 [
   {
-    "vulnerability": "JWT",
-    "target": "https://pentest-ground.com:4280/api/v1/secure-data",
-    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEwMSwicm9sZSI6ImN1c3RvbWVyIiwiZW1haWwiOiJhbGljZUB0ZXN0LmNvbSJ9.KxJ41gV1vQ7Gz8VbV2n8Fq6J5K9m3N4b5V6c7X8z9Q0"
-  },
-  {
-    "vulnerability": "Command Injection",
-    "target": "https://pentest-ground.com:4280/ping.php?ip=127.0.0.1",
-    "param": "ip"
-  },
-  {
     "vulnerability": "GraphQL Introspection",
-    "target": "https://pentest-ground.com:4280/graphql"
-  },
-  {
-    "vulnerability": "SSRF",
-    "target": "https://pentest-ground.com:4280/fetch.php?url=http://169.254.169.254/latest/meta-data/",
-    "param": "url"
-  },
-  {
-    "vulnerability": "SSTI",
-    "target": "https://pentest-ground.com:4280/render.php?name=Guest",
-    "param": "name"
-  },
-  {
-    "vulnerability": "SSRF",
-    "target": "https://pentest-ground.com:4280/fetch.php?url=http://127.0.0.1:10255/pods",
-    "param": "url"
+    "target": "https://pentest-ground.com:5013/graphql"
   }
 ]
