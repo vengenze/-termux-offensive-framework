@@ -1,66 +1,58 @@
 [
-  {
-    "vulnerability": "Command Injection",
-    "target": "https://pentest-ground.com:9000/eval",
-    "param": "s",
-    "method": "GET",
-    "format": "query",
-    "token": "THISISATOKEN"
-  },
-  {
-    "vulnerability": "API Endpoint",
-    "target": "https://pentest-ground.com:9000/help",
-    "param": "input",
-    "method": "GET",
-    "format": "query",
-    "token": "N/A"
-  },
-  {
-    "vulnerability": "SQLi / XML Injection",
-    "target": "https://pentest-ground.com:9000/search",
-    "param": "input",
-    "method": "POST",
-    "format": "json",
-    "token": "N/A"
-  },
-  {
-    "vulnerability": "API Endpoint",
-    "target": "https://pentest-ground.com:9000/tokens",
-    "param": "input",
-    "method": "POST",
-    "format": "json",
-    "token": "N/A"
-  },
-  {
-    "vulnerability": "Command Injection / Flag Reader",
-    "target": "https://pentest-ground.com:9000/uptime/{flag}",
-    "param": "flag",
-    "method": "GET",
-    "format": "path",
-    "token": "N/A"
-  },
-  {
-    "vulnerability": "IDOR",
-    "target": "https://pentest-ground.com:9000/user",
-    "param": "input",
-    "method": "POST",
-    "format": "json",
-    "token": "THISISATOKEN"
-  },
-  {
-    "vulnerability": "IDOR",
-    "target": "https://pentest-ground.com:9000/user/{user}",
-    "param": "user",
-    "method": "GET",
-    "format": "path",
-    "token": "THISISATOKEN"
-  },
-  {
-    "vulnerability": "API Endpoint",
-    "target": "https://pentest-ground.com:9000/widget",
-    "param": "input",
-    "method": "POST",
-    "format": "json",
-    "token": "THISISATOKEN"
-  }
+    {
+        "target": "https://pentest-ground.com:9000/",
+        "vulnerability": "Generate HTML content",
+        "method": "GET",
+        "parameter": "query"
+    },
+    {
+        "target": "https://pentest-ground.com:9000/eval",
+        "vulnerability": "API Endpoint",
+        "method": "GET",
+        "parameter": "query"
+    },
+    {
+        "target": "https://pentest-ground.com:9000/help",
+        "vulnerability": "Generate HTML help content",
+        "method": "GET",
+        "parameter": "query"
+    },
+    {
+        "target": "https://pentest-ground.com:9000/search",
+        "vulnerability": "API Endpoint",
+        "method": "POST",
+        "parameter": "query"
+    },
+    {
+        "target": "https://pentest-ground.com:9000/tokens",
+        "vulnerability": "SQL Injection (Validated)",
+        "method": "POST",
+        "parameter": "query",
+        "status": "Validated"
+    },
+    {
+        "target": "https://pentest-ground.com:9000/uptime/{flag}",
+        "vulnerability": "OS Command Injection (Validated)",
+        "method": "GET",
+        "parameter": "query",
+        "status": "Validated"
+    },
+    {
+        "target": "https://pentest-ground.com:9000/user",
+        "vulnerability": "API Endpoint",
+        "method": "POST",
+        "parameter": "query"
+    },
+    {
+        "target": "https://pentest-ground.com:9000/user/{user}",
+        "vulnerability": "API Endpoint",
+        "method": "GET",
+        "parameter": "query"
+    },
+    {
+        "target": "https://pentest-ground.com:9000/widget",
+        "vulnerability": "API Endpoint",
+        "method": "POST",
+        "parameter": "query"
+    }
 ]

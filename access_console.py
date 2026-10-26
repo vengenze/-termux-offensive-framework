@@ -1,180 +1,122 @@
 import os
-import sys
 import json
-import urllib.request
-import urllib.parse
-import urllib.error
-import re
+import requests
+import urllib3
+from core.agent import TerminalAgent
 
-# Import the core Terminal Agent copilot
-try:
-    from core.agent import TerminalAgent
-except ImportError:
-    TerminalAgent = None
-
-RESULTS_FILE = "scan_results.json"
-
-def load_findings():
-    if not os.path.exists(RESULTS_FILE):
-        return []
-    try:
-        with open(RESULTS_FILE, "r") as f:
-            return json.load(f)
-    except Exception:
-        return []
-
-def send_request(url, method="GET", data=None, headers=None):
-    headers = headers or {'User-Agent': 'Mozilla/5.0'}
-    try:
-        req = urllib.request.Request(url, data=data, headers=headers, method=method)
-        with urllib.request.urlopen(req, timeout=5) as resp:
-            return resp.getcode(), resp.read().decode('utf-8', errors='ignore')
-    except urllib.error.HTTPError as e:
-        return e.code, e.read().decode('utf-8', errors='ignore')
-    except Exception as ex:
-        return None, str(ex)
+# Suppress SSL warnings for self-signed lab certificates
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 def interactive_session(item):
-    target = item.get("target")
-    vulnerability = item.get("vulnerability")
-    param = item.get("param", "query")
-    method = item.get("method", "GET")
-    fmt = item.get("format", "query")
-    token = item.get("token", "N/A")
-    
-    # Initialize the Terminal Agent Copilot if available
-    agent = TerminalAgent() if TerminalAgent else None
-    
-    os.system('clear' if os.name == 'posix' else 'cls')
+    agent = TerminalAgent()
+    target_url = item.get("target")
+    method = item.get("method", "GET").upper()
+    vuln = item.get("vulnerability", "Unknown")
+    param = item.get("parameter", "s")
+
     print("=" * 65)
-    print(f" [*] INTERACTIVE SESSION [{vulnerability.upper()}]")
-    print(f" [*] Target: {target}")
-    print(f" [*] Method: {method} | Format: {fmt} | Parameter/Placeholder: {param}")
-    if agent:
-        print(f" [*] Copilot Status: Active ({agent.name})")
+    print(f" [*] INTERACTIVE SESSION [{vuln.upper()}]")
+    print(f" [*] Target: {target_url}         [*] Method: {method}")
+    print(f" [*] Copilot Status: Active ({agent.name})")
     print("=" * 65)
-    print(" Type 'help' for available commands, or 'exit' to return to dashboard.\n")
-    
+    print(" Type 'help' for available commands, or enter your payload/expression.\n")
+
     while True:
         try:
-            cmd_line = input("(target session)> ").strip()
+            user_input = input("(target session)> ").strip()
         except (KeyboardInterrupt, EOFError):
-            print()
             break
-            
-        if not cmd_line:
+
+        if not user_input:
             continue
-            
-        parts = cmd_line.split(" ", 1)
-        action = parts[0].lower()
-        arg = parts[1] if len(parts) > 1 else ""
-        
-        if action == "exit":
+        if user_input.lower() == "exit":
             break
-        elif action == "help":
-            print("    Commands:")
-            print("      info        - View current target and vulnerability details")
-            print("      exploit     - Re-run automated exploit payload against target")
-            print(f"      exec <val>  - Dispatch payload (Method: {method}, Format: {fmt})")
-            print("      curl <url>  - Send a custom test request to any URL")
-            print("      exit        - Return to dashboard")
-        elif action == "info":
-            print(f"    Target URL    : {target}")
-            print(f"    Vector Type   : {vulnerability}")
-            print(f"    Method        : {method}")
-            print(f"    Format        : {fmt}")
-            print(f"    Parameter     : {param}")
-            print(f"    Token         : {token}")
-        elif action == "exploit" or action == "exec":
-            if action == "exec" and not arg:
-                print("    [-] Error: No argument provided for exec (e.g. 'exec s;id')")
-                continue
-            payload_val = arg if action == "exec" else "test_payload"
-                
-            headers = {'User-Agent': 'Mozilla/5.0'}
-            if token != "N/A":
-                headers['X-Auth-Token'] = token
+        if user_input.lower() == "help":
+            print("Commands: 'exit' to quit, or enter payloads prefixed with 'exec'.")
+            continue
 
-            # Handle Path-parameter substitution with safe characters for injection
-            if fmt == "path" or "{" in target:
-                exploit_url = re.sub(r'\{[^}]+\}', urllib.parse.quote(payload_val, safe=';& /'), target)
-                print(f"[*] Dispatching PATH payload to: {exploit_url}")
-                code, body = send_request(exploit_url, method=method, headers=headers)
+        # Architectural design: Strip the framework's 'exec ' prefix globally
+        command_to_run = user_input
+        if user_input.lower().startswith("exec "):
+            command_to_run = user_input[5:].strip()
+
+        headers = {"User-Agent": "OffensiveFramework/1.0"}
+        status_code = 0
+        response_body = ""
+
+        try:
+            if method == "POST":
+                headers["Content-Type"] = "application/json"
                 
-            elif method.upper() == "GET":
-                parsed_url = urllib.parse.urlparse(target)
-                query_params = urllib.parse.parse_qs(parsed_url.query)
-                query_params[param] = [payload_val]
-                new_query = urllib.parse.urlencode(query_params, doseq=True)
-                exploit_url = urllib.parse.urlunparse((
-                    parsed_url.scheme, parsed_url.netloc, parsed_url.path, parsed_url.params, new_query, parsed_url.fragment
-                ))
-                print(f"[*] Dispatching GET payload to: {exploit_url}")
-                code, body = send_request(exploit_url, method="GET", headers=headers)
+                payload_data = command_to_run
+                # If interacting with tokens/SQLi and input isn't raw JSON, auto-wrap it into the expected JSON structure
+                if "tokens" in target_url and not command_to_run.startswith("{"):
+                    payload_data = json.dumps({
+                        "username": command_to_run,
+                        "password": "password123"
+                    })
+
+                print(f"[*] Dispatching POST JSON payload to: {target_url}")
+                response = requests.post(target_url, data=payload_data, headers=headers, verify=False, timeout=10)
             else:
-                if fmt == "json":
-                    payload_data = json.dumps({param: payload_val}).encode('utf-8')
-                    headers['Content-Type'] = 'application/json'
-                else:
-                    payload_data = urllib.parse.urlencode({param: payload_val}).encode('utf-8')
-                    headers['Content-Type'] = 'application/x-www-form-urlencoded'
-                
-                print(f"[*] Dispatching POST payload to: {target}")
-                code, body = send_request(target, method="POST", data=payload_data, headers=headers)
-                
-            print(f"    [+] Response (HTTP {code}):\n{body}\n")
+                print(f"[*] Dispatching GET payload to: {target_url}")
+                params = {param: command_to_run}
+                response = requests.get(target_url, params=params, headers=headers, verify=False, timeout=10)
 
-            # Feed the full item context into the Terminal Agent for real-time analysis
-            if agent:
-                analysis = agent.analyze_response(item, payload_val, code, body)
-                if analysis.get('suggestion'):
-                    print(f"    [🤖 Agent Insight]: {analysis['suggestion']}")
-                if analysis.get('corrected_payload'):
-                    print(f"    [🤖 Auto-Corrected Payload]: {analysis['corrected_payload']}")
-                for step in analysis.get('next_steps', []):
-                    print(f"    [💡 Suggested Next Step]: {step}")
-                print("-" * 50)
+            status_code = response.status_code
+            try:
+                response_body = response.json()
+            except Exception:
+                response_body = response.text
 
-        elif action == "curl":
-            if not arg:
-                print("    [-] Usage: curl <full_url>")
-                continue
-            code, body = send_request(arg)
-            print(f"    [+] Response (HTTP {code}):\n{body}\n")
-        else:
-            print(f"    [-] Unknown command '{action}'. Type 'help' for options.")
+            formatted_output = json.dumps(response_body, indent=2) if isinstance(response_body, dict) else response_body
+            print(f"    [+] Response (HTTP {status_code}):\n{formatted_output}\n")
+
+        except Exception as e:
+            status_code = 500
+            response_body = {"error": str(e)}
+            print(f"    [-] Request failed: {e}\n")
+
+        analysis = agent.analyze_response(item, command_to_run, status_code, response_body)
+        if analysis:
+            print(f"    [🤖 Agent Insight]: {analysis.get('suggestion')}")
+            if analysis.get("corrected_payload"):
+                print(f"    [🤖 Auto-Corrected Payload]: {analysis.get('corrected_payload')}")
+            for step in analysis.get("next_steps", []):
+                print(f"    [💡 Suggested Next Step]: {step}")
+            print("-" * 50)
 
 def main():
-    findings = load_findings()
-    if not findings:
-        print("[-] No harvested assets found in scan_results.json. Run an autonomous scan first.")
+    if not os.path.exists("scan_results.json"):
+        print("[-] No scan_results.json found. Run the automated pipeline first.")
+        return
+
+    with open("scan_results.json", "r") as f:
+        results = json.load(f)
+
+    if not results:
+        print("[-] No vectors found in scan_results.json.")
         return
 
     while True:
-        os.system('clear' if os.name == 'posix' else 'cls')
         print("=" * 65)
-        print(" [*] ACCESS GAINED & POST-EXPLOITATION CONTROL CENTER")
+        print(" [*] ACCESS GAINED CONTROL CENTER (INTERACTIVE DASHBOARD)")
         print("=" * 65)
-        print(f" [+] Loaded {len(findings)} harvested vector(s).\n")
-        print(" [Harvested Assets]")
-        for idx, f in enumerate(findings, 1):
-            print(f"  {idx}) [{f.get('vulnerability')}] {f.get('target')} (Method: {f.get('method', 'GET')} | Param: {f.get('param', 'N/A')})")
-        print(f"  {len(findings) + 1}) Return to Main Menu")
-        print("-" * 65)
-        
-        choice = input(f"Select action [1-{len(findings) + 1}]: ").strip()
-        if not choice:
-            continue
-            
-        if choice.isdigit():
-            c_num = int(choice)
-            if c_num == len(findings) + 1:
-                break
-            elif 1 <= c_num <= len(findings):
-                interactive_session(findings[c_num - 1])
+        for idx, item in enumerate(results, 1):
+            print(f" {idx}. [{item.get('vulnerability')}] {item.get('target')} ({item.get('method', 'GET')})")
+        print(" 0. Return to Main Menu")
+        print("=" * 65)
+
+        choice = input(f"Select target session [0-{len(results)}]: ").strip()
+        if choice == "0" or not choice:
+            break
+        try:
+            selected_idx = int(choice) - 1
+            if 0 <= selected_idx < len(results):
+                interactive_session(results[selected_idx])
             else:
                 print("[-] Invalid selection.")
-        else:
+        except ValueError:
             print("[-] Please enter a valid number.")
 
 if __name__ == "__main__":
