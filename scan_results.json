@@ -1,128 +1,135 @@
 [
     {
         "target": "https://pentest-ground.com:5013",
-        "method": "GET",
-        "vulnerability": "Discovered Endpoint",
-        "status": "Discovered",
-        "tech_stack": "Autonomous GraphQL App"
+        "method": "POST",
+        "vulnerability": "GraphQL Array-based Batching [INFO via Nuclei] | GraphQL Alias-based Batching [INFO via Nuclei] | GraphQL Field Suggestion Information Disclosure [INFO via Nuclei] | GraphQL API Detection [INFO via Nuclei] | GraphQL CSRF / GET method [INFO via Nuclei]",
+        "status": "Validated",
+        "tech_stack": "Orchestrated Web App"
     },
     {
         "target": "https://pentest-ground.com:5013/static/favicon.ico",
         "method": "GET",
         "vulnerability": "Static Asset",
         "status": "Safe",
-        "tech_stack": "Autonomous GraphQL App"
+        "tech_stack": "Orchestrated Web App"
     },
     {
         "target": "https://pentest-ground.com:5013/static/all.css",
         "method": "GET",
         "vulnerability": "Static Asset",
         "status": "Safe",
-        "tech_stack": "Autonomous GraphQL App"
+        "tech_stack": "Orchestrated Web App"
     },
     {
         "target": "https://pentest-ground.com:5013/static/extra.css",
         "method": "GET",
         "vulnerability": "Static Asset",
         "status": "Safe",
-        "tech_stack": "Autonomous GraphQL App"
+        "tech_stack": "Orchestrated Web App"
     },
     {
         "target": "https://pentest-ground.com:5013/static/bootstrap/css/bootstrap.min.css",
         "method": "GET",
         "vulnerability": "Static Asset",
         "status": "Safe",
-        "tech_stack": "Autonomous GraphQL App"
+        "tech_stack": "Orchestrated Web App"
     },
     {
         "target": "https://pentest-ground.com:5013/static/simple-sidebar.css",
         "method": "GET",
         "vulnerability": "Static Asset",
         "status": "Safe",
-        "tech_stack": "Autonomous GraphQL App"
+        "tech_stack": "Orchestrated Web App"
     },
     {
         "target": "https://pentest-ground.com:5013/",
         "method": "GET",
         "vulnerability": "Discovered Endpoint",
         "status": "Discovered",
-        "tech_stack": "Autonomous GraphQL App"
+        "tech_stack": "Orchestrated Web App"
     },
     {
         "target": "https://pentest-ground.com:5013/my_pastes",
         "method": "GET",
         "vulnerability": "Discovered Endpoint",
         "status": "Discovered",
-        "tech_stack": "Autonomous GraphQL App"
+        "tech_stack": "Orchestrated Web App"
     },
     {
         "target": "https://pentest-ground.com:5013/public_pastes",
         "method": "GET",
         "vulnerability": "Discovered Endpoint",
         "status": "Discovered",
-        "tech_stack": "Autonomous GraphQL App"
+        "tech_stack": "Orchestrated Web App"
     },
     {
         "target": "https://pentest-ground.com:5013/create_paste",
         "method": "GET",
-        "vulnerability": "Discovered Endpoint (Form Params: ['content', 'burn', 'title'])",
+        "vulnerability": "Discovered Endpoint (Form Params: ['title', 'content', 'burn'])",
         "status": "Discovered",
-        "tech_stack": "Autonomous GraphQL App"
+        "tech_stack": "Orchestrated Web App"
     },
     {
         "target": "https://pentest-ground.com:5013/import_paste",
         "method": "GET",
         "vulnerability": "Discovered Endpoint (Form Params: ['url'])",
         "status": "Discovered",
-        "tech_stack": "Autonomous GraphQL App"
+        "tech_stack": "Orchestrated Web App"
     },
     {
         "target": "https://pentest-ground.com:5013/upload_paste",
         "method": "GET",
         "vulnerability": "Discovered Endpoint (Form Params: ['pastefile'])",
         "status": "Discovered",
-        "tech_stack": "Autonomous GraphQL App"
+        "tech_stack": "Orchestrated Web App"
     },
     {
         "target": "https://pentest-ground.com:5013/difficulty/easy",
         "method": "GET",
         "vulnerability": "Discovered Endpoint",
         "status": "Discovered",
-        "tech_stack": "Autonomous GraphQL App"
+        "tech_stack": "Orchestrated Web App"
     },
     {
         "target": "https://pentest-ground.com:5013/difficulty/hard",
         "method": "GET",
         "vulnerability": "Discovered Endpoint",
         "status": "Discovered",
-        "tech_stack": "Autonomous GraphQL App"
+        "tech_stack": "Orchestrated Web App"
     },
     {
         "target": "https://pentest-ground.com:5013/audit",
         "method": "GET",
         "vulnerability": "Discovered Endpoint",
         "status": "Discovered",
-        "tech_stack": "Autonomous GraphQL App"
+        "tech_stack": "Orchestrated Web App"
     },
     {
         "target": "https://pentest-ground.com:5013/solutions",
         "method": "GET",
         "vulnerability": "Discovered Endpoint",
         "status": "Discovered",
-        "tech_stack": "Autonomous GraphQL App"
+        "tech_stack": "Orchestrated Web App"
     },
     {
         "target": "https://pentest-ground.com:5013/about",
         "method": "GET",
         "vulnerability": "Discovered Endpoint",
         "status": "Discovered",
-        "tech_stack": "Autonomous GraphQL App"
+        "tech_stack": "Orchestrated Web App"
+    },
+    {
+        "target": "https://pentest-ground.com:5013/start_over",
+        "method": "GET",
+        "vulnerability": "Discovered Endpoint",
+        "status": "Discovered",
+        "tech_stack": "Orchestrated Web App"
     },
     {
         "target": "https://pentest-ground.com:5013/graphql",
         "method": "POST",
-        "vulnerability": "GraphQL Introspection Enabled (Validated) | Cross-Site Scripting [XSS] via mutation 'createPaste' (Validated) | Cross-Site Scripting [XSS] via mutation 'editPaste' (Validated) | Cross-Site Scripting [XSS] via mutation 'uploadPaste' (Validated)",
+        "vulnerability": "GraphQL Array-based Batching [INFO via Nuclei] | GraphQL Alias-based Batching [INFO via Nuclei] | GraphQL Field Suggestion Information Disclosure [INFO via Nuclei] | GraphQL API Detection [INFO via Nuclei] | GraphQL CSRF / GET method [INFO via Nuclei]",
         "status": "Validated",
-        "tech_stack": "Autonomous GraphQL Application"
+        "tech_stack": "Damn Vulnerable GraphQL Application"
     }
 ]
