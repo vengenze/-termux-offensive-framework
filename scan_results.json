@@ -54,6 +54,18 @@
         "status": "Discovered"
     },
     {
+        "target": "https://pentest-ground.com:9000",
+        "method": "GET",
+        "vulnerability": "Discovered Endpoint (Recursive Spider)",
+        "status": "Discovered"
+    },
+    {
+        "target": "https://pentest-ground.com:9000/openapi.yaml",
+        "method": "GET",
+        "vulnerability": "Discovered Endpoint (Recursive Spider)",
+        "status": "Discovered"
+    },
+    {
         "target": "https://pentest-ground.com:9000/uptime/id",
         "method": "GET",
         "vulnerability": "OS Command Injection (Validated)",

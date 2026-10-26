@@ -10,22 +10,24 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 class NetworkMapper:
-    def __init__(self, target_url, max_threads=15):
+    def __init__(self, target_url, max_threads=15, max_depth=2):
         self.target_url = target_url.rstrip("/")
         parsed = urllib.parse.urlparse(target_url)
         self.hostname = parsed.hostname or target_url
         self.scheme = parsed.scheme or "https"
         self.port = parsed.port or (443 if self.scheme == "https" else 80)
         self.max_threads = max_threads
+        self.max_depth = max_depth
         self.discovered_routes = {}
+        self.visited_urls = set()
         self.session = requests.Session()
         self.session.verify = False
-        self.session.headers.update({"User-Agent": "HybridMapper/5.0 (OffensiveFramework)"})
+        self.session.headers.update({"User-Agent": "AdvancedRecon/6.0 (OffensiveFramework)"})
 
     def port_scan(self):
         common_ports = [80, 443, 8080, 8443, 5000, 9000, 3000, 8000]
         open_ports = []
-        print(f"\n[NetMapper] Scanning network ports on {self.hostname}...")
+        print(f"\n[Recon] Scanning network ports on {self.hostname}...")
         
         def check_port(p):
             try:
@@ -51,7 +53,7 @@ class NetworkMapper:
     def extract_openapi_specs(self):
         """Automatically checks for and ingests OpenAPI/Swagger documentation."""
         spec_paths = ["/openapi.yaml", "/openapi.json", "/swagger.json", "/docs/swagger.json"]
-        print(f"\n[NetMapper] Querying target for exposed API documentation specs...")
+        print(f"\n[Recon] Querying target for exposed API documentation specs...")
         
         for path in spec_paths:
             url = f"{self.target_url}{path}"
@@ -69,6 +71,7 @@ class NetworkMapper:
                                     "target": full_target,
                                     "method": method.upper(),
                                     "status_code": 200,
+                                    "tech_stack": "OpenAPI Spec Mapped",
                                     "vulnerability": "API Endpoint (Spec-Extracted)"
                                 }
                         return True
@@ -78,35 +81,43 @@ class NetworkMapper:
                 pass
         return False
 
-    def html_link_spider(self):
-        """Crawls HTML pages to extract embedded links and form endpoints."""
-        print(f"\n[NetMapper] Spidering HTML content for hidden links & forms...")
-        seed_pages = ["/", "/help", "/api"]
-        found_links = set()
+    def recursive_html_spider(self, url, depth=0):
+        """Recursively crawls HTML pages up to max_depth to extract hidden links and forms."""
+        if depth > self.max_depth or url in self.visited_urls:
+            return
+        
+        self.visited_urls.add(url)
+        try:
+            resp = self.session.get(url, timeout=3)
+            if resp.status_code == 200:
+                # Fingerprint technology from headers
+                server_header = resp.headers.get("Server", "Unknown")
+                powered_by = resp.headers.get("X-Powered-By", "None")
+                tech_profile = f"Server: {server_header} | Powered-By: {powered_by}"
 
-        for page in seed_pages:
-            url = f"{self.target_url}{page}"
-            try:
-                resp = self.session.get(url, timeout=3)
-                if resp.status_code == 200:
-                    # Extract hrefs and action attributes using regex
-                    hrefs = re.findall(r'href=[\'"]([^\'"]+)[\'"]', resp.text)
-                    actions = re.findall(r'action=[\'"]([^\'"]+)[\'"]', resp.text)
-                    for link in hrefs + actions:
-                        if link.startswith("/") and not link.startswith("//"):
-                            found_links.add(link)
-            except Exception:
-                pass
+                if url not in self.discovered_routes:
+                    self.discovered_routes[url] = {
+                        "target": url,
+                        "method": "GET",
+                        "status_code": resp.status_code,
+                        "tech_stack": tech_profile,
+                        "vulnerability": "Discovered Endpoint (Recursive Spider)"
+                    }
 
-        for link in found_links:
-            full_target = f"{self.target_url}{link}"
-            if full_target not in self.discovered_routes:
-                self.discovered_routes[full_target] = {
-                    "target": full_target,
-                    "method": "GET",
-                    "status_code": 200,
-                    "vulnerability": "Discovered Endpoint (HTML Spider)"
-                }
+                # Extract links
+                hrefs = re.findall(r'href=[\'"]([^\'"]+)[\'"]', resp.text)
+                actions = re.findall(r'action=[\'"]([^\'"]+)[\'"]', resp.text)
+                
+                for link in hrefs + actions:
+                    if link.startswith("/") and not link.startswith("//"):
+                        absolute_url = f"{self.target_url}{link}"
+                        if absolute_url not in self.visited_urls:
+                            self.recursive_html_spider(absolute_url, depth + 1)
+                    elif link.startswith(self.target_url):
+                        if link not in self.visited_urls:
+                            self.recursive_html_spider(link, depth + 1)
+        except Exception:
+            pass
 
     def dictionary_bruteforce(self):
         """Fallback high-speed wordlist brute-force for unlinked directories."""
@@ -121,14 +132,15 @@ class NetworkMapper:
             if url in self.discovered_routes:
                 return None
             try:
-                # Test both GET and POST availability
                 for method in ["GET", "POST"]:
                     resp = self.session.request(method, url, timeout=2)
                     if resp.status_code != 404:
+                        server_header = resp.headers.get("Server", "Unknown")
                         return {
                             "target": url,
                             "method": method,
                             "status_code": resp.status_code,
+                            "tech_stack": f"Server: {server_header}",
                             "vulnerability": f"Discovered Endpoint (HTTP {resp.status_code})"
                         }
             except Exception:
@@ -144,13 +156,18 @@ class NetworkMapper:
                     self.discovered_routes[res["target"]] = res
 
     def run_full_mapping(self):
+        print(f"\n[Recon] Initializing Advanced Multi-Layered Recon Engine...")
         self.port_scan()
-        spec_found = self.extract_openapi_specs()
-        self.html_link_spider()
+        self.extract_openapi_specs()
+        
+        print(f"\n[Recon] Launching Recursive Web Spider (Depth: {self.max_depth})...")
+        self.recursive_html_spider(self.target_url, depth=0)
+        
+        print(f"\n[Recon] Executing Dictionary Brute-Force Fallback...")
         self.dictionary_bruteforce()
         
         routes = list(self.discovered_routes.values())
-        print(f"\n[NetMapper] Total unique assets mapped: {len(routes)}")
+        print(f"\n[Recon] Total unique assets mapped & profiled: {len(routes)}")
         return routes
 
 def run_mapping(target_url):
