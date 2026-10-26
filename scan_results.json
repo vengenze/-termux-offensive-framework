@@ -1,58 +1,62 @@
 [
     {
         "target": "https://pentest-ground.com:9000/",
-        "vulnerability": "Generate HTML content",
         "method": "GET",
-        "parameter": "query"
+        "vulnerability": "API Endpoint (Spec-Extracted)",
+        "status": "Discovered"
     },
     {
         "target": "https://pentest-ground.com:9000/eval",
-        "vulnerability": "API Endpoint",
         "method": "GET",
-        "parameter": "query"
+        "vulnerability": "API Endpoint (Spec-Extracted)",
+        "status": "Discovered"
     },
     {
         "target": "https://pentest-ground.com:9000/help",
-        "vulnerability": "Generate HTML help content",
         "method": "GET",
-        "parameter": "query"
+        "vulnerability": "API Endpoint (Spec-Extracted)",
+        "status": "Discovered"
     },
     {
         "target": "https://pentest-ground.com:9000/search",
-        "vulnerability": "API Endpoint",
         "method": "POST",
-        "parameter": "query"
+        "vulnerability": "API Endpoint (Spec-Extracted)",
+        "status": "Discovered"
     },
     {
         "target": "https://pentest-ground.com:9000/tokens",
-        "vulnerability": "SQL Injection (Validated)",
         "method": "POST",
-        "parameter": "query",
+        "vulnerability": "SQL Injection (Validated)",
         "status": "Validated"
     },
     {
         "target": "https://pentest-ground.com:9000/uptime/{flag}",
-        "vulnerability": "OS Command Injection (Validated)",
         "method": "GET",
-        "parameter": "query",
+        "vulnerability": "OS Command Injection (Validated)",
         "status": "Validated"
     },
     {
         "target": "https://pentest-ground.com:9000/user",
-        "vulnerability": "API Endpoint",
         "method": "POST",
-        "parameter": "query"
+        "vulnerability": "API Endpoint (Spec-Extracted)",
+        "status": "Discovered"
     },
     {
         "target": "https://pentest-ground.com:9000/user/{user}",
-        "vulnerability": "API Endpoint",
         "method": "GET",
-        "parameter": "query"
+        "vulnerability": "API Endpoint (Spec-Extracted)",
+        "status": "Discovered"
     },
     {
         "target": "https://pentest-ground.com:9000/widget",
-        "vulnerability": "API Endpoint",
         "method": "POST",
-        "parameter": "query"
+        "vulnerability": "API Endpoint (Spec-Extracted)",
+        "status": "Discovered"
+    },
+    {
+        "target": "https://pentest-ground.com:9000/uptime/id",
+        "method": "GET",
+        "vulnerability": "OS Command Injection (Validated)",
+        "status": "Validated"
     }
 ]
