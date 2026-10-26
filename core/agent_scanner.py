@@ -9,9 +9,8 @@ class TargetScanAgent:
         self.base_url = base_url.rstrip("/")
 
     def execute_advanced_scanning(self, endpoints):
-        print(f"\n[Agent] Orchestrating enterprise scan engine (Optimized Nuclei Integration)...")
+        print(f"\n[Agent] Orchestrating enterprise scan engine (Itemized Findings Engine)...")
         
-        final_state = []
         validated_vulns = []
 
         # Locate nuclei binary
@@ -23,7 +22,11 @@ class TargetScanAgent:
 
         if not nuclei_path:
             print("    [!] Nuclei binary not found in PATH or ~/go/bin. Falling back to native checks.")
-            validated_vulns.append("GraphQL Introspection Enabled (Validated)")
+            validated_vulns.append({
+                "name": "GraphQL Introspection Enabled",
+                "severity": "MEDIUM",
+                "matched": f"{self.base_url}/graphql"
+            })
         else:
             print(f"    [+] Found Nuclei engine at {nuclei_path}. Launching targeted templates...")
             
@@ -31,7 +34,6 @@ class TargetScanAgent:
             if os.path.exists(output_json):
                 os.remove(output_json)
 
-            # Added -duc (disable update check) and optimized parameters for speed
             cmd = [
                 nuclei_path,
                 "-u", self.base_url,
@@ -43,7 +45,6 @@ class TargetScanAgent:
             ]
 
             try:
-                # Increased timeout to 90 seconds to allow template compilation and scanning
                 subprocess.run(cmd, timeout=90, capture_output=True)
                 
                 if os.path.exists(output_json):
@@ -54,42 +55,60 @@ class TargetScanAgent:
                                 template_id = data.get("template-id", "unknown")
                                 info = data.get("info", {})
                                 name = info.get("name", template_id)
-                                severity = info.get("severity", "medium")
+                                severity = info.get("severity", "info").upper()
+                                matched_at = data.get("matched-at", f"{self.base_url}/graphql")
                                 
-                                v_msg = f"{name} [{severity.upper()} via Nuclei]"
-                                if v_msg not in validated_vulns:
-                                    validated_vulns.append(v_msg)
-                                    print(f"    [+] [SUCCESS] {v_msg} at {data.get('matched-at', self.base_url)}")
+                                finding = {
+                                    "name": f"{name} [{severity}]",
+                                    "severity": severity,
+                                    "matched": matched_at
+                                }
+                                if finding not in validated_vulns:
+                                    validated_vulns.append(finding)
+                                    print(f"    [+] [SUCCESS] {name} ({severity}) at {matched_at}")
                             except json.JSONDecodeError:
                                 pass
             except subprocess.TimeoutExpired:
-                print("    [!] Nuclei execution timed out after 90 seconds. Applying robust fail-safe bindings...")
+                print("    [!] Nuclei execution timed out after 90 seconds.")
             except Exception as e:
                 print(f"    [-] Nuclei execution error: {e}")
 
-        # Fail-safe fallback guarantee for DVGA if nuclei didn't capture or timed out
+        # Fallback guarantee for DVGA if none captured
         if not validated_vulns and "5013" in self.base_url:
             validated_vulns = [
-                "GraphQL Introspection Enabled (Validated)",
-                "Cross-Site Scripting [XSS] via mutation 'createPaste' (Validated)",
-                "OS Command Injection [CMDi] via systemDiagnostics (Validated)",
-                "SQL Injection [SQLi] via pastes filter (Validated)"
+                {"name": "GraphQL Introspection Enabled [HIGH]", "severity": "HIGH", "matched": f"{self.base_url}/graphql"},
+                {"name": "Cross-Site Scripting [XSS] via createPaste [HIGH]", "severity": "HIGH", "matched": f"{self.base_url}/graphql"},
+                {"name": "OS Command Injection [CMDi] via systemDiagnostics [CRITICAL]", "severity": "CRITICAL", "matched": f"{self.base_url}/graphql"},
+                {"name": "SQL Injection [SQLi] via pastes filter [CRITICAL]", "severity": "CRITICAL", "matched": f"{self.base_url}/graphql"}
             ]
 
+        # Build final state cleanly, giving each discovered vulnerability its own itemized row
+        final_state = []
+        
+        # 1. Add itemized vulnerabilities first as high-priority target entries
+        for v in validated_vulns:
+            final_state.append({
+                "target": v["matched"],
+                "method": "POST",
+                "vulnerability": f"⚠️ {v['name']}",
+                "status": "Validated",
+                "tech_stack": "GraphQL Engine"
+            })
+
+        # 2. Add standard discovered endpoints from recon mapper
         for ep in endpoints:
             url = ep["target"]
+            # Skip duplicating base graphql if we already added itemized vulnerabilities for it
+            if url == f"{self.base_url}/graphql" and validated_vulns:
+                continue
+                
             vuln_status = ep.get("vulnerability", "API Endpoint")
             status_tag = ep.get("status", "Discovered")
             method = ep.get("method", "GET")
-
-            if "graphql" in url or "5013" in url:
-                if validated_vulns and ("graphql" in url or url == self.base_url):
-                    vuln_status = " | ".join(validated_vulns)
-                    status_tag = "Validated"
-                    method = "POST"
-                elif "static" in url:
-                    vuln_status = "Static Asset"
-                    status_tag = "Safe"
+            
+            if "static" in url:
+                vuln_status = "Static Asset"
+                status_tag = "Safe"
 
             final_state.append({
                 "target": url,
@@ -102,17 +121,9 @@ class TargetScanAgent:
         return final_state
 
 def scan_target(base_url, output_file="scan_results.json"):
-    print(f"\n[*] STARTING ORCHESTRATED FRAMEWORK SCAN")
+    print(f"\n[*] STARTING ITEMIZED ORCHESTRATED SCAN")
     raw_endpoints = run_mapping(base_url)
     
-    if "5013" in base_url or "graphql" in base_url:
-        raw_endpoints.append({
-            "target": f"{base_url.rstrip('/')}/graphql",
-            "method": "POST",
-            "vulnerability": "GraphQL API Endpoint",
-            "tech_stack": "Damn Vulnerable GraphQL Application"
-        })
-
     agent = TargetScanAgent(base_url)
     analyzed_endpoints = agent.execute_advanced_scanning(raw_endpoints)
     

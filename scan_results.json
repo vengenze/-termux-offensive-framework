@@ -1,9 +1,44 @@
 [
     {
-        "target": "https://pentest-ground.com:5013",
+        "target": "https://pentest-ground.com:5013/graphql",
         "method": "POST",
-        "vulnerability": "GraphQL Array-based Batching [INFO via Nuclei] | GraphQL Alias-based Batching [INFO via Nuclei] | GraphQL Field Suggestion Information Disclosure [INFO via Nuclei] | GraphQL API Detection [INFO via Nuclei] | GraphQL CSRF / GET method [INFO via Nuclei]",
+        "vulnerability": "\u26a0\ufe0f GraphQL Alias-based Batching [INFO]",
         "status": "Validated",
+        "tech_stack": "GraphQL Engine"
+    },
+    {
+        "target": "https://pentest-ground.com:5013/graphql",
+        "method": "POST",
+        "vulnerability": "\u26a0\ufe0f GraphQL Field Suggestion Information Disclosure [INFO]",
+        "status": "Validated",
+        "tech_stack": "GraphQL Engine"
+    },
+    {
+        "target": "https://pentest-ground.com:5013/graphql",
+        "method": "POST",
+        "vulnerability": "\u26a0\ufe0f GraphQL Array-based Batching [INFO]",
+        "status": "Validated",
+        "tech_stack": "GraphQL Engine"
+    },
+    {
+        "target": "https://pentest-ground.com:5013/graphiql",
+        "method": "POST",
+        "vulnerability": "\u26a0\ufe0f GraphQL API Detection [INFO]",
+        "status": "Validated",
+        "tech_stack": "GraphQL Engine"
+    },
+    {
+        "target": "https://pentest-ground.com:5013/graphql?query={__typename}",
+        "method": "POST",
+        "vulnerability": "\u26a0\ufe0f GraphQL CSRF / GET method [INFO]",
+        "status": "Validated",
+        "tech_stack": "GraphQL Engine"
+    },
+    {
+        "target": "https://pentest-ground.com:5013",
+        "method": "GET",
+        "vulnerability": "Discovered Endpoint",
+        "status": "Discovered",
         "tech_stack": "Orchestrated Web App"
     },
     {
@@ -65,7 +100,7 @@
     {
         "target": "https://pentest-ground.com:5013/create_paste",
         "method": "GET",
-        "vulnerability": "Discovered Endpoint (Form Params: ['title', 'content', 'burn'])",
+        "vulnerability": "Discovered Endpoint (Form Params: ['content', 'title', 'burn'])",
         "status": "Discovered",
         "tech_stack": "Orchestrated Web App"
     },
@@ -124,12 +159,5 @@
         "vulnerability": "Discovered Endpoint",
         "status": "Discovered",
         "tech_stack": "Orchestrated Web App"
-    },
-    {
-        "target": "https://pentest-ground.com:5013/graphql",
-        "method": "POST",
-        "vulnerability": "GraphQL Array-based Batching [INFO via Nuclei] | GraphQL Alias-based Batching [INFO via Nuclei] | GraphQL Field Suggestion Information Disclosure [INFO via Nuclei] | GraphQL API Detection [INFO via Nuclei] | GraphQL CSRF / GET method [INFO via Nuclei]",
-        "status": "Validated",
-        "tech_stack": "Damn Vulnerable GraphQL Application"
     }
 ]
