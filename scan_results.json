@@ -15,6 +15,11 @@
         "vulnerability": "Discovered via Nmap (Service: http)"
     },
     {
+        "target": "https://pentest-ground.com:9000/openapi.json",
+        "method": "GET",
+        "vulnerability": "Discovered Endpoint (Native Crawler)"
+    },
+    {
         "target": "https://pentest-ground.com:9000",
         "method": "GET",
         "vulnerability": "Discovered Endpoint (Native Crawler)"
@@ -25,17 +30,12 @@
         "vulnerability": "Discovered Endpoint (Native Crawler)"
     },
     {
-        "target": "https://pentest-ground.com:9000/img/LogoPTTsmall.svg",
-        "method": "GET",
-        "vulnerability": "Discovered Endpoint (Native Crawler)"
-    },
-    {
         "target": "https://pentest-ground.com:9000/openapi.yaml",
         "method": "GET",
         "vulnerability": "Discovered Endpoint (Native Crawler)"
     },
     {
-        "target": "https://pentest-ground.com:9000/openapi.json",
+        "target": "https://pentest-ground.com:9000/img/LogoPTTsmall.svg",
         "method": "GET",
         "vulnerability": "Discovered Endpoint (Native Crawler)"
     },
@@ -45,43 +45,43 @@
         "vulnerability": "Discovered Endpoint (Fuzzer - Status 200)"
     },
     {
+        "target": "https://pentest-ground.com:9000/",
+        "method": "GET",
+        "vulnerability": "Extracted Endpoint (OpenAPI Spec - GET)"
+    },
+    {
         "target": "https://pentest-ground.com:9000/eval",
         "method": "GET",
-        "vulnerability": "Extracted via OpenAPI Spec (Regex Fallback)"
+        "vulnerability": "Extracted Endpoint (OpenAPI Spec - GET)"
     },
     {
         "target": "https://pentest-ground.com:9000/search",
-        "method": "GET",
-        "vulnerability": "Extracted via OpenAPI Spec (Regex Fallback)"
+        "method": "POST",
+        "vulnerability": "Extracted Endpoint (OpenAPI Spec - POST)"
     },
     {
         "target": "https://pentest-ground.com:9000/tokens",
-        "method": "GET",
-        "vulnerability": "Extracted via OpenAPI Spec (Regex Fallback)"
+        "method": "POST",
+        "vulnerability": "Extracted Endpoint (OpenAPI Spec - POST)"
     },
     {
         "target": "https://pentest-ground.com:9000/uptime/{flag}",
         "method": "GET",
-        "vulnerability": "Extracted via OpenAPI Spec (Regex Fallback)"
+        "vulnerability": "Extracted Endpoint (OpenAPI Spec - GET)"
     },
     {
         "target": "https://pentest-ground.com:9000/user",
-        "method": "GET",
-        "vulnerability": "Extracted via OpenAPI Spec (Regex Fallback)"
+        "method": "POST",
+        "vulnerability": "Extracted Endpoint (OpenAPI Spec - POST)"
     },
     {
         "target": "https://pentest-ground.com:9000/user/{user}",
         "method": "GET",
-        "vulnerability": "Extracted via OpenAPI Spec (Regex Fallback)"
+        "vulnerability": "Extracted Endpoint (OpenAPI Spec - GET)"
     },
     {
         "target": "https://pentest-ground.com:9000/widget",
-        "method": "GET",
-        "vulnerability": "Extracted via OpenAPI Spec (Regex Fallback)"
-    },
-    {
-        "target": "https://pentest-ground.com:9000/",
-        "method": "GET",
-        "vulnerability": "Extracted Endpoint (OpenAPI Spec - GET)"
+        "method": "POST",
+        "vulnerability": "Extracted Endpoint (OpenAPI Spec - POST)"
     }
 ]
