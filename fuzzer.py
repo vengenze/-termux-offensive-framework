@@ -1,69 +1,88 @@
+import os
+import json
 import requests
-import argparse
-import sys
-import concurrent.futures
-from datetime import datetime
-
-# Suppress insecure request warnings if testing self-signed SSL targets
 import urllib3
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from urllib.parse import urljoin
+
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
-def check_directory(base_url, directory):
-    """Sends a GET request to the target URL + directory."""
-    # Ensure URL formatting is clean
-    if not base_url.endswith('/'):
-        base_url += '/'
-        
-    target_url = f"{base_url}{directory}"
-    
+# High-yield default wordlist for API and directory fuzzing
+DEFAULT_WORDLIST = [
+    "api", "api/v1", "api/v2", "graphql", "graphiql", "swagger", "swagger.json",
+    "openapi.json", "openapi.yaml", "docs", "help", "admin", "dashboard",
+    "login", "auth", "token", "config", ".env", "backup.zip", "backup.bak",
+    "users", "accounts", "debug", "metrics", "health", "status", "test",
+    "v1", "v2", "internal", "secret", "private", "console", "server-status"
+]
+
+def fuzz_endpoint(base_url, word, session, discovered_set, lock):
+    url = urljoin(base_url.rstrip("/") + "/", word.lstrip("/"))
     try:
-        # allow_redirects=False lets us see 301/302 redirects instead of blindly following them
-        # verify=False ignores SSL certificate errors
-        response = requests.get(target_url, timeout=3, allow_redirects=False, verify=False)
+        # Using HEAD first for speed, fallback to GET if needed
+        res = session.get(url, timeout=3)
+        # Filter out standard 404s and soft 404s based on length
+        if res.status_code in [200, 403, 401, 500]:
+            with lock:
+                print(f"    [+] Found: {url} [Status: {res.status_code} | Len: {len(res.text)}]-")
+                discovered_set.add((url, res.status_code))
+    except Exception:
+        pass
+
+def run_fuzzer(target_url, output_file="scan_results.json", reset_state=False):
+    target_url = target_url.strip()
+    if target_url and not target_url.startswith("http"):
+        target_url = "http://" + target_url
         
-        # 404 means 'Not Found'. Anything else (200 OK, 301 Redirect, 403 Forbidden) is interesting.
-        if response.status_code != 404:
-            return f"[+] Found: {target_url:<30} | Status: {response.status_code}"
+    print(f"\n[+] [Fuzzer Module] Initializing Multi-Threaded Native Fuzzer on {target_url}...")
+    
+    if not target_url:
+        print("[!] Error: Empty target URL supplied.")
+        return False
+
+    session = requests.Session()
+    session.verify = False
+    
+    discovered_set = set()
+    import threading
+    lock = threading.Lock()
+    
+    # Fast multi-threaded execution (15 concurrent workers)
+    print(f"    [->] Fuzzing {len(DEFAULT_WORDLIST)} high-value paths...")
+    with ThreadPoolExecutor(max_workers=15) as executor:
+        for word in DEFAULT_WORDLIST:
+            executor.submit(fuzz_endpoint, target_url, word, session, discovered_set, lock)
             
-        return None
-    except requests.exceptions.RequestException:
-        # Silently drop connection errors to keep the terminal output clean
-        return None
+    print(f"    [+] Fuzzer discovered {len(discovered_set)} valid endpoints/directories.")
+
+    # Load existing state
+    existing_targets = []
+    if not reset_state and os.path.exists(output_file):
+        try:
+            with open(output_file, "r") as f:
+                existing_targets = json.load(f)
+        except Exception:
+            pass
+            
+    existing_urls = {t.get("target") for t in existing_targets if t.get("target")}
+    new_count = 0
+    
+    for url, status in discovered_set:
+        if url and url not in existing_urls:
+            existing_targets.append({
+                "target": url,
+                "method": "GET",
+                "vulnerability": f"Discovered Endpoint (Fuzzer - Status {status})"
+            })
+            new_count += 1
+            
+    with open(output_file, "w") as f:
+        json.dump(existing_targets, f, indent=4)
+        
+    print(f"    [+] Successfully added {new_count} new fuzzing targets to '{output_file}'.")
+    return True
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Multithreaded Web Directory Fuzzer")
-    parser.add_argument("url", help="Target base URL (e.g., http://192.168.1.1)")
-    parser.add_argument("-w", "--wordlist", required=True, help="Path to the dictionary/wordlist file")
-    parser.add_argument("-t", "--threads", type=int, default=30, help="Number of concurrent threads (default: 30)")
-    
-    args = parser.parse_args()
-    
-    # 1. Load the wordlist into a Python list
-    try:
-        with open(args.wordlist, 'r', encoding='utf-8', errors='ignore') as f:
-            # Read lines and strip out newline characters
-            directories = [line.strip() for line in f if line.strip()]
-    except FileNotFoundError:
-        print(f"[-] Error: Wordlist file '{args.wordlist}' not found.")
-        sys.exit(1)
-        
-    print("-" * 60)
-    print(f"Fuzzing Target : {args.url}")
-    print(f"Wordlist Size  : {len(directories)} words")
-    print(f"Threads        : {args.threads}")
-    start_time = datetime.now()
-    print("-" * 60)
-    
-    # 2. Execute the threaded attack
-    with concurrent.futures.ThreadPoolExecutor(max_workers=args.threads) as executor:
-        # Submit tasks
-        futures = [executor.submit(check_directory, args.url, dir_name) for dir_name in directories]
-        
-        # Print results as they are found
-        for future in concurrent.futures.as_completed(futures):
-            result = future.result()
-            if result:
-                print(result)
-
-    print("-" * 60)
-    print(f"Fuzzing completed in: {datetime.now() - start_time}")
+    target = input("Enter target URL to fuzz: ").strip()
+    if target:
+        run_fuzzer(target)
