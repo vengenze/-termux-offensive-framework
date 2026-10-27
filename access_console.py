@@ -27,9 +27,9 @@ def query_ollama(messages, max_tokens=200):
         return f"[!] Connection error: Ensure 'ollama serve' is running on port 11434. ({e})"
 
 def run_autonomous_agent_loop(item):
-    """Executes a 5-step ReAct chain using robust Python socket automation."""
+    """Executes a progressive 5-step ReAct chain and generates a strictly grounded security report."""
     print("\n=================================================================")
-    print(" [Autonomous Agent] Initializing Python-Socket ReAct Chain...")
+    print(" [Autonomous Agent] Initializing Templated Progressive Chain...")
     print("=================================================================")
     
     target = item.get('target', '')
@@ -42,50 +42,45 @@ def run_autonomous_agent_loop(item):
     else:
         target_host, target_port = clean_target, "80"
 
-    system_prompt = """You are an autonomous offensive security agent executing an adaptive kill-chain.
-AVAILABLE MACROS:
-- $HOST = Hostname or IP ({target_host})
-- $PORT = Port number ({target_port})
-
-CRITICAL RULES:
-1. Avoid native netcat hanging issues by using Python socket one-liners to query raw TCP services.
-2. Example Python TCP query: `python3 -c "import socket; s = socket.socket(); s.settimeout(3); s.connect(('$HOST', int($PORT))); s.send(b'INFO\\r\\n'); print(s.recv(1024)); s.close()"`
-3. If a command times out or returns no output, try a different command or payload in the next step.
-4. Output your single shell command inside ```bash ... ``` code blocks.""".format(
-        target_host=target_host, target_port=target_port
-    )
+    system_prompt = """You are an autonomous offensive security agent executing a progressive exploitation kill-chain against a target service.
+Your task is to provide ONLY the next database command to execute (e.g., INFO, CONFIG GET *, KEYS *, CLIENT LIST, PING).
+Output your command inside ```bash ... ``` code blocks."""
 
     messages = [
         {"role": "system", "content": system_prompt},
-        {"role": "user", "content": f"Target Asset: {target}\nVulnerability / Vector: {template}\nSeverity: {severity}\nStep 1: Provide python socket query command to test service."}
+        {"role": "user", "content": f"Target Asset: {target}\nVulnerability / Vector: {template}\nSeverity: {severity}\nStep 1: Provide initial INFO command."}
     ]
 
     max_steps = 5
+    progression_payloads = ["INFO", "CONFIG GET *", "KEYS *", "CLIENT LIST", "PING"]
+    executed_payloads = set()
     
     for step in range(1, max_steps + 1):
         print(f"\n--- [Kill-Chain Step {step}/{max_steps}] ---")
         print(f"[+] Agent reasoning...")
-        ai_response = query_ollama(messages, max_tokens=200)
-        print(f"\n[Agent Thought]:\n{ai_response}")
+        ai_response = query_ollama(messages, max_tokens=150)
+        print(f"[Agent Thought]:\n{ai_response}")
 
+        # Extract payload from model response
         cmd_match = re.search(r"```(?:bash|sh)?\s*(.*?)\s*```", ai_response, re.DOTALL)
-        raw_cmd = ""
+        raw_payload = ""
         
         if cmd_match:
-            raw_cmd = cmd_match.group(1).strip()
+            raw_payload = cmd_match.group(1).strip()
         else:
-            for line in ai_response.splitlines():
-                line_clean = line.strip()
-                if any(tool in line_clean for tool in ["python3 ", "nc ", "curl ", "redis-cli "]):
-                    raw_cmd = line_clean
-                    break
+            raw_payload = ai_response.strip().splitlines()[-1]
         
-        if not raw_cmd:
-            raw_cmd = f"python3 -c \"import socket; s = socket.socket(); s.settimeout(3); s.connect(('$HOST', int($PORT))); s.send(b'INFO\\r\\n'); print(s.recv(1024)); s.close()\""
+        raw_payload = raw_payload.replace("b'", "").replace('b"', "").rstrip("'").rstrip('"').replace("\\r\\n", "").strip()
+        
+        if not raw_payload or len(raw_payload) > 30 or raw_payload in executed_payloads or any(x in raw_payload for x in ["python3", "nc", "connect"]):
+            raw_payload = progression_payloads[(step - 1) % len(progression_payloads)]
 
-        final_cmd = raw_cmd.replace("$TARGET", target).replace("$HOST", target_host).replace("$PORT", target_port)
+        executed_payloads.add(raw_payload)
 
-        print(f"\n[Action] Executing command:\n    {final_cmd}\n")
+        # Safely construct the bulletproof python execution command
+        final_cmd = f"python3 -c \"import socket; s = socket.socket(); s.settimeout(3); s.connect(('{target_host}', int('{target_port}'))); s.send(b'{raw_payload}\\r\\n'); print(s.recv(2048)); s.close()\""
+
+        print(f"[Action] Executing payload [{raw_payload}] via Python socket wrapper\n")
         
         exec_output = ""
         try:
@@ -104,13 +99,22 @@ CRITICAL RULES:
         print(f"[Observation Result]:\n{exec_output.strip()}")
 
         messages.append({"role": "assistant", "content": ai_response})
-        messages.append({"role": "user", "content": f"Observation result from step {step}:\n{exec_output}\nAnalyze this output. If it timed out or returned no data, modify your python payload or try a different command string in the next step."})
+        messages.append({"role": "user", "content": f"Observation result from step {step}:\n{exec_output}\nCommand executed successfully. Proceed to the next unique Redis command (e.g., CONFIG GET *, KEYS *, CLIENT LIST, PING). Do not repeat previous commands."})
 
+    # Grounded Summary Generation Phase
     print("\n=================================================================")
-    print(" [Autonomous Agent] Finalizing Adaptive Exploitation Verdict...")
+    print(" [Autonomous Agent] Generating Grounded Intelligence Report...")
     print("=================================================================")
-    final_summary = query_ollama(messages, max_tokens=250)
-    print(f"\n{final_summary}")
+    
+    summary_prompt = """Based strictly on the actual STDOUT observation results gathered above, write a concise security summary containing:
+1. **Discovered Service**: Version and OS details from the INFO command output.
+2. **Configuration Status**: Authentication (requirepass) and data file settings from CONFIG GET.
+3. **Next Step Suggestions**: Actionable recommendations for securing or testing the service further.
+CRITICAL: Do NOT invent or hallucinate Windows file paths, nginx configurations, or SSL certificates. Stick strictly to the observed data."""
+
+    messages.append({"role": "user", "content": summary_prompt})
+    final_report = query_ollama(messages, max_tokens=250)
+    print(f"\n{final_report}")
     
     input("\nPress Enter to continue...")
 
@@ -135,7 +139,7 @@ def inspect_and_action_item(item, item_type):
         print("-----------------------------------------------------------------")
         print(" [1] Send standard HTTP probe / connectivity check")
         print(" [2] Run manual shell command (supports $TARGET, $HOST, $PORT)")
-        print(" [3] Run Autonomous AI Agent Loop (Python-Socket ReAct)")
+        print(" [3] Run Autonomous AI Agent Loop (Progressive Kill-Chain)")
         print(" [0] Back to Dashboard")
         print("=================================================================")
 
@@ -259,6 +263,8 @@ def run_access_control():
                 selected = vulnerabilities[sel_idx - 1]
                 inspect_and_action_item(selected, "vulnerability")
             else:
+                ep_idx = sel_idx - len(vulnerabilities - 1) if 'vulnerabilities' in locals() else 0
+                # safe index fallback
                 ep_idx = sel_idx - len(vulnerabilities) - 1
                 if 0 <= ep_idx < len(endpoints):
                     selected = endpoints[ep_idx]
