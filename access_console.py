@@ -9,7 +9,7 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 OLLAMA_API_URL = "http://127.0.0.1:11434/v1/chat/completions"
 
-def query_ollama(messages, max_tokens=250):
+def query_ollama(messages, max_tokens=200):
     """Helper to query local Ollama model with conversation history."""
     payload = {
         "model": "qwen2.5:0.5b-instruct",
@@ -27,69 +27,89 @@ def query_ollama(messages, max_tokens=250):
         return f"[!] Connection error: Ensure 'ollama serve' is running on port 11434. ({e})"
 
 def run_autonomous_agent_loop(item):
-    """Executes a multi-step progressive ReAct kill-chain loop: Propose -> Execute -> Adapt -> Progress."""
+    """Executes a 5-step ReAct chain using robust Python socket automation."""
     print("\n=================================================================")
-    print(" [Autonomous Agent] Initializing Multi-Step ReAct Kill-Chain...")
+    print(" [Autonomous Agent] Initializing Python-Socket ReAct Chain...")
     print("=================================================================")
     
     target = item.get('target', '')
     template = item.get('template', item.get('source', 'Unknown'))
     severity = item.get('severity', 'N/A').upper()
 
-    system_prompt = """You are an autonomous offensive security agent executing a multi-step exploitation and verification loop.
-Analyze the target finding and progress through the kill chain.
-For each step, provide ONE precise bash/curl/nc/redis-cli command wrapped in ```bash ... ``` using '$TARGET' as the host/URL placeholder.
-CRITICAL RULE: If a previous command failed due to timeout or protocol mismatch (e.g. trying HTTP on a non-HTTP port like 6379), you MUST adapt immediately in the next step: switch from HTTP/curl to raw TCP sockets, `nc`, or protocol-specific commands.
-Keep your reasoning extremely brief."""
+    clean_target = target.replace("http://", "").replace("https://", "").split("/")[0]
+    if ":" in clean_target:
+        target_host, target_port = clean_target.split(":", 1)
+    else:
+        target_host, target_port = clean_target, "80"
+
+    system_prompt = """You are an autonomous offensive security agent executing an adaptive kill-chain.
+AVAILABLE MACROS:
+- $HOST = Hostname or IP ({target_host})
+- $PORT = Port number ({target_port})
+
+CRITICAL RULES:
+1. Avoid native netcat hanging issues by using Python socket one-liners to query raw TCP services.
+2. Example Python TCP query: `python3 -c "import socket; s = socket.socket(); s.settimeout(3); s.connect(('$HOST', int($PORT))); s.send(b'INFO\\r\\n'); print(s.recv(1024)); s.close()"`
+3. If a command times out or returns no output, try a different command or payload in the next step.
+4. Output your single shell command inside ```bash ... ``` code blocks.""".format(
+        target_host=target_host, target_port=target_port
+    )
 
     messages = [
         {"role": "system", "content": system_prompt},
-        {"role": "user", "content": f"Target Asset: {target}\nVulnerability / Vector: {template}\nSeverity: {severity}\nInitiate step 1: Provide the initial verification command."}
+        {"role": "user", "content": f"Target Asset: {target}\nVulnerability / Vector: {template}\nSeverity: {severity}\nStep 1: Provide python socket query command to test service."}
     ]
 
-    max_steps = 2  # Allows the agent to attempt a correction/progression step
+    max_steps = 5
     
     for step in range(1, max_steps + 1):
         print(f"\n--- [Kill-Chain Step {step}/{max_steps}] ---")
         print(f"[+] Agent reasoning...")
-        ai_response = query_ollama(messages, max_tokens=250)
+        ai_response = query_ollama(messages, max_tokens=200)
         print(f"\n[Agent Thought]:\n{ai_response}")
 
         cmd_match = re.search(r"```(?:bash|sh)?\s*(.*?)\s*```", ai_response, re.DOTALL)
-        if not cmd_match:
-            print("[-] Agent did not output a command block. Stopping loop.")
-            break
+        raw_cmd = ""
+        
+        if cmd_match:
+            raw_cmd = cmd_match.group(1).strip()
+        else:
+            for line in ai_response.splitlines():
+                line_clean = line.strip()
+                if any(tool in line_clean for tool in ["python3 ", "nc ", "curl ", "redis-cli "]):
+                    raw_cmd = line_clean
+                    break
+        
+        if not raw_cmd:
+            raw_cmd = f"python3 -c \"import socket; s = socket.socket(); s.settimeout(3); s.connect(('$HOST', int($PORT))); s.send(b'INFO\\r\\n'); print(s.recv(1024)); s.close()\""
 
-        raw_cmd = cmd_match.group(1).strip()
-        # Ensure $TARGET replacement works cleanly with ports if needed
-        final_cmd = raw_cmd.replace("$TARGET", target)
+        final_cmd = raw_cmd.replace("$TARGET", target).replace("$HOST", target_host).replace("$PORT", target_port)
 
         print(f"\n[Action] Executing command:\n    {final_cmd}\n")
         
         exec_output = ""
         try:
-            result = subprocess.run(final_cmd, shell=True, capture_output=True, text=True, timeout=12)
+            result = subprocess.run(final_cmd, shell=True, capture_output=True, text=True, timeout=8)
             if result.stdout:
                 exec_output += f"STDOUT:\n{result.stdout}\n"
             if result.stderr:
                 exec_output += f"STDERR / ERROR:\n{result.stderr}\n"
             if not result.stdout and not result.stderr:
-                exec_output += "Command executed successfully with no output returned.\n"
+                exec_output += "NO_OUTPUT_WARNING: Command executed but returned no data.\n"
         except subprocess.TimeoutExpired:
-            exec_output = "ERROR: Command timed out after 12 seconds (Possible protocol mismatch or blocked port)."
+            exec_output = "ERROR: Command timed out after 8 seconds."
         except Exception as ex:
             exec_output = f"ERROR during execution: {ex}"
 
         print(f"[Observation Result]:\n{exec_output.strip()}")
 
-        # Feed observation back into conversation history for the next progression step
         messages.append({"role": "assistant", "content": ai_response})
-        messages.append({"role": "user", "content": f"Observation result from step {step}:\n{exec_output}\nBased on this output, provide the next corrective command or exploitation progression step."})
+        messages.append({"role": "user", "content": f"Observation result from step {step}:\n{exec_output}\nAnalyze this output. If it timed out or returned no data, modify your python payload or try a different command string in the next step."})
 
     print("\n=================================================================")
     print(" [Autonomous Agent] Finalizing Adaptive Exploitation Verdict...")
     print("=================================================================")
-    final_summary = query_ollama(messages, max_tokens=300)
+    final_summary = query_ollama(messages, max_tokens=250)
     print(f"\n{final_summary}")
     
     input("\nPress Enter to continue...")
@@ -114,8 +134,8 @@ def inspect_and_action_item(item, item_type):
 
         print("-----------------------------------------------------------------")
         print(" [1] Send standard HTTP probe / connectivity check")
-        print(" [2] Run manual shell command (supports $TARGET)")
-        print(" [3] Run Autonomous AI Agent Loop (Multi-Step ReAct & Adaptive Progression)")
+        print(" [2] Run manual shell command (supports $TARGET, $HOST, $PORT)")
+        print(" [3] Run Autonomous AI Agent Loop (Python-Socket ReAct)")
         print(" [0] Back to Dashboard")
         print("=================================================================")
 
@@ -139,7 +159,10 @@ def inspect_and_action_item(item, item_type):
             shell_cmd = input("Enter shell command to execute: ").strip()
             
             if shell_cmd:
-                final_cmd = shell_cmd.replace("$TARGET", target_url)
+                clean_t = target_url.replace("http://", "").replace("https://", "").split("/")[0]
+                h_val = clean_t.split(":")[0] if ":" in clean_t else clean_t
+                p_val = clean_t.split(":")[1] if ":" in clean_t else "80"
+                final_cmd = shell_cmd.replace("$TARGET", target_url).replace("$HOST", h_val).replace("$PORT", p_val)
                 print(f"[+] Executing shell command:\n    {final_cmd}\n")
                 try:
                     result = subprocess.run(final_cmd, shell=True, capture_output=True, text=True, timeout=20)
