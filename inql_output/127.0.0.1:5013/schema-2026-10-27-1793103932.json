@@ -1,0 +1,48 @@
+{
+    "data": {
+        "__schema": {
+            "mutationType": {
+                "fields": [
+                    {
+                        "args": [],
+                        "description": null,
+                        "name": "createPaste",
+                        "type": {
+                            "kind": "OBJECT",
+                            "name": "Paste"
+                        }
+                    }
+                ],
+                "name": "Mutation"
+            },
+            "queryType": {
+                "fields": [
+                    {
+                        "args": [],
+                        "description": null,
+                        "name": "users",
+                        "type": {
+                            "kind": "OBJECT",
+                            "name": "User"
+                        }
+                    }
+                ],
+                "name": "Query"
+            },
+            "subscriptionType": null,
+            "types": [
+                {
+                    "description": null,
+                    "fields": [
+                        {
+                            "description": null,
+                            "name": "id"
+                        }
+                    ],
+                    "kind": "OBJECT",
+                    "name": "User"
+                }
+            ]
+        }
+    }
+}

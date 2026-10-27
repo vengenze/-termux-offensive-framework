@@ -1,0 +1,30 @@
+{
+    "data": {
+        "__schema": {
+            "mutationType": {
+                "fields": [
+                    {
+                        "name": "createPaste"
+                    }
+                ],
+                "name": "Mutation"
+            },
+            "queryType": {
+                "fields": [
+                    {
+                        "name": "users"
+                    },
+                    {
+                        "name": "pastes"
+                    }
+                ],
+                "name": "Query"
+            },
+            "types": [
+                {
+                    "name": "User"
+                }
+            ]
+        }
+    }
+}

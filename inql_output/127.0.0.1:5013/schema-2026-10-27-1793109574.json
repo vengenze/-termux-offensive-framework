@@ -1,0 +1,64 @@
+{
+    "data": {
+        "__schema": {
+            "directives": [],
+            "mutationType": {
+                "name": "Mutation"
+            },
+            "queryType": {
+                "name": "Query"
+            },
+            "subscriptionType": null,
+            "types": [
+                {
+                    "description": "Root Query Type",
+                    "enumValues": null,
+                    "fields": [
+                        {
+                            "args": [],
+                            "deprecationReason": null,
+                            "description": "Fetch all users",
+                            "enumValues": null,
+                            "isDeprecated": false,
+                            "name": "users",
+                            "type": {
+                                "kind": "OBJECT",
+                                "name": "User",
+                                "ofType": null
+                            }
+                        }
+                    ],
+                    "inputFields": null,
+                    "interfaces": [],
+                    "kind": "OBJECT",
+                    "name": "Query",
+                    "possibleTypes": null
+                },
+                {
+                    "description": "User account object",
+                    "enumValues": null,
+                    "fields": [
+                        {
+                            "args": [],
+                            "deprecationReason": null,
+                            "description": "User ID",
+                            "enumValues": null,
+                            "isDeprecated": false,
+                            "name": "id",
+                            "type": {
+                                "kind": "SCALAR",
+                                "name": "String",
+                                "ofType": null
+                            }
+                        }
+                    ],
+                    "inputFields": null,
+                    "interfaces": [],
+                    "kind": "OBJECT",
+                    "name": "User",
+                    "possibleTypes": null
+                }
+            ]
+        }
+    }
+}

@@ -1,0 +1,68 @@
+{
+    "data": {
+        "__schema": {
+            "directives": [],
+            "mutationType": {
+                "fields": [
+                    {
+                        "args": [],
+                        "deprecationReason": null,
+                        "description": "Create a new paste",
+                        "isDeprecated": false,
+                        "name": "createPaste",
+                        "type": {
+                            "kind": "OBJECT",
+                            "name": "Paste",
+                            "ofType": null
+                        }
+                    }
+                ],
+                "name": "Mutation"
+            },
+            "queryType": {
+                "fields": [
+                    {
+                        "args": [],
+                        "deprecationReason": null,
+                        "description": "Fetch all users",
+                        "isDeprecated": false,
+                        "name": "users",
+                        "type": {
+                            "kind": "OBJECT",
+                            "name": "User",
+                            "ofType": null
+                        }
+                    }
+                ],
+                "name": "Query"
+            },
+            "subscriptionType": null,
+            "types": [
+                {
+                    "description": "User account object",
+                    "enumValues": [],
+                    "fields": [
+                        {
+                            "args": [],
+                            "deprecationReason": null,
+                            "description": "User ID",
+                            "enumValues": [],
+                            "isDeprecated": false,
+                            "name": "id",
+                            "type": {
+                                "kind": "SCALAR",
+                                "name": "String",
+                                "ofType": null
+                            }
+                        }
+                    ],
+                    "inputFields": [],
+                    "interfaces": [],
+                    "kind": "OBJECT",
+                    "name": "User",
+                    "possibleTypes": []
+                }
+            ]
+        }
+    }
+}
