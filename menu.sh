@@ -68,11 +68,7 @@ while true; do
             read -p "Press Enter to return to menu..."
             ;;
         8)
-            read -p "Enter listener IP [127.0.0.1]: " lhost
-            lhost=${lhost:-127.0.0.1}
-            read -p "Enter listener port [4444]: " lport
-            lport=${lport:-4444}
-            python rev_shell.py --ip "$lhost" --port "$lport"
+            python reverse_shell.py
             read -p "Press Enter to return to menu..."
             ;;
         9)
