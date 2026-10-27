@@ -13,7 +13,28 @@ def load_scan_state(filepath="scan_results.json"):
         return []
     try:
         with open(filepath, "r") as f:
-            return json.load(f)
+            raw_data = json.load(f)
+            
+        # Clean and deduplicate targets for the console menu
+        cleaned_targets = []
+        seen_urls = set()
+        
+        for t in raw_data:
+            url = t.get("target", "")
+            if not url or not url.startswith("http"):
+                continue
+            
+            # Strip fragment tags (#...) to keep the console menu concise
+            url = url.split("#")[0]
+            if url in seen_urls:
+                continue
+            seen_urls.add(url)
+            
+            # Update target with cleaned URL
+            t["target"] = url
+            cleaned_targets.append(t)
+            
+        return cleaned_targets
     except Exception as e:
         print(f"[!] Error loading scan state: {e}")
         return []
@@ -179,7 +200,7 @@ def main():
             break
             
         for idx, t in enumerate(targets, 1):
-            print(f" {idx}. [{t.get('vulnerability', 'Endpoint')}] {t.get('target')} ({t.get('method')})")
+            print(f" {idx}. [{t.get('vulnerability', 'Endpoint')}] {t.get('target')} ({t.get('method', 'GET')})")
             
         print(" 0. Exit Console")
         print("=================================================================")

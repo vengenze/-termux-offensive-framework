@@ -1,41 +1,11 @@
 [
     {
-        "target": "https://pentest-ground.com:5013",
+        "target": "https://pentest-ground.com:5013/solutions#inj-xss",
         "method": "GET",
         "vulnerability": "Discovered Endpoint (Native Crawler)"
     },
     {
-        "target": "https://pentest-ground.com:5013/static/jquery/jquery.min.js",
-        "method": "GET",
-        "vulnerability": "Discovered Endpoint (Native Crawler)"
-    },
-    {
-        "target": "https://pentest-ground.com:5013/static/bootstrap/css/bootstrap.min.css",
-        "method": "GET",
-        "vulnerability": "Discovered Endpoint (Native Crawler)"
-    },
-    {
-        "target": "https://pentest-ground.com:5013/static/jquery/graphql.js",
-        "method": "GET",
-        "vulnerability": "Discovered Endpoint (Native Crawler)"
-    },
-    {
-        "target": "https://pentest-ground.com:5013/import_paste",
-        "method": "GET",
-        "vulnerability": "Discovered Endpoint (Native Crawler)"
-    },
-    {
-        "target": "https://pentest-ground.com:5013/static/simple-sidebar.css",
-        "method": "GET",
-        "vulnerability": "Discovered Endpoint (Native Crawler)"
-    },
-    {
-        "target": "https://pentest-ground.com:5013/${url}",
-        "method": "GET",
-        "vulnerability": "Discovered Endpoint (Native Crawler)"
-    },
-    {
-        "target": "https://pentest-ground.com:5013/static/images/dvgql_logo.png",
+        "target": "https://pentest-ground.com:5013/solutions#inj-sql",
         "method": "GET",
         "vulnerability": "Discovered Endpoint (Native Crawler)"
     },
@@ -45,37 +15,12 @@
         "vulnerability": "Discovered Endpoint (Native Crawler)"
     },
     {
-        "target": "https://pentest-ground.com:5013/static/extra.css",
+        "target": "https://pentest-ground.com:5013/about",
         "method": "GET",
         "vulnerability": "Discovered Endpoint (Native Crawler)"
     },
     {
-        "target": "https://pentest-ground.com:5013/graphql",
-        "method": "GET",
-        "vulnerability": "Discovered Endpoint (Native Crawler)"
-    },
-    {
-        "target": "https://pentest-ground.com:5013/static/all.css",
-        "method": "GET",
-        "vulnerability": "Discovered Endpoint (Native Crawler)"
-    },
-    {
-        "target": "https://pentest-ground.com:5013/my_pastes",
-        "method": "GET",
-        "vulnerability": "Discovered Endpoint (Native Crawler)"
-    },
-    {
-        "target": "https://pentest-ground.com:5013/create_paste",
-        "method": "GET",
-        "vulnerability": "Discovered Endpoint (Native Crawler)"
-    },
-    {
-        "target": "https://pentest-ground.com:5013/solutions",
-        "method": "GET",
-        "vulnerability": "Discovered Endpoint (Native Crawler)"
-    },
-    {
-        "target": "https://pentest-ground.com:5013/solutions#dos-fielddup",
+        "target": "https://pentest-ground.com:5013/static/images/dvgql_logo.png",
         "method": "GET",
         "vulnerability": "Discovered Endpoint (Native Crawler)"
     },
@@ -85,67 +30,27 @@
         "vulnerability": "Discovered Endpoint (Native Crawler)"
     },
     {
-        "target": "https://pentest-ground.com:5013/solutions#bypassauthz-token",
+        "target": "https://pentest-ground.com:5013/solutions#exec-os-1",
         "method": "GET",
         "vulnerability": "Discovered Endpoint (Native Crawler)"
     },
     {
-        "target": "https://pentest-ground.com:5013/about",
+        "target": "https://pentest-ground.com:5013/import_paste",
         "method": "GET",
         "vulnerability": "Discovered Endpoint (Native Crawler)"
     },
     {
-        "target": "https://pentest-ground.com:5013/my_pastes#",
+        "target": "https://pentest-ground.com:5013/solutions#misc-weakpass",
         "method": "GET",
         "vulnerability": "Discovered Endpoint (Native Crawler)"
     },
     {
-        "target": "https://pentest-ground.com:5013/start_over",
+        "target": "https://pentest-ground.com:5013/audit#",
         "method": "GET",
         "vulnerability": "Discovered Endpoint (Native Crawler)"
     },
     {
-        "target": "https://pentest-ground.com:5013/create_paste#",
-        "method": "GET",
-        "vulnerability": "Discovered Endpoint (Native Crawler)"
-    },
-    {
-        "target": "https://pentest-ground.com:5013/public_pastes",
-        "method": "GET",
-        "vulnerability": "Discovered Endpoint (Native Crawler)"
-    },
-    {
-        "target": "https://pentest-ground.com:5013/static/jquery/jquery.min.js#",
-        "method": "GET",
-        "vulnerability": "Discovered Endpoint (Native Crawler)"
-    },
-    {
-        "target": "https://pentest-ground.com:5013/solutions#exec-os-2",
-        "method": "GET",
-        "vulnerability": "Discovered Endpoint (Native Crawler)"
-    },
-    {
-        "target": "https://pentest-ground.com:5013/solutions#dos-circular-fragment",
-        "method": "GET",
-        "vulnerability": "Discovered Endpoint (Native Crawler)"
-    },
-    {
-        "target": "https://pentest-ground.com:5013/public_pastes#",
-        "method": "GET",
-        "vulnerability": "Discovered Endpoint (Native Crawler)"
-    },
-    {
-        "target": "https://pentest-ground.com:5013/solutions#dos-aliases",
-        "method": "GET",
-        "vulnerability": "Discovered Endpoint (Native Crawler)"
-    },
-    {
-        "target": "https://pentest-ground.com:5013/",
-        "method": "GET",
-        "vulnerability": "Discovered Endpoint (Native Crawler)"
-    },
-    {
-        "target": "https://pentest-ground.com:5013/difficulty/hard",
+        "target": "https://pentest-ground.com:5013/${url}",
         "method": "GET",
         "vulnerability": "Discovered Endpoint (Native Crawler)"
     },
@@ -160,17 +65,12 @@
         "vulnerability": "Discovered Endpoint (Native Crawler)"
     },
     {
-        "target": "https://pentest-ground.com:5013/solutions#dos-intensive",
+        "target": "https://pentest-ground.com:5013/create_paste",
         "method": "GET",
         "vulnerability": "Discovered Endpoint (Native Crawler)"
     },
     {
-        "target": "https://pentest-ground.com:5013/solutions#inj-html",
-        "method": "GET",
-        "vulnerability": "Discovered Endpoint (Native Crawler)"
-    },
-    {
-        "target": "https://pentest-ground.com:5013/audit",
+        "target": "https://pentest-ground.com:5013/difficulty/easy#",
         "method": "GET",
         "vulnerability": "Discovered Endpoint (Native Crawler)"
     },
@@ -180,7 +80,62 @@
         "vulnerability": "Discovered Endpoint (Native Crawler)"
     },
     {
-        "target": "https://pentest-ground.com:5013/solutions#dos-batch",
+        "target": "https://pentest-ground.com:5013/static/jquery/jquery.min.js",
+        "method": "GET",
+        "vulnerability": "Discovered Endpoint (Native Crawler)"
+    },
+    {
+        "target": "https://pentest-ground.com:5013/upload_paste#",
+        "method": "GET",
+        "vulnerability": "Discovered Endpoint (Native Crawler)"
+    },
+    {
+        "target": "https://pentest-ground.com:5013/",
+        "method": "GET",
+        "vulnerability": "Discovered Endpoint (Native Crawler)"
+    },
+    {
+        "target": "https://pentest-ground.com:5013/public_pastes",
+        "method": "GET",
+        "vulnerability": "Discovered Endpoint (Native Crawler)"
+    },
+    {
+        "target": "https://pentest-ground.com:5013/graphql",
+        "method": "GET",
+        "vulnerability": "Discovered Endpoint (Native Crawler)"
+    },
+    {
+        "target": "https://pentest-ground.com:5013/import_paste#",
+        "method": "GET",
+        "vulnerability": "Discovered Endpoint (Native Crawler)"
+    },
+    {
+        "target": "https://pentest-ground.com:5013/static/bootstrap/css/bootstrap.min.css",
+        "method": "GET",
+        "vulnerability": "Discovered Endpoint (Native Crawler)"
+    },
+    {
+        "target": "https://pentest-ground.com:5013/static/all.css",
+        "method": "GET",
+        "vulnerability": "Discovered Endpoint (Native Crawler)"
+    },
+    {
+        "target": "https://pentest-ground.com:5013/static/jquery/jquery.min.js#",
+        "method": "GET",
+        "vulnerability": "Discovered Endpoint (Native Crawler)"
+    },
+    {
+        "target": "https://pentest-ground.com:5013",
+        "method": "GET",
+        "vulnerability": "Discovered Endpoint (Native Crawler)"
+    },
+    {
+        "target": "https://pentest-ground.com:5013/#",
+        "method": "GET",
+        "vulnerability": "Discovered Endpoint (Native Crawler)"
+    },
+    {
+        "target": "https://pentest-ground.com:5013/difficulty/hard",
         "method": "GET",
         "vulnerability": "Discovered Endpoint (Native Crawler)"
     },
@@ -195,12 +150,162 @@
         "vulnerability": "Discovered Endpoint (Native Crawler)"
     },
     {
-        "target": "https://pentest-ground.com:5013/solutions#inj-xss",
+        "target": "https://pentest-ground.com:5013/static/simple-sidebar.css",
         "method": "GET",
         "vulnerability": "Discovered Endpoint (Native Crawler)"
     },
     {
-        "target": "https://pentest-ground.com:5013/solutions#",
+        "target": "https://pentest-ground.com:5013/static/extra.css",
+        "method": "GET",
+        "vulnerability": "Discovered Endpoint (Native Crawler)"
+    },
+    {
+        "target": "https://pentest-ground.com:5013/solutions",
+        "method": "GET",
+        "vulnerability": "Discovered Endpoint (Native Crawler)"
+    },
+    {
+        "target": "https://pentest-ground.com:5013/static/jquery/graphql.js",
+        "method": "GET",
+        "vulnerability": "Discovered Endpoint (Native Crawler)"
+    },
+    {
+        "target": "https://pentest-ground.com:5013/start_over",
+        "method": "GET",
+        "vulnerability": "Discovered Endpoint (Native Crawler)"
+    },
+    {
+        "target": "https://pentest-ground.com:5013/solutions#info-stacktrace",
+        "method": "GET",
+        "vulnerability": "Discovered Endpoint (Native Crawler)"
+    },
+    {
+        "target": "https://pentest-ground.com:5013/solutions#dos-batch",
+        "method": "GET",
+        "vulnerability": "Discovered Endpoint (Native Crawler)"
+    },
+    {
+        "target": "https://pentest-ground.com:5013/solutions#misc-filewrite",
+        "method": "GET",
+        "vulnerability": "Discovered Endpoint (Native Crawler)"
+    },
+    {
+        "target": "https://pentest-ground.com:5013/solutions#dos-intensive",
+        "method": "GET",
+        "vulnerability": "Discovered Endpoint (Native Crawler)"
+    },
+    {
+        "target": "https://pentest-ground.com:5013/my_pastes",
+        "method": "GET",
+        "vulnerability": "Discovered Endpoint (Native Crawler)"
+    },
+    {
+        "target": "https://pentest-ground.com:5013/audit",
+        "method": "GET",
+        "vulnerability": "Discovered Endpoint (Native Crawler)"
+    },
+    {
+        "target": "http://pentest-ground.com",
+        "method": "GET",
+        "vulnerability": "Discovered via Nmap (Service: http)"
+    },
+    {
+        "target": "http://pentest-ground.com:81",
+        "method": "GET",
+        "vulnerability": "Discovered via Nmap (Service: http)"
+    },
+    {
+        "target": "https://pentest-ground.com",
+        "method": "GET",
+        "vulnerability": "Discovered via Nmap (Service: http)"
+    },
+    {
+        "target": "https://pentest-ground.com:5013/solutions#recon-fingerprinting",
+        "method": "GET",
+        "vulnerability": "Discovered Endpoint (Native Crawler)"
+    },
+    {
+        "target": "https://pentest-ground.com:5013/solutions#recon-detection",
+        "method": "GET",
+        "vulnerability": "Discovered Endpoint (Native Crawler)"
+    },
+    {
+        "target": "https://pentest-ground.com:5013/my_pastes#",
+        "method": "GET",
+        "vulnerability": "Discovered Endpoint (Native Crawler)"
+    },
+    {
+        "target": "https://pentest-ground.com:5013/create_paste#",
+        "method": "GET",
+        "vulnerability": "Discovered Endpoint (Native Crawler)"
+    },
+    {
+        "target": "https://pentest-ground.com:5013/solutions#info-suggestions",
+        "method": "GET",
+        "vulnerability": "Discovered Endpoint (Native Crawler)"
+    },
+    {
+        "target": "https://pentest-ground.com:5013/solutions#bypassauthz-token",
+        "method": "GET",
+        "vulnerability": "Discovered Endpoint (Native Crawler)"
+    },
+    {
+        "target": "https://pentest-ground.com:5013/solutions#dos-circular-fragment",
+        "method": "GET",
+        "vulnerability": "Discovered Endpoint (Native Crawler)"
+    },
+    {
+        "target": "https://pentest-ground.com:5013/solutions#dos-fielddup",
+        "method": "GET",
+        "vulnerability": "Discovered Endpoint (Native Crawler)"
+    },
+    {
+        "target": "https://pentest-ground.com:5013/solutions#inj-html",
+        "method": "GET",
+        "vulnerability": "Discovered Endpoint (Native Crawler)"
+    },
+    {
+        "target": "https://pentest-ground.com:5013/start_over#",
+        "method": "GET",
+        "vulnerability": "Discovered Endpoint (Native Crawler)"
+    },
+    {
+        "target": "https://pentest-ground.com:5013/solutions#dos-aliases",
+        "method": "GET",
+        "vulnerability": "Discovered Endpoint (Native Crawler)"
+    },
+    {
+        "target": "https://pentest-ground.com:5013/solutions#bypassauthz-denylist",
+        "method": "GET",
+        "vulnerability": "Discovered Endpoint (Native Crawler)"
+    },
+    {
+        "target": "https://pentest-ground.com:5013/solutions#info-introspection",
+        "method": "GET",
+        "vulnerability": "Discovered Endpoint (Native Crawler)"
+    },
+    {
+        "target": "https://pentest-ground.com:5013/solutions#dos-recursion",
+        "method": "GET",
+        "vulnerability": "Discovered Endpoint (Native Crawler)"
+    },
+    {
+        "target": "https://pentest-ground.com:5013/public_pastes#",
+        "method": "GET",
+        "vulnerability": "Discovered Endpoint (Native Crawler)"
+    },
+    {
+        "target": "https://pentest-ground.com:5013/solutions#inj-log",
+        "method": "GET",
+        "vulnerability": "Discovered Endpoint (Native Crawler)"
+    },
+    {
+        "target": "https://pentest-ground.com:5013/solutions#info-igql",
+        "method": "GET",
+        "vulnerability": "Discovered Endpoint (Native Crawler)"
+    },
+    {
+        "target": "https://pentest-ground.com:5013/solutions#bypassauthz-igql",
         "method": "GET",
         "vulnerability": "Discovered Endpoint (Native Crawler)"
     }
