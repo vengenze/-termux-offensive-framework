@@ -1,163 +1,27 @@
 [
     {
-        "target": "https://pentest-ground.com:5013/graphql",
-        "method": "POST",
-        "vulnerability": "\u26a0\ufe0f GraphQL Alias-based Batching [INFO]",
-        "status": "Validated",
-        "tech_stack": "GraphQL Engine"
-    },
-    {
-        "target": "https://pentest-ground.com:5013/graphql",
-        "method": "POST",
-        "vulnerability": "\u26a0\ufe0f GraphQL Field Suggestion Information Disclosure [INFO]",
-        "status": "Validated",
-        "tech_stack": "GraphQL Engine"
-    },
-    {
-        "target": "https://pentest-ground.com:5013/graphql",
-        "method": "POST",
-        "vulnerability": "\u26a0\ufe0f GraphQL Array-based Batching [INFO]",
-        "status": "Validated",
-        "tech_stack": "GraphQL Engine"
-    },
-    {
-        "target": "https://pentest-ground.com:5013/graphiql",
-        "method": "POST",
-        "vulnerability": "\u26a0\ufe0f GraphQL API Detection [INFO]",
-        "status": "Validated",
-        "tech_stack": "GraphQL Engine"
-    },
-    {
-        "target": "https://pentest-ground.com:5013/graphql?query={__typename}",
-        "method": "POST",
-        "vulnerability": "\u26a0\ufe0f GraphQL CSRF / GET method [INFO]",
-        "status": "Validated",
-        "tech_stack": "GraphQL Engine"
-    },
-    {
-        "target": "https://pentest-ground.com:5013",
+        "target": "https://pentest-ground.com:9000/help",
         "method": "GET",
-        "vulnerability": "Discovered Endpoint",
-        "status": "Discovered",
-        "tech_stack": "Orchestrated Web App"
+        "vulnerability": "Discovered Endpoint (Native Crawler)"
     },
     {
-        "target": "https://pentest-ground.com:5013/static/favicon.ico",
+        "target": "https://pentest-ground.com:9000/openapi.json",
         "method": "GET",
-        "vulnerability": "Static Asset",
-        "status": "Safe",
-        "tech_stack": "Orchestrated Web App"
+        "vulnerability": "Discovered Endpoint (Native Crawler)"
     },
     {
-        "target": "https://pentest-ground.com:5013/static/all.css",
+        "target": "https://pentest-ground.com:9000/openapi.yaml",
         "method": "GET",
-        "vulnerability": "Static Asset",
-        "status": "Safe",
-        "tech_stack": "Orchestrated Web App"
+        "vulnerability": "Discovered Endpoint (Native Crawler)"
     },
     {
-        "target": "https://pentest-ground.com:5013/static/extra.css",
+        "target": "https://pentest-ground.com:9000/img/LogoPTTsmall.svg",
         "method": "GET",
-        "vulnerability": "Static Asset",
-        "status": "Safe",
-        "tech_stack": "Orchestrated Web App"
+        "vulnerability": "Discovered Endpoint (Native Crawler)"
     },
     {
-        "target": "https://pentest-ground.com:5013/static/bootstrap/css/bootstrap.min.css",
+        "target": "https://pentest-ground.com:9000",
         "method": "GET",
-        "vulnerability": "Static Asset",
-        "status": "Safe",
-        "tech_stack": "Orchestrated Web App"
-    },
-    {
-        "target": "https://pentest-ground.com:5013/static/simple-sidebar.css",
-        "method": "GET",
-        "vulnerability": "Static Asset",
-        "status": "Safe",
-        "tech_stack": "Orchestrated Web App"
-    },
-    {
-        "target": "https://pentest-ground.com:5013/",
-        "method": "GET",
-        "vulnerability": "Discovered Endpoint",
-        "status": "Discovered",
-        "tech_stack": "Orchestrated Web App"
-    },
-    {
-        "target": "https://pentest-ground.com:5013/my_pastes",
-        "method": "GET",
-        "vulnerability": "Discovered Endpoint",
-        "status": "Discovered",
-        "tech_stack": "Orchestrated Web App"
-    },
-    {
-        "target": "https://pentest-ground.com:5013/public_pastes",
-        "method": "GET",
-        "vulnerability": "Discovered Endpoint",
-        "status": "Discovered",
-        "tech_stack": "Orchestrated Web App"
-    },
-    {
-        "target": "https://pentest-ground.com:5013/create_paste",
-        "method": "GET",
-        "vulnerability": "Discovered Endpoint (Form Params: ['content', 'title', 'burn'])",
-        "status": "Discovered",
-        "tech_stack": "Orchestrated Web App"
-    },
-    {
-        "target": "https://pentest-ground.com:5013/import_paste",
-        "method": "GET",
-        "vulnerability": "Discovered Endpoint (Form Params: ['url'])",
-        "status": "Discovered",
-        "tech_stack": "Orchestrated Web App"
-    },
-    {
-        "target": "https://pentest-ground.com:5013/upload_paste",
-        "method": "GET",
-        "vulnerability": "Discovered Endpoint (Form Params: ['pastefile'])",
-        "status": "Discovered",
-        "tech_stack": "Orchestrated Web App"
-    },
-    {
-        "target": "https://pentest-ground.com:5013/difficulty/easy",
-        "method": "GET",
-        "vulnerability": "Discovered Endpoint",
-        "status": "Discovered",
-        "tech_stack": "Orchestrated Web App"
-    },
-    {
-        "target": "https://pentest-ground.com:5013/difficulty/hard",
-        "method": "GET",
-        "vulnerability": "Discovered Endpoint",
-        "status": "Discovered",
-        "tech_stack": "Orchestrated Web App"
-    },
-    {
-        "target": "https://pentest-ground.com:5013/audit",
-        "method": "GET",
-        "vulnerability": "Discovered Endpoint",
-        "status": "Discovered",
-        "tech_stack": "Orchestrated Web App"
-    },
-    {
-        "target": "https://pentest-ground.com:5013/solutions",
-        "method": "GET",
-        "vulnerability": "Discovered Endpoint",
-        "status": "Discovered",
-        "tech_stack": "Orchestrated Web App"
-    },
-    {
-        "target": "https://pentest-ground.com:5013/about",
-        "method": "GET",
-        "vulnerability": "Discovered Endpoint",
-        "status": "Discovered",
-        "tech_stack": "Orchestrated Web App"
-    },
-    {
-        "target": "https://pentest-ground.com:5013/start_over",
-        "method": "GET",
-        "vulnerability": "Discovered Endpoint",
-        "status": "Discovered",
-        "tech_stack": "Orchestrated Web App"
+        "vulnerability": "Discovered Endpoint (Native Crawler)"
     }
 ]
